@@ -1,8 +1,41 @@
+<?php  
+require_once "action/DbClass.php";
+
+if($_SESSION['login_stiker_admin'] == true ){
+  header('Location: index');
+  exit();
+}
+
+$config = new ConfigClass();
+
+$error_notif = "";
+if(isset($_POST['auth-login'])){
+  $username = strtolower($_POST['username']);
+  $userpassword = $_POST['userpassword'];
+
+  $check = $config->selectTable("user_galeri","username_user",$username);
+  if(mysqli_num_rows($check) == 0){
+    $error_notif = "<strong>Mohon Maaf!</strong> Username anda salah.";
+  }else{
+    $row = mysqli_fetch_assoc($check);
+    $passdb = $row['pass_user'];
+    if(!password_verify($userpassword, $passdb)){
+      $error_notif = "<strong>Mohon Maaf!</strong> Password anda salah.";
+    }else{
+      $_SESSION['login_stiker_admin'] = true;
+      $_SESSION['login_stiker_id'] = $row['id_user'];
+      header('Location: index');
+      exit();
+    }
+  }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>BEEDECAL | DASHBOARD</title>
+    <title>STIKER | LOGIN</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -59,9 +92,15 @@
                     Welcome Back !
                   </h4>
                   <p class="mb-5 text-center">Sign in to DecalSystem</p>
-                  <form class="form-horizontal" action="index.html">
+                  <form class="form-horizontal" action="auth-login" method="post" autocomplete="off">
                     <div class="row">
                       <div class="col-md-12">
+                      <?php if($error_notif != ""){ ?>
+                        <div class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          <?= $error_notif ?>
+                        </div>
+                      <?php } ?>
                         <div class="mb-4">
                           <label class="form-label" for="username"
                             >Username</label
@@ -69,7 +108,11 @@
                           <input
                             type="text"
                             class="form-control"
+                            required
                             id="username"
+                            name="username"
+                            style="text-transform: lowercase;"
+                            value="<?= $_POST['username'] ?>"
                             placeholder="Enter username"
                           />
                         </div>
@@ -79,31 +122,18 @@
                           >
                           <input
                             type="password"
+                            required
                             class="form-control"
                             id="userpassword"
+                            name="userpassword"
                             placeholder="Enter password"
                           />
                         </div>
 
                         <div class="row">
-                          <div class="col">
-                            <div class="form-check">
-                              <input
-                                type="checkbox"
-                                class="form-check-input"
-                                id="customControlInline"
-                              />
-                              <label
-                                class="form-label"
-                                class="form-check-label"
-                                for="customControlInline"
-                                >Remember me</label
-                              >
-                            </div>
-                          </div>
-                          <div class="col-7">
-                            <div class="text-md-end mt-3 mt-md-0">
-                              <a href="auth-recoverpw.html" class="text-muted"
+                          <div class="col-12">
+                            <div class=" mt-3 mt-md-0">
+                              <a href="auth-recoverpw" class="text-muted"
                                 ><i class="mdi mdi-lock"></i> Forgot your
                                 password?</a
                               >
@@ -114,6 +144,7 @@
                           <button
                             class="btn btn-primary waves-effect waves-light"
                             type="submit"
+                            name="auth-login"
                           >
                             Log In
                           </button>
@@ -127,7 +158,7 @@
             <div class="mt-5 text-center">
               <p class="text-white-50">
                 Don't have an account ?
-                <a href="auth-register.html" class="fw-medium text-primary">
+                <a href="auth-register" class="fw-medium text-primary">
                   Register
                 </a>
               </p>
@@ -155,5 +186,13 @@
     <script src="assets/libs/node-waves/waves.min.js"></script>
 
     <script src="assets/js/app.js"></script>
+    <script>
+      document.querySelector('#username').addEventListener('keydown', function(e) {
+
+      if (e.which === 32) {
+          e.preventDefault();
+      }
+    });
+    </script>
   </body>
 </html>

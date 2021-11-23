@@ -1,8 +1,51 @@
+<?php  
+require_once "action/DbClass.php";
+
+if($_SESSION['login_stiker_admin'] == true ){
+  header('Location: index');
+  exit();
+}
+$config = new ConfigClass();
+
+$error_notif = "";
+if(isset($_POST['auth-registion'])){
+  $username = strtolower($_POST['username']);
+  $useremail = $_POST['useremail'];
+  $usertoko = $_POST['usertoko'];
+  $userpassword = $_POST['userpassword'];
+
+  // cek username
+  $usernamecheck = $config->selectTable("user_galeri","username_user",$username);
+  if(mysqli_num_rows($usernamecheck) > 0){
+    $error_notif = "<strong>Mohon Maaf!</strong> Username yang anda masukkan sudah terdaftar";
+  }else{
+    $useremailcheck = $config->selectTable("user_galeri","email_user",$useremail);
+    if(mysqli_num_rows($useremailcheck) > 0){
+      $error_notif = "<strong>Mohon Maaf!</strong> Email yang anda masukkan sudah terdaftar";
+    }else{
+      $usertokocheck = $config->selectTable("user_galeri","toko_user",$usertoko);
+      if(mysqli_num_rows($usertokocheck) > 0){
+        $error_notif = "<strong>Mohon Maaf!</strong> Nama toko yang anda masukkan sudah terdaftar";
+      }else{
+        $pass_hash = password_hash($userpassword, PASSWORD_DEFAULT);
+        $save = $config->insertUser($username,$useremail,$usertoko,$pass_hash);
+        if(!$save){
+          $error_notif = "<strong>Mohon Maaf!</strong> pendaftaran gagal";
+        }else{
+          header('Location: auth-login');
+          exit();
+        }
+      }
+    }
+  }
+}
+
+?> 
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>BEEDECAL | DASHBOARD</title>
+    <title>STIKER | REGISTER</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -43,9 +86,15 @@
                 <p class="text-muted text-center mb-4">
                   Aplikasi CRM untuk Percetakan dan StikerArt
                 </p>
-                <form class="form-horizontal" action="index.html">
+                <form class="form-horizontal" method="post" action="auth-register" autocomplete="off">
                   <div class="row">
                     <div class="col-md-12">
+                      <?php if($error_notif != ""){ ?>
+                      <div class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <?= $error_notif ?>
+                      </div>
+                      <?php } ?>
                       <div class="mb-4">
                         <label class="form-label" for="username"
                           >Username</label
@@ -53,7 +102,11 @@
                         <input
                           type="text"
                           class="form-control"
+                          required
                           id="username"
+                          name="username"
+                          style="text-transform: lowercase;"
+                          value="<?= $_POST['username'] ?>"
                           placeholder="Enter username"
                         />
                       </div>
@@ -62,18 +115,24 @@
                         <input
                           type="email"
                           class="form-control"
+                          required
                           id="useremail"
+                          name="useremail"
+                          value="<?= $_POST['useremail'] ?>"
                           placeholder="Enter email"
                         />
                       </div>
                       <div class="mb-4">
-                        <label class="form-label" for="useremail"
+                        <label class="form-label" for="usertoko"
                           >Nama Toko</label
                         >
                         <input
-                          type="email"
+                          type="text"
                           class="form-control"
-                          id="useremail"
+                          required
+                          id="usertoko"
+                          name="usertoko"
+                          value="<?= $_POST['usertoko'] ?>"
                           placeholder="Enter Nama Toko"
                         />
                       </div>
@@ -84,30 +143,26 @@
                         <input
                           type="password"
                           class="form-control"
+                          required
                           id="userpassword"
+                          name="userpassword"
                           placeholder="Enter password"
                         />
                       </div>
-                      <div class="form-check">
-                        <input
-                          type="checkbox"
-                          class="form-check-input"
-                          id="term-conditionCheck"
-                        />
-                        <label
-                          class="form-check-label fw-normal"
-                          for="term-conditionCheck"
-                          >I accept
-                          <a href="#" class="text-primary"
-                            >Terms and Conditions</a
-                          ></label
+                      <div class="mb-4">
+                        <label class="form-label" for="userpasswordconfirm"
+                          >Confirm Password</label
                         >
+                        <input
+                          type="password"
+                          class="form-control"
+                          required
+                          id="userpasswordconfirm"
+                          placeholder="Enter password"
+                        />
                       </div>
                       <div class="d-grid mt-4">
-                        <button
-                          class="btn btn-primary waves-effect waves-light"
-                          type="submit"
-                        >
+                        <button class="btn btn-primary waves-effect waves-light" name="auth-registion" type="submit">
                           Register
                         </button>
                       </div>
@@ -119,7 +174,7 @@
             <div class="mt-5 text-center">
               <p class="text-white-50">
                 Already have an account ?<a
-                  href="auth-login.html"
+                  href="auth-login"
                   class="fw-medium text-primary"
                 >
                   Login
@@ -140,6 +195,21 @@
       </div>
     </div>
     <!-- end Account pages -->
+    <script>
+      var password = document.getElementById("userpassword")
+      var confirm_password = document.getElementById("userpasswordconfirm");
+
+      function validatePassword(){
+        if(password.value != confirm_password.value) {
+          confirm_password.setCustomValidity("Password Konfirmasi Berbeda");
+        } else {
+          confirm_password.setCustomValidity('');
+        }
+      }
+
+      password.onchange = validatePassword;
+      confirm_password.onkeyup = validatePassword;
+    </script>
 
     <!-- JAVASCRIPT -->
     <script src="assets/libs/jquery/jquery.min.js"></script>
@@ -149,5 +219,13 @@
     <script src="assets/libs/node-waves/waves.min.js"></script>
 
     <script src="assets/js/app.js"></script>
+    <script>
+      document.querySelector('#username').addEventListener('keydown', function(e) {
+
+      if (e.which === 32) {
+          e.preventDefault();
+      }
+    });
+    </script>
   </body>
 </html>

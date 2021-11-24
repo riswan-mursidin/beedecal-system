@@ -15,17 +15,23 @@ $emaillogin = $row['email_user'];
 $fullnamelogin = $row['fullname_user'];
 $role = $row['level_user'];
 $alert = "";
-if(isset($_POST['crop_image'])){
-  $path = "assets/images/users/";
-  $foto = $_POST['crop_image'];
-  $react = $db->SaveFoto($path,$foto,$usernamelogin);
-}
+
+// if(isset($_POST['crop_image'])){
+//   $path = "assets/images/users/";
+//   $foto = $_POST['crop_image'];
+//   $react = $db->SaveFoto($path,$foto,$usernamelogin);
+// }
 
 if(isset($_POST['submit_profile'])){
   $fullname = $_POST['fullname'];
   $jk = $_POST['jk'];
   $update = $db->updateUser($usernamelogin,"profil",$fullname,$jk);
   if($update){
+    if($_POST['foto'] != ""){
+      $path = "assets/images/users/";
+      $foto = $_POST['foto'];
+      $react = $db->SaveFoto($path,$foto,$usernamelogin);
+    }
     $userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
     $row = mysqli_fetch_assoc($userselect);
     $fullnamelogin = $row['fullname_user'];
@@ -68,64 +74,66 @@ if(isset($_POST['submit_profile'])){
     />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <link rel="stylesheet" href="https://fengyuanchen.github.io/cropperjs/css/cropper.css" />
-<script src="https://fengyuanchen.github.io/cropperjs/js/cropper.js"></script> 
-<script>
-    $(document).ready(function(){
-        var $modal = $('#modal_crop');
-        var crop_image = document.getElementById('sample_image');
-        var cropper;
-        $('#upload_image').change(function(event){
-            var files = event.target.files;
-            var done = function(url){
-                crop_image.src = url;
-                $modal.modal('show');
-            };
-            if(files && files.length > 0)
-            {
-                reader = new FileReader();
-                reader.onload = function(event)
-                {
-                    done(reader.result);
-                };
-                reader.readAsDataURL(files[0]);
-            }
-        });
-        $modal.on('shown.bs.modal', function() {
-            cropper = new Cropper(crop_image, {
-                aspectRatio: 1,
-                viewMode: 3,
-                preview:'.preview'
-            });
-        }).on('hidden.bs.modal', function(){
-            cropper.destroy();
-            cropper = null;
-        });
-        $('#crop_and_upload').click(function(){
-            canvas = cropper.getCroppedCanvas({
-                width:400,
-                height:400
-            });
-            canvas.toBlob(function(blob){
-                url = URL.createObjectURL(blob);
-                var reader = new FileReader();
-                reader.readAsDataURL(blob);
-                reader.onloadend = function(){
-                    var base64data = reader.result; 
-                    document.getElementById("preview").src = base64data
-                    $.ajax({
-                        url:'profile.php',
-                        method:'POST',
-                        data:{crop_image:base64data},
-                        success:function(data)
-                        {
-                            $modal.modal('hide'); 
-                        }
-                    });
-                };
-            });
-        });
-    });
-</script>
+    <script src="https://fengyuanchen.github.io/cropperjs/js/cropper.js"></script> 
+    <script>
+        $(document).ready(function(){
+            var $modal = $('#modal_crop');
+            var crop_image = document.getElementById('sample_image');
+            var cropper;
+            $('#upload_image').change(function(event){
+                var files = event.target.files;
+                var done = function(url){
+                    crop_image.src = url;
+                    $modal.modal('show');
+                };
+                if(files && files.length > 0)
+                {
+                    reader = new FileReader();
+                    reader.onload = function(event)
+                    {
+                        done(reader.result);
+                    };
+                    reader.readAsDataURL(files[0]);
+                }
+            });
+            $modal.on('shown.bs.modal', function() {
+                cropper = new Cropper(crop_image, {
+                    aspectRatio: 1,
+                    viewMode: 3,
+                    preview:'.preview'
+                });
+            }).on('hidden.bs.modal', function(){
+                cropper.destroy();
+                cropper = null;
+            });
+            $('#crop_and_upload').click(function(){
+                canvas = cropper.getCroppedCanvas({
+                    width:400,
+                    height:400
+                });
+                canvas.toBlob(function(blob){
+                    url = URL.createObjectURL(blob);
+                    var reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = function(){
+                        var base64data = reader.result; 
+                        document.getElementById("preview").src = base64data
+                        document.getElementById("foto").value = base64data
+                        $modal.modal('hide');
+        //                 $.ajax({
+        //                     url:'profile.php',
+        //                     method:'POST',
+        //                     data:{crop_image:base64data},
+        //                     success:function(data)
+        //                     {
+        //                         $modal.modal('hide');
+        //                     }
+        //                 });
+                    };
+                });
+            });
+        });
+    </script>
 
     <!-- Sweet Alert-->
     <link href="assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
@@ -213,6 +221,7 @@ if(isset($_POST['submit_profile'])){
                   <div class="card-body">
                     <form action="profile" method="post" autocomplete="off">
                       <div class="row mb-4">
+                        <input type="hidden" name="foto" id="foto">
                         <input type="file" name="foto_profile" id="upload_image" accept="image/png,Image/jpeg" hidden>
                         <label for="upload_image" style="cursor: pointer;" class="col-12">
                           <img id="preview" style="border-radius: 50%;display: block;margin-left: auto;margin-right: auto; max-width:180px;" src="<?= $row['foto_user'] == '' ? 'assets/images/users/avatar-2.png' : $row['foto_user'] ?>" alt="">

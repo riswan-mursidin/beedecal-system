@@ -169,7 +169,7 @@
                     <a href="konfigurasi-profiltoko">Profil Toko</a>
                   </li>
                   <li>
-                    <a href="konfigurasi-pegawaitoko.html">Pegawai Toko</a>
+                    <a href="konfigurasi-pegawaitoko">Pegawai Toko</a>
                   </li>
                   <li>
                     <a href="konfigurasi-pelanggantoko.html">Pelanggan Toko</a>

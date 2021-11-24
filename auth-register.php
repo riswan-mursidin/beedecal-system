@@ -28,7 +28,7 @@ if(isset($_POST['auth-registion'])){
         $error_notif = "<strong>Mohon Maaf!</strong> Nama toko yang anda masukkan sudah terdaftar";
       }else{
         $pass_hash = password_hash($userpassword, PASSWORD_DEFAULT);
-        $save = $config->insertUser($username,$useremail,$usertoko,$pass_hash);
+        $save = $config->insertUser("register",$username,$useremail,$usertoko,$pass_hash);
         if(!$save){
           $error_notif = "<strong>Mohon Maaf!</strong> pendaftaran gagal";
         }else{

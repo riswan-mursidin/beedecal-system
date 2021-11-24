@@ -66,6 +66,14 @@
 
     class ConfigClass extends DbClass{
 
+        public function statusColor($status){
+            if($status == "Aktif"){
+                echo '<span class="text-success">'.$status.'</span>';
+            }else{
+                echo '<span class="text-danger">'.$status.'</span>';
+            }
+        }
+
         // number wa format
         public function formatNumber($number){
             if(substr(trim($number), 0,1) == 0){
@@ -83,8 +91,10 @@
         }
 
         public function saveFoto($path, $sc, $user){
-            $check = $this->selectTable("user_galeri","username_user",);
+            $check = $this->selectTable("user_galeri","username_user",$user);
             if(mysqli_num_rows($check) > 0){
+                $row = mysqli_fetch_assoc($check);
+                $old_foto = $row['foto_user'];
                 $image_parts = explode(";base64,", $sc);
                 $image_type_aux = explode("image/", $image_parts[0]);
                 $image_type = $image_type_aux[1];
@@ -97,27 +107,55 @@
                 if($compress){
                     unlink($path_img);
                     $query = "UPDATE user_galeri SET foto_user='$path_img_convert' WHERE username_user='$user'";
-                    return mysqli_query($this->conn, $query);
+                    $result = mysqli_query($this->conn, $query);
+                    if($result && $old_foto != ""){
+                        unlink($old_foto);
+                    }
                 }
             }
         }
 
         // update table user
-        public function updateUser(string $user, string $param, string $value1=null, string $value2=null){
+        public function updateUser(
+            string $user, 
+            string $param, 
+            string $value1=null, 
+            string $value2=null,
+            string $value3=null,
+            string $value4=null
+            ){
             if($param == "profil"){
                 $query = "UPDATE user_galeri SET fullname_user='$value1', jk_user='$value2' WHERE username_user='$user'";
                 return mysqli_query($this->conn, $query);
             }elseif($param == "pass"){
                 $query = "UPDATE user_galeri SET pass_user='$value1' WHERE username_user='$user'";
                 return mysqli_query($this->conn, $query);
+            }else{
+                $query = "UPDATE user_galeri SET jk_user='$value1', fullname_user='$value2', level_user='$value3', status_user='$value4' WHERE username_user='$user'";
+                return mysqli_query($this->conn, $query);
             }
         }
 
         // insert to table user (register)
-        public function insertUser($value1,$value2,$value3,$value4){
+        public function insertUser(
+            string $param,
+            string $value1 = null,
+            string $value2 = null,
+            string $value3 = null,
+            string $value4 = null,
+            string $value5 = null,
+            string $value6 = null,
+            string $value7 = null,
+            string $value8 = null
+            ){
             $connect = $this->conn;
-            $query = "INSERT INTO user_galeri (username_user,email_user,toko_user,pass_user) VALUES('$value1','$value2','$value3','$value4')";
-            return mysqli_query($connect, $query);
+            if($param == "register"){
+                $query = "INSERT INTO user_galeri (username_user,email_user,toko_user,pass_user) VALUES('$value1','$value2','$value3','$value4')";
+                return mysqli_query($connect, $query);
+            }else{
+                $query = "INSERT INTO user_galeri (email_user,jk_user,username_user,fullname_user,level_user,status_user,pass_user,id_owner) VALUES('$value1','$value2','$value3','$value4','$value5','$value6','$value7','$value8')";
+                return mysqli_query($connect, $query);
+            }
         }
 
         // Insert to table store_galeri

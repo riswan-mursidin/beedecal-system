@@ -10,34 +10,61 @@ $db = new ConfigClass();
 
 $userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
 $row = mysqli_fetch_assoc($userselect);
-$usernamelogin = $row['username_user'];
-$emaillogin = $row['email_user'];
-$fullnamelogin = $row['fullname_user'];
-$role = $row['level_user'];
+$id = $row['id_owner'];
+// jika yang login buka owner ambil data owner dari id owner
+if($row['id_owner'] == "0"){
+  $id = $row['id_user'];
+}
 $alert = "";
 
-// if(isset($_POST['crop_image'])){
-//   $path = "assets/images/users/";
-//   $foto = $_POST['crop_image'];
-//   $react = $db->SaveFoto($path,$foto,$usernamelogin);
-// }
+$edit = $_GET['edit'];
 
-if(isset($_POST['submit_profile'])){
-  $fullname = $_POST['fullname'];
+$readonly = $edit != "" ? "readonly" : "";
+
+$editselect = $db->selectTable("user_galeri","username_user",$edit);
+$rowedit = mysqli_fetch_assoc($editselect);
+
+if(isset($_POST['submit_pegawai'])){
+  $email = $_POST['email'];
   $jk = $_POST['jk'];
-  $update = $db->updateUser($usernamelogin,"profil",$fullname,$jk);
-  if($update){
-    if($_POST['foto'] != ""){
-      $path = "assets/images/users/";
-      $foto = $_POST['foto'];
-      $db->SaveFoto($path,$foto,$usernamelogin);
+  $username = strtolower($_POST['username']);
+  $fullname = $_POST['fullname'];
+  $jabatan = $_POST['jabatan'];
+  $status = $_POST['status'];
+  $pass = $_POST['password'];
+  $pass_hash = password_hash($pass, PASSWORD_DEFAULT);
+  if($edit == ""){
+    $checkusername = $db->selectTable("user_galeri","username_user",$username);
+    if(mysqli_num_rows($checkusername) > 0){
+      $alert = "3";
+    }else{
+      $checkemail = $db->selectTable("user_galeri","email_user",$email);
+      if(mysqli_num_rows($checkemail) > 0){
+        $alert = "4";
+      }else{
+        $insert = $db->insertUser("pegawai",$email,$jk,$username,$fullname,$jabatan,$status,$pass_hash,$id);
+        if($insert){
+          if($_POST['foto'] != ""){
+            $path = "assets/images/users/";
+            $foto = $_POST['foto'];
+            $db->SaveFoto($path,$foto,$username);
+          }
+          $_SESSION['alert'] = "1";
+          header('Location: konfigurasi-pegawaitoko');
+        }
+      }
     }
-    $userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
-    $row = mysqli_fetch_assoc($userselect);
-    $fullnamelogin = $row['fullname_user'];
-    $alert = "1";
   }else{
-    $alert = "2";
+    $update = $db->updateUser($edit,"pegawai",$jk,$fullname,$jabatan,$status);
+    if($update){
+      if($_POST['foto'] != ""){
+        $path = "assets/images/users/";
+        $foto = $_POST['foto'];
+        $db->SaveFoto($path,$foto,$edit);
+      }
+      $_SESSION['alert'] = "1";
+      header('Location: konfigurasi-pegawaitoko');
+    }
   }
 }
 ?>
@@ -46,7 +73,7 @@ if(isset($_POST['submit_profile'])){
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | PROFIL</title>
+    <title>STIKER | PEGAWAI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -202,7 +229,7 @@ if(isset($_POST['submit_profile'])){
                     justify-content-between
                   "
                 >
-                  <h4 class="mb-sm-0">Profil</h4>
+                  <h4 class="mb-sm-0">Edit Pegawai</h4>
 
                   <div class="page-title-right">
                   <ol class="breadcrumb m-0">
@@ -219,12 +246,12 @@ if(isset($_POST['submit_profile'])){
               <div class="col-xl-12">
                 <div class="card">
                   <div class="card-body">
-                    <form action="profile" method="post" autocomplete="off">
+                    <form action="" method="post" autocomplete="off">
                       <div class="row mb-4">
-                        <input type="hidden" name="foto" id="foto">
                         <input type="file" name="foto_profile" id="upload_image" accept="image/png,Image/jpeg" hidden>
                         <label for="upload_image" style="cursor: pointer;" class="col-12">
-                          <img id="preview" style="border-radius: 50%;display: block;margin-left: auto;margin-right: auto; max-width:180px;" src="<?= $row['foto_user'] == '' ? 'assets/images/users/avatar-2.png' : $row['foto_user'] ?>" alt="">
+                          <input type="hidden" name="foto" id="foto" value="<?= isset($_POST['foto']) ? $_POST['foto'] : "" ?>">
+                          <img id="preview" style="border-radius: 50%;display: block;margin-left: auto;margin-right: auto; max-width:180px;" src="<?= $rowedit['foto_user'] != "" ?  $rowedit['foto_user'] : ( $_POST['foto'] != "" ? $_POST['foto'] : "assets/images/users/avatar-2.png" ) ?>" alt="">
                         </label>
                         <label for="upload_image" style="cursor: pointer;" class="col-12 mt-2">
                           <span class="text-info" style="display: block;text-align: center;font-size: 1em;">Ubah Foto</span>
@@ -233,18 +260,19 @@ if(isset($_POST['submit_profile'])){
                       <div class="row mb-3">
                           <label for="fullname" class="col-md-2 col-form-label">Nama Lengkap</label>
                           <div class="col-md-10">
-                            <input class="form-control" id="fullname" type="text" value="<?= $fullnamelogin ?>" name="fullname">
+                            <input required value="<?= $rowedit['fullname_user'] != "" ? $rowedit['fullname_user'] : $_POST['fullname'] ?>" class="form-control" id="fullname" type="text" placeholder="Nama Lengkap" name="fullname">
                           </div>
                       </div>
                       <div class="row mb-3">
                           <label for="jk" class="col-md-2 col-form-label">Jenis Kelamin</label>
                           <div class="col-md-10">
-                            <select name="jk" id="jk" class="form-select">
-                              <option value="" disabled>Pilih</option>
+                            <select required name="jk" id="jk" class="form-select">
+                              <option value="">Pilih</option>
                               <?php  
                               $a = array("L","P");
+                              $value = $rowedit['jk_user'] != "" ? $rowedit['jk_user'] : $_POST['jk'];
                               foreach($a as $as){
-                                $select = $row['jk_user'] == $as ? 'selected="selected"' : "";
+                                $select = $value == $as ? 'selected="selected"' : "";
                               ?>
                               <option value="<?= $as ?>" <?= $select ?>><?= $as == "L" ? "Laki-laki" : "Perempuan" ?></option>
                               <?php } ?>
@@ -254,22 +282,62 @@ if(isset($_POST['submit_profile'])){
                       <div class="row mb-3">
                           <label class="col-md-2 col-form-label">Username</label>
                           <div class="col-md-10">
-                            <input class="form-control" type="text" value="<?= $usernamelogin ?>" readonly>
+                            <input required class="form-control" type="text" value="<?= $rowedit['username_user'] != "" ? $rowedit['username_user'] : $_POST['username'] ?>" placeholder="Username" id="username" style="text-transform: lowercase;" name="username" <?= $readonly ?>>
                           </div>
                       </div>
                       <div class="row mb-3">
                           <label for="email" class="col-md-2 col-form-label">Email</label>
                           <div class="col-md-10">
-                            <input class="form-control" type="email" value="<?= $emaillogin ?>" readonly>
+                            <input required class="form-control" type="email" placeholder="example@mail.com" value="<?= $rowedit['email_user'] != "" ? $rowedit['email_user'] : $_POST['email'] ?>" name="email" <?= $readonly ?>>
                           </div>
                       </div>
                       <div class="row mb-3">
                           <label for="role" class="col-md-2 col-form-label">Jabatan</label>
                           <div class="col-md-10">
-                            <input class="form-control" type="text" value="<?= $role ?>" readonly>
+                          <select required name="jabatan" id="role" class="form-select">
+                              <option value="">Pilih</option>
+                              <?php  
+                              $a = array("Admin","Desainer","Produksi");
+                              $value = $rowedit['level_user'] != "" ? $rowedit['level_user'] : $_POST['jabatan'];
+                              foreach($a as $as){
+                                $select = $value == $as ? 'selected="selected"' : "";
+                              ?>
+                              <option value="<?= $as ?>" <?= $select ?>><?= $as ?></option>
+                              <?php } ?>
+                            </select>
                           </div>
                       </div>
-                      <button class="btn btn-primary" type="submit" name="submit_profile">Submit</button>
+                      <div class="row mb-3">
+                          <label for="statuss" class="col-md-2 col-form-label">Status</label>
+                          <div class="col-md-10">
+                            <select required name="status" id="statuss" class="form-select">
+                              <option value="">Pilih</option>
+                              <?php  
+                              $a = array("Aktif","Tidak Aktif");
+                              $value = $rowedit['status_user'] != "" ? $rowedit['status_user'] : $_POST['status'];
+                              foreach($a as $as){
+                                $select = $value == $as ? 'selected="selected"' : "";
+                              ?>
+                              <option value="<?= $as ?>" <?= $select ?>><?= $as ?></option>
+                              <?php } ?>
+                            </select>
+                          </div>
+                      </div>
+                      <?php if($edit == ""){ ?>
+                      <div class="row mb-3">
+                          <label class="col-md-2 col-form-label" for="passsword">Password</label>
+                          <div class="col-md-10">
+                            <input required class="form-control" type="password" placeholder="password" id="password" name="password">
+                          </div>
+                      </div>
+                      <div class="row mb-3">
+                          <label class="col-md-2 col-form-label" for="passswordconf">Konfirmasi Password</label>
+                          <div class="col-md-10">
+                            <input required class="form-control" type="password" placeholder="password" id="passswordconf">
+                          </div>
+                      </div>
+                      <?php } ?>
+                      <button class="btn btn-primary" type="submit" name="submit_pegawai">Submit</button>
                     </form>
                   </div>
                 </div>
@@ -285,6 +353,21 @@ if(isset($_POST['submit_profile'])){
           <div class="container-fluid">
             <div class="row">
               <div class="col-sm-6">
+              <script>
+                  var password = document.getElementById("password")
+                  var confirm_password = document.getElementById("passswordconf");
+
+                  function validatePassword(){
+                    if(password.value != confirm_password.value) {
+                      confirm_password.setCustomValidity("Passwords Tidak Sama");
+                    } else {
+                      confirm_password.setCustomValidity('');
+                    }
+                  }
+
+                  password.onchange = validatePassword;
+                  confirm_password.onkeyup = validatePassword;
+                </script>
                 <script>
                   document.write(new Date().getFullYear());
                 </script>
@@ -415,7 +498,27 @@ if(isset($_POST['submit_profile'])){
           text:"Data Tidak Tersimpan!",
           icon:"error",
         })
+      }else if(flash == "3"){
+        Swal.fire({
+          title:"Gagal!",
+          text:"Username Sudah Ada!",
+          icon:"error",
+        })
+      }else if(flash == "4"){
+        Swal.fire({
+          title:"Gagal!",
+          text:"Email Sudah Ada!",
+          icon:"error",
+        })
       }
+    </script>
+    <script>
+      document.querySelector('#username').addEventListener('keydown', function(e) {
+
+      if (e.which === 32) {
+          e.preventDefault();
+      }
+    });
     </script>
 
     <script src="assets/js/app.js"></script>

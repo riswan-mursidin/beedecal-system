@@ -260,7 +260,7 @@ if(isset($_POST['submit_pegawai'])){
                       <div class="row mb-3">
                           <label for="fullname" class="col-md-2 col-form-label">Nama Lengkap</label>
                           <div class="col-md-10">
-                            <input required value="<?= $rowedit['fullname_user'] != "" ? $rowedit['fullname_user'] : $_POST['fullname'] ?>" class="form-control" id="fullname" type="text" placeholder="Nama Lengkap" name="fullname">
+                            <input required value="<?= $edit != "" ? $rowedit['fullname_user'] : $_POST['fullname'] ?>" class="form-control" id="fullname" type="text" placeholder="Nama Lengkap" name="fullname">
                           </div>
                       </div>
                       <div class="row mb-3">
@@ -270,7 +270,7 @@ if(isset($_POST['submit_pegawai'])){
                               <option value="">Pilih</option>
                               <?php  
                               $a = array("L","P");
-                              $value = $rowedit['jk_user'] != "" ? $rowedit['jk_user'] : $_POST['jk'];
+                              $value = $edit != "" ? $rowedit['jk_user'] : $_POST['jk'];
                               foreach($a as $as){
                                 $select = $value == $as ? 'selected="selected"' : "";
                               ?>
@@ -282,13 +282,13 @@ if(isset($_POST['submit_pegawai'])){
                       <div class="row mb-3">
                           <label class="col-md-2 col-form-label">Username</label>
                           <div class="col-md-10">
-                            <input required class="form-control" type="text" value="<?= $rowedit['username_user'] != "" ? $rowedit['username_user'] : $_POST['username'] ?>" placeholder="Username" id="username" style="text-transform: lowercase;" name="username" <?= $readonly ?>>
+                            <input required class="form-control" type="text" value="<?= $edit != "" ? $rowedit['username_user'] : $_POST['username'] ?>" placeholder="Username" id="username" style="text-transform: lowercase;" name="username" <?= $readonly ?>>
                           </div>
                       </div>
                       <div class="row mb-3">
                           <label for="email" class="col-md-2 col-form-label">Email</label>
                           <div class="col-md-10">
-                            <input required class="form-control" type="email" placeholder="example@mail.com" value="<?= $rowedit['email_user'] != "" ? $rowedit['email_user'] : $_POST['email'] ?>" name="email" <?= $readonly ?>>
+                            <input required class="form-control" type="email" placeholder="example@mail.com" value="<?= $edit != "" ? $rowedit['email_user'] : $_POST['email'] ?>" name="email" <?= $readonly ?>>
                           </div>
                       </div>
                       <div class="row mb-3">
@@ -298,7 +298,7 @@ if(isset($_POST['submit_pegawai'])){
                               <option value="">Pilih</option>
                               <?php  
                               $a = array("Admin","Desainer","Produksi");
-                              $value = $rowedit['level_user'] != "" ? $rowedit['level_user'] : $_POST['jabatan'];
+                              $value = $edit != "" ? $rowedit['level_user'] : $_POST['jabatan'];
                               foreach($a as $as){
                                 $select = $value == $as ? 'selected="selected"' : "";
                               ?>
@@ -314,7 +314,7 @@ if(isset($_POST['submit_pegawai'])){
                               <option value="">Pilih</option>
                               <?php  
                               $a = array("Aktif","Tidak Aktif");
-                              $value = $rowedit['status_user'] != "" ? $rowedit['status_user'] : $_POST['status'];
+                              $value = $edit != "" ? $rowedit['status_user'] : $_POST['status'];
                               foreach($a as $as){
                                 $select = $value == $as ? 'selected="selected"' : "";
                               ?>

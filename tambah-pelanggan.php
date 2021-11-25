@@ -17,65 +17,70 @@ if($row['id_owner'] == "0"){
 }
 $alert = "";
 
-$edit = $_GET['edit'];
+// $edit = $_GET['edit'];
 
-$readonly = $edit != "" ? "readonly" : "";
+// $readonly = $edit != "" ? "readonly" : "";
 
-$editselect = $db->selectTable("user_galeri","username_user",$edit);
-$rowedit = mysqli_fetch_assoc($editselect);
+// $editselect = $db->selectTable("user_galeri","username_user",$edit);
+// $rowedit = mysqli_fetch_assoc($editselect);
 
-if(isset($_POST['submit_pegawai'])){
-  $email = $_POST['email'];
-  $jk = $_POST['jk'];
+if(isset($_POST['submit_pelanggan'])){
+  // var data pribadi
   $username = strtolower($_POST['username']);
+  $email = $_POST['email'];
   $fullname = $_POST['fullname'];
-  $jabatan = $_POST['jabatan'];
-  $status = $_POST['status'];
-  $pass = $_POST['password'];
-  $pass_hash = password_hash($pass, PASSWORD_DEFAULT);
-  if($edit == ""){
-    $checkusername = $db->selectTable("user_galeri","username_user",$username);
-    if(mysqli_num_rows($checkusername) > 0){
-      $alert = "3";
-    }else{
-      $checkemail = $db->selectTable("user_galeri","email_user",$email);
-      if(mysqli_num_rows($checkemail) > 0){
-        $alert = "4";
-      }else{
-        $insert = $db->insertUser("pegawai",$email,$jk,$username,$fullname,$jabatan,$status,$pass_hash,$id);
-        if($insert){
-          if($_POST['foto'] != ""){
-            $path = "assets/images/users/";
-            $foto = $_POST['foto'];
-            $db->SaveFoto($path,$foto,$username);
-          }
-          $_SESSION['alert'] = "1";
-          header('Location: konfigurasi-pegawaitoko');
-          exit();
-        }
-      }
+  $no = $db->formatNumber($_POST['no']);
+  $pass = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+  // var alamat
+  $nameprov = "";
+  $idprov = $_POST['province'];
+  $func_prov = $db->dataIndonesia("prov",null);
+  foreach($func_prov as $key => $prov){
+    if($prov['province_id'] == $idprov){
+      $nameprov = $prov['province'];
     }
+  }
+  $namekab = "";
+  $idkab = $_POST['kabkota'];
+  $func_kab = $db->dataIndonesia("kab_kota",$idprov);
+  foreach($func_kab as $key => $kab){
+    if($kab['city_id'] == $idkab){
+      $namekab = $kab['city_name'];
+    }
+  }
+  $namekec = "";
+  $idkec = $_POST['kec'];
+  $func_kec = $db->dataIndonesia("kec",$idkab);
+  foreach($func_kec as $key => $kec){
+    if($kec['subdistrict_id'] == $idkec){
+      $namekec = $kec['subdistrict_name'];
+    }
+  }
+  $kodepos = $_POST['kodepos'];
+  $alamat = $_POST['alamat'];
+
+  $checkusername = $db->selectTable("customer_stiker","username_customer",$username);
+  if(mysqli_fetch_assoc($checkusername) > 0){
+    $alert = "3";
   }else{
-    $update = $db->updateUser($edit,"pegawai",$jk,$fullname,$jabatan,$status);
-    if($update){
-      if($_POST['foto'] != ""){
-        $path = "assets/images/users/";
-        $foto = $_POST['foto'];
-        $db->SaveFoto($path,$foto,$edit);
-      }
+    $put = $db->insertCustomer($fullname,$username,$pass,$email,$no,$nameprov,$namekab,$namekec,$kodepos,$alamat,$id);
+    if($put){
       $_SESSION['alert'] = "1";
-      header('Location: konfigurasi-pegawaitoko');
+      header('Location: konfigurasi-pelanggantoko');
       exit();
     }
   }
 }
+
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | PEGAWAI</title>
+    <title>STIKER | PELANGGAN</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -102,68 +107,28 @@ if(isset($_POST['submit_pegawai'])){
       type="text/css"
     />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://fengyuanchen.github.io/cropperjs/css/cropper.css" />
-    <script src="https://fengyuanchen.github.io/cropperjs/js/cropper.js"></script> 
     <script>
-        $(document).ready(function(){
-            var $modal = $('#modal_crop');
-            var crop_image = document.getElementById('sample_image');
-            var cropper;
-            $('#upload_image').change(function(event){
-                var files = event.target.files;
-                var done = function(url){
-                    crop_image.src = url;
-                    $modal.modal('show');
-                };
-                if(files && files.length > 0)
-                {
-                    reader = new FileReader();
-                    reader.onload = function(event)
-                    {
-                        done(reader.result);
-                    };
-                    reader.readAsDataURL(files[0]);
-                }
-            });
-            $modal.on('shown.bs.modal', function() {
-                cropper = new Cropper(crop_image, {
-                    aspectRatio: 1,
-                    viewMode: 3,
-                    preview:'.preview'
-                });
-            }).on('hidden.bs.modal', function(){
-                cropper.destroy();
-                cropper = null;
-            });
-            $('#crop_and_upload').click(function(){
-                canvas = cropper.getCroppedCanvas({
-                    width:400,
-                    height:400
-                });
-                canvas.toBlob(function(blob){
-                    url = URL.createObjectURL(blob);
-                    var reader = new FileReader();
-                    reader.readAsDataURL(blob);
-                    reader.onloadend = function(){
-                        var base64data = reader.result; 
-                        document.getElementById("preview").src = base64data
-                        document.getElementById("foto").value = base64data
-                        $modal.modal('hide');
-        //                 $.ajax({
-        //                     url:'profile.php',
-        //                     method:'POST',
-        //                     data:{crop_image:base64data},
-        //                     success:function(data)
-        //                     {
-        //                         $modal.modal('hide');
-        //                     }
-        //                 });
-                    };
-                });
-            });
-        });
+      function viewKab(str) {
+        $.ajax({
+          type:'post',
+          url:'api_kab_kota.php?prov_id='+str,
+          success:function(hasil_kab){
+            $("select[name=kabkota").html(hasil_kab);
+          }
+        })
+      }
     </script>
-
+    <script>
+      function viewkec(str) {
+        $.ajax({
+          type:'post',
+          url:'api_kecamatan.php?city_id='+str,
+          success:function(hasil_kec){
+            $("select[name=kec").html(hasil_kec);
+          }
+        })
+      }
+    </script>
     <!-- Sweet Alert-->
     <link href="assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript">
@@ -231,7 +196,7 @@ if(isset($_POST['submit_pegawai'])){
                     justify-content-between
                   "
                 >
-                  <h4 class="mb-sm-0">Edit Pegawai</h4>
+                  <h4 class="mb-sm-0">Edit Pelanggan</h4>
 
                   <div class="page-title-right">
                   <ol class="breadcrumb m-0">
@@ -249,97 +214,95 @@ if(isset($_POST['submit_pegawai'])){
                 <div class="card">
                   <div class="card-body">
                     <form action="" method="post" autocomplete="off">
-                      <div class="row mb-4">
-                        <input type="file" name="foto_profile" id="upload_image" accept="image/png,Image/jpeg" hidden>
-                        <label for="upload_image" style="cursor: pointer;" class="col-12">
-                          <input type="hidden" name="foto" id="foto" value="<?= $_POST['foto']  ?>">
-                          <img id="preview" style="border-radius: 50%;display: block;margin-left: auto;margin-right: auto; max-width:180px;" src="<?= $edit != "" ?  $rowedit['foto_user'] : ( $_POST['foto'] != "" ? $_POST['foto'] : "assets/images/users/avatar-2.png" ) ?>" alt="">
-                        </label>
-                        <label for="upload_image" style="cursor: pointer;" class="col-12 mt-2">
-                          <span class="text-info" style="display: block;text-align: center;font-size: 1em;">Ubah Foto</span>
-                        </label>
-                      </div>
-                      <div class="row mb-3">
-                          <label for="fullname" class="col-md-2 col-form-label">Nama Lengkap</label>
-                          <div class="col-md-10">
-                            <input required value="<?= $edit != "" ? $rowedit['fullname_user'] : $_POST['fullname'] ?>" class="form-control" id="fullname" type="text" placeholder="Nama Lengkap" name="fullname">
+                      <div class="row g-3 mb-3">
+                        <div class="col-md-12">
+                          <label for="" class="form-label">Data Pribadi</label>
+                        </div>
+                        <hr>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input placeholder="floot" type="text" class="form-control" name="username" id="username" style="text-transform: lowercase;" required>
+                            <label for="username">Username</label>
                           </div>
-                      </div>
-                      <div class="row mb-3">
-                          <label for="jk" class="col-md-2 col-form-label">Jenis Kelamin</label>
-                          <div class="col-md-10">
-                            <select required name="jk" id="jk" class="form-select">
-                              <option value="">Pilih</option>
-                              <?php  
-                              $a = array("L","P");
-                              $value = $edit != "" ? $rowedit['jk_user'] : $_POST['jk'];
-                              foreach($a as $as){
-                                $select = $value == $as ? 'selected="selected"' : "";
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input placeholder="floot" type="email" class="form-control" name="email" id="email">
+                            <label for="email">Email</label>
+                          </div>
+                        </div>
+                        <div class="col-md-5">
+                          <div class="form-floating">
+                            <input placeholder="floot" type="text" class="form-control" name="fullname" id="fullname" required>
+                            <label for="fullname">Nama Lengkap</label>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input placeholder="floot" type="number" class="form-control" name="no" id="no" required>
+                            <label for="no">No. Telpn</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input placeholder="floot" type="password" class="form-control" name="password" value="123456" id="password" required>
+                            <label for="password">Password</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input placeholder="floot" type="password" class="form-control" name="passwordconf" value="123456" id="passwordconf" required>
+                            <label for="passwordconf">Konfirmasi Password</label>
+                          </div>
+                        </div>
+                        <div class="col-md-12 mt-4">
+                          <label for="" class="form-label">Data Alamat</label>
+                        </div>
+                        <hr>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <select class="form-select" name="province" id="province" onchange="viewKab(this.value)" aria-label="Floating label select example" required>
+                              <option selected>--PILIH PROVINSI--</option>
+                              <?php 
+                              $provs = $db->dataIndonesia("prov",null);
+                              foreach($provs as $key => $prov){
+                                echo '<option value="'.$prov["province_id"].'">'.$prov["province"].'</option>';
+                              }
                               ?>
-                              <option value="<?= $as ?>" <?= $select ?>><?= $as == "L" ? "Laki-laki" : "Perempuan" ?></option>
-                              <?php } ?>
                             </select>
+                            <label for="province">Provinsi</label>
                           </div>
-                      </div>
-                      <div class="row mb-3">
-                          <label class="col-md-2 col-form-label">Username</label>
-                          <div class="col-md-10">
-                            <input required class="form-control" type="text" value="<?= $edit != "" ? $rowedit['username_user'] : $_POST['username'] ?>" placeholder="Username" id="username" style="text-transform: lowercase;" name="username" <?= $readonly ?>>
-                          </div>
-                      </div>
-                      <div class="row mb-3">
-                          <label for="email" class="col-md-2 col-form-label">Email</label>
-                          <div class="col-md-10">
-                            <input required class="form-control" type="email" placeholder="example@mail.com" value="<?= $edit != "" ? $rowedit['email_user'] : $_POST['email'] ?>" name="email" <?= $readonly ?>>
-                          </div>
-                      </div>
-                      <div class="row mb-3">
-                          <label for="role" class="col-md-2 col-form-label">Jabatan</label>
-                          <div class="col-md-10">
-                          <select required name="jabatan" id="role" class="form-select">
-                              <option value="">Pilih</option>
-                              <?php  
-                              $a = array("Admin","Desainer","Produksi");
-                              $value = $edit != "" ? $rowedit['level_user'] : $_POST['jabatan'];
-                              foreach($a as $as){
-                                $select = $value == $as ? 'selected="selected"' : "";
-                              ?>
-                              <option value="<?= $as ?>" <?= $select ?>><?= $as ?></option>
-                              <?php } ?>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <select class="form-select" name="kabkota" id="kabkota" onchange="viewkec(this.value)" aria-label="Floating label select example" required>
+                              <option value="">--PILIH KAB/KOTA--</option>
                             </select>
+                            <label for="kabkota">Kab/Kota</label>
                           </div>
-                      </div>
-                      <div class="row mb-3">
-                          <label for="statuss" class="col-md-2 col-form-label">Status</label>
-                          <div class="col-md-10">
-                            <select required name="status" id="statuss" class="form-select">
-                              <option value="">Pilih</option>
-                              <?php  
-                              $a = array("Aktif","Tidak Aktif");
-                              $value = $edit != "" ? $rowedit['status_user'] : $_POST['status'];
-                              foreach($a as $as){
-                                $select = $value == $as ? 'selected="selected"' : "";
-                              ?>
-                              <option value="<?= $as ?>" <?= $select ?>><?= $as ?></option>
-                              <?php } ?>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <select class="form-select" name="kec" id="kec" aria-label="Floating label select example" required>
+                              <option value="">--PILIH KECAMATAN--</option>
                             </select>
+                            <label for="kec">Kecamatan</label>
                           </div>
-                      </div>
-                      <?php if($edit == ""){ ?>
-                      <div class="row mb-3">
-                          <label class="col-md-2 col-form-label" for="passsword">Password</label>
-                          <div class="col-md-10">
-                            <input required class="form-control" type="password" placeholder="password" id="password" name="password">
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input placeholder="floot" type="number" class="form-control" name="kodepos" id="kodepos" required>
+                            <label for="kodepos">Kode Pos</label>
                           </div>
-                      </div>
-                      <div class="row mb-3">
-                          <label class="col-md-2 col-form-label" for="passswordconf">Konfirmasi Password</label>
-                          <div class="col-md-10">
-                            <input required class="form-control" type="password" placeholder="password" id="passswordconf">
+                        </div>
+                        <div class="col-md-12">
+                          <div class="form-floating">
+                            <textarea class="form-control" placeholder="Leave a comment here" name="alamat" id="alamat" style="height: 100px"></textarea>
+                            <label for="alamat">Alamat Lengkap</label>
                           </div>
+                        </div>
                       </div>
-                      <?php } ?>
-                      <button class="btn btn-primary" type="submit" name="submit_pegawai">Submit</button>
+                      <button class="btn btn-primary" type="submit" name="submit_pelanggan">Submit</button>
                     </form>
                   </div>
                 </div>
@@ -357,7 +320,7 @@ if(isset($_POST['submit_pegawai'])){
               <div class="col-sm-6">
               <script>
                   var password = document.getElementById("password")
-                  var confirm_password = document.getElementById("passswordconf");
+                  var confirm_password = document.getElementById("passwordconf");
 
                   function validatePassword(){
                     if(password.value != confirm_password.value) {

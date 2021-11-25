@@ -24,7 +24,7 @@ $alert = $_SESSION['alert'];
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | PEGAWAI</title>
+    <title>STIKER | PELANGGAN</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -125,7 +125,7 @@ $alert = $_SESSION['alert'];
                     justify-content-between
                   "
                 >
-                  <h4 class="mb-sm-0">Pegawai Toko</h4>
+                  <h4 class="mb-sm-0">Pelanggan Toko</h4>
 
                   <div class="page-title-right">
                   <ol class="breadcrumb m-0">
@@ -138,7 +138,7 @@ $alert = $_SESSION['alert'];
               </div>
             </div>
             <!-- end page title -->
-            <a href="tambah-pegawai" class="btn btn-outline-primary mb-3">
+            <a href="tambah-pelanggan" class="btn btn-outline-primary mb-3">
               <i class="dripicons-plus align-middle"></i>Tambah
             </a>
             <div class="row">
@@ -151,7 +151,10 @@ $alert = $_SESSION['alert'];
                           <th>#</th>
                           <th>Username</th>
                           <th>Nama Lengkap</th>
-                          <th>Jabatan</th>
+                          <th>Email</th>
+                          <th>Alamat</th>
+                          <th>No. Telpn</th>
+                          <th>Tanggal Daftar</th>
                           <th>Status</th>
                           <th>Aksi</th>
                         </tr>
@@ -159,20 +162,29 @@ $alert = $_SESSION['alert'];
                         <tbody>
                           <?php  
                           $no = 0;
-                          $views = $db->selectTable("user_galeri","id_owner",$id);
+                          $views = $db->selectTable("customer_stiker","id_owner",$id);
                           while($rowviews = mysqli_fetch_assoc($views)){
 
                           ?>
                           <tr>
                             <td><?= ++$no; ?></td>
-                            <td><?= $rowviews['username_user']; ?></td>
-                            <td><?= $rowviews['fullname_user']; ?></td>
-                            <td><?= $rowviews['level_user']; ?></td>
-                            <td><?= $db->statusColor($rowviews['status_user']); ?></td>
+                            <td><?= $rowviews['username_customer']; ?></td>
+                            <td><?= $rowviews['name_customer']; ?></td>
+                            <td><?= $rowviews['email_customer']; ?></td>
+                            <td>
+                              <?= $rowviews['prov_customer']; ?><br>
+                              <?= $rowviews['kota_kab_customer']; ?><br>
+                              <?= $rowviews['kec_customer']; ?><br>
+                              <?= $rowviews['kode_pos_customer']; ?><br>
+                              <?= $rowviews['address_customer']; ?>
+                            </td>
+                            <td>+62<?= $rowviews['telpn_customer']; ?></td>
+                            <td><?= $rowviews['date_customer']; ?></td>
+                            <td><?= $db->statusColor($rowviews['status_customer']); ?></td>
                             <td>
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                              <a href="tambah-pegawai?edit=<?= $rowviews['username_user']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
-                              <a href="delete-pegawai?edit=<?= $rowviews['username_user']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
+                              <a href="tambah-pegawai?edit=<?= $rowviews['username_customer']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
+                              <a href="delete-pegawai?edit=<?= $rowviews['username_customer']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
                             </div>
                             </td>
                           </tr>

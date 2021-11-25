@@ -66,6 +66,94 @@
 
     class ConfigClass extends DbClass{
 
+        public function dataIndonesia(string $param, ?string $id){
+            if($param == "prov"){
+
+                $curl = curl_init();
+
+                curl_setopt_array($curl, array(
+                    CURLOPT_URL => "http://pro.rajaongkir.com/api/province",
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => "",
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => "GET",
+                    CURLOPT_HTTPHEADER => array(
+                        "key: 3edd124529d0527e0cff142cd3ec17a6"
+                    ),
+                ));
+
+                $response = curl_exec($curl);
+                $err = curl_error($curl);
+
+                curl_close($curl);
+
+                if ($err) {
+                    return "error";
+                } else {
+                    $array = json_decode($response,TRUE);
+                    return $array["rajaongkir"]["results"];
+                    
+                }
+            }elseif($param == "kab_kota"){
+                $curl = curl_init();
+
+                curl_setopt_array($curl, array(
+                    CURLOPT_URL => "http://pro.rajaongkir.com/api/city?province=".$id,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => "",
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => "GET",
+                    CURLOPT_HTTPHEADER => array(
+                        "key: 3edd124529d0527e0cff142cd3ec17a6"
+                    ),
+                ));
+
+                $response = curl_exec($curl);
+                $err = curl_error($curl);
+
+                curl_close($curl);
+
+                if ($err) {
+                    return "error";
+                } else {
+                    $array = json_decode($response,TRUE);
+                    return $array["rajaongkir"]["results"];
+                    
+                }
+            }elseif($param == "kec"){
+                $curl = curl_init();
+
+                curl_setopt_array($curl, array(
+                    CURLOPT_URL => "http://pro.rajaongkir.com/api/subdistrict?city=".$id,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => "",
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => "GET",
+                    CURLOPT_HTTPHEADER => array(
+                        "key: 3edd124529d0527e0cff142cd3ec17a6"
+                    ),
+                ));
+
+                $response = curl_exec($curl);
+                $err = curl_error($curl);
+
+                curl_close($curl);
+
+                if ($err) {
+                    return "error";
+                } else {
+                    $array = json_decode($response,TRUE);
+                    return $array["rajaongkir"]["results"];
+                }
+            }
+        }
+
         public function statusColor($status){
             if($status == "Aktif"){
                 echo '<span class="text-success">'.$status.'</span>';
@@ -170,6 +258,23 @@
             $connect = $this->conn;
             $query = "UPDATE store_galeri SET name_store='$value1', owner_store='$value2', address_store='$value5', email_store='$value3', telpn_store='$value4' WHERE id_owner='$value6'";
             return mysqli_query($connect, $query);
+        }
+
+        public function insertCustomer(
+            string $value1,
+            string $value2,
+            string $value3,
+            string $value4,
+            string $value5,
+            string $value6,
+            string $value7,
+            string $value8,
+            string $value9,
+            string $value10,
+            string $value11
+        ){
+            $query = "INSERT INTO customer_stiker (name_customer,username_customer,password_customer,email_customer,telpn_customer,prov_customer,kota_kab_customer,kec_customer,kode_pos_customer,address_customer,id_owner) VALUES('$value1','$value2','$value3','$value4','$value5','$value6','$value7','$value8','$value9','$value10','$value11')";
+            return mysqli_query($this->conn, $query);
         }
     }
 

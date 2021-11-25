@@ -172,7 +172,7 @@
                     <a href="konfigurasi-pegawaitoko">Pegawai Toko</a>
                   </li>
                   <li>
-                    <a href="konfigurasi-pelanggantoko.html">Pelanggan Toko</a>
+                    <a href="konfigurasi-pelanggantoko">Pelanggan Toko</a>
                   </li>
                 </ul>
               </li>

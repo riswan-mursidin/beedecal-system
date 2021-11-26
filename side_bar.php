@@ -145,7 +145,7 @@
                 </a>
                 <ul class="sub-menu" aria-expanded="false">
                   <li>
-                    <a href="konfigurasiproduk-merek.html">Merek</a>
+                    <a href="konfigurasiproduk-merek">Merek</a>
                   </li>
                   <li>
                     <a href="konfigurasiproduk-tipe.html">Tipe</a>

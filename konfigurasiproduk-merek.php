@@ -8,25 +8,6 @@ if($_SESSION['login_stiker_admin'] != true ){
 
 $db = new ConfigClass();
 
-// pegawai
-$pegawai = $_GET['delete'];
-$check = $db->selectTable("user_galeri","username_user",$pegawai);
-if(mysqli_num_rows($check) != 0 && $pegawai != ""){
-    $delete = $db->deleteTable("user_galeri",$pegawai,"username_user");
-    if($delete){
-        $rowfoto = mysqli_fetch_assoc($check);
-        $foto = $rowfoto['foto_user'];
-        unlink($foto);
-        $_SESSION['alert'] = "1";
-        header('Location: konfigurasi-pegawaitoko');
-        exit();
-    }else{
-        $_SESSION['alert'] = "2";
-        header('Location: konfigurasi-pegawaitoko');
-        exit();
-    }
-}
-
 $userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
 $row = mysqli_fetch_assoc($userselect);
 $usernamelogin = $row['username_user'];
@@ -37,13 +18,66 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
+$delete = $_GET['delete'];
+
+$checkdata = $db->selectTable("merek_galeri","id_merek",$delete);
+if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
+  $delete = $db->deleteTable("merek_galeri",$delete,"id_merek");
+  if($delete){
+    $alert = "1";
+  }else{
+    $alert = "2";
+  }
+}
+
+$edit = $_GET['edit'];
+
+$editselect = $db->selectTable("merek_galeri","id_merek",$edit);
+$rowselect = mysqli_fetch_assoc($editselect);
+if($edit != ""){
+  if(mysqli_num_rows($editselect) == 0){
+    header('Location: konfigurasiproduk-merek');
+    exit();
+  }
+}
+
+if(isset($_POST['add_merek'])){
+  $jenis = $_POST['category'];
+  $merek = $_POST['merek'];
+
+  if($edit == ""){
+    $check = $db->selectTable("merek_galeri","jenis_merek",$jenis,"name_merek",$merek);
+    if(mysqli_num_rows($check) > 0){
+      $alert = "4";
+    }else{
+      $insert = $db->insertMerk($id,$jenis,$merek);
+      if($insert){
+        $alert = "1";
+      }else{
+        $alert = "3";
+      }
+    }
+  }else{
+    $oldjenis = $rowselect['jenis_merek'];
+    $oldmerek = $rowselect['name_merek'];
+
+    $update = $db->updateMerk($edit,$jenis,$merek,$oldjenis,$oldmerek);
+    if($update){
+      $_SESSION['alert'] = "1";
+      header('Location: konfigurasiproduk-merek');
+      exit();
+    }else{
+      $alert = '3';
+    }
+  }
+}
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | PEGAWAI</title>
+    <title>STIKER | DASHBOARD</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -78,7 +112,7 @@ $alert = $_SESSION['alert'];
     <link href="assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
 
     <!-- Responsive datatable examples -->
-    <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />     
+    <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" /> 
 
     <script type="text/javascript">
             function showTime() {
@@ -136,18 +170,11 @@ $alert = $_SESSION['alert'];
             <!-- start page title -->
             <div class="row">
               <div class="col-12">
-                <div
-                  class="
-                    page-title-box
-                    d-sm-flex
-                    align-items-center
-                    justify-content-between
-                  "
-                >
-                  <h4 class="mb-sm-0">Pegawai Toko</h4>
+                <div class=" page-title-box d-sm-flex align-items-center justify-content-between" >
+                  <h4 class="mb-sm-0">Merek</h4>
 
                   <div class="page-title-right">
-                  <ol class="breadcrumb m-0">
+                    <ol class="breadcrumb m-0">
                       <li class="breadcrumb-item">
                         <span><b><?= date('D').", ".date("Y-m-d") ?></b> | <b id="time"></b></span>  
                       </li>
@@ -157,51 +184,72 @@ $alert = $_SESSION['alert'];
               </div>
             </div>
             <!-- end page title -->
-            <a href="tambah-pegawai" class="btn btn-outline-primary mb-3">
-              <i class="dripicons-plus align-middle"></i>Tambah
-            </a>
             <div class="row">
-              <div class="col-12">
+              <div class="col-12 col-md-3">
                 <div class="card">
                   <div class="card-body">
-                    <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Username</th>
-                          <th>Nama Lengkap</th>
-                          <th>Jabatan</th>
-                          <th>Status</th>
-                          <th>Aksi</th>
-                        </tr>
+                    <div class="card-title">Tambah Merek</div>
+                    <form method="post" action="">
+                      <div class="mb-3">
+                        <label for="category" class="form-label">Jenis Kendaraan</label>
+                        <select name="category" id="category" class="form-select" required>
+                          <option value="">--PILIH JENIS--</option>
+                          <?php  
+                          $val = $edit != "" ? $rowselect['jenis_merek'] : "";
+                          $sels = array('Mobil','Motor');
+                          foreach($sels as $sel){
+                            $select = $val == $sel ? 'selected="selected"' : "";
+                          ?>
+                          <option value="<?= $sel ?>" <?= $select ?>><?= $sel ?></option>
+                          <?php } ?>
+                        </select>
+                      </div>
+                      <div class="mb-3">
+                        <label for="merek" class="form-label">Merek</label>
+                        <input type="text" class="form-control" id="merek" value="<?= $edit != "" ? $rowselect['name_merek'] : "" ?>" name="merek" required>
+                      </div>
+                      <button type="submit" name="add_merek" class="btn btn-primary">Submit</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-9">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-title">List Merek</div>
+                      <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Jenis</th>
+                            <th>Merek</th>
+                            <th>Aksi</th>
+                          </tr>
                         </thead>
                         <tbody>
                           <?php  
                           $no = 0;
-                          $views = $db->selectTable("user_galeri","id_owner",$id);
-                          while($rowviews = mysqli_fetch_assoc($views)){
-
+                          $viewmerek = $db->selectTable("merek_galeri","id_owner",$id);
+                          while($rowmerek = mysqli_fetch_assoc($viewmerek)){
                           ?>
                           <tr>
-                            <td><?= ++$no; ?></td>
-                            <td><?= $rowviews['username_user']; ?></td>
-                            <td><?= $rowviews['fullname_user']; ?></td>
-                            <td><?= $rowviews['level_user']; ?></td>
-                            <td><?= $db->statusColor($rowviews['status_user']); ?></td>
+                            <td><?= ++$no ?></td>
+                            <td><?= $rowmerek['jenis_merek'] ?></td>
+                            <td><?= $rowmerek['name_merek'] ?></td>
                             <td>
                               <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                <a href="tambah-pegawai?edit=<?= $rowviews['username_user']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
-                                <a href="konfigurasi-pegawaitoko?delete=<?= $rowviews['username_user']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
+                                <a href="konfigurasiproduk-merek?edit=<?= $rowmerek['id_merek']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
+                                <a href="konfigurasiproduk-merek?delete=<?= $rowmerek['id_merek']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
                               </div>
                             </td>
                           </tr>
                           <?php } ?>
                         </tbody>
-                    </table>
+                      </table>
                   </div>
                 </div>
-              </div> <!-- end col -->
-            </div> <!-- end row -->
+              </div>
+            </div>
           </div>
           <!-- container-fluid -->
         </div>
@@ -212,7 +260,6 @@ $alert = $_SESSION['alert'];
           <div class="container-fluid">
             <div class="row">
               <div class="col-sm-6">
-                
                 <script>
                   document.write(new Date().getFullYear());
                 </script>
@@ -334,6 +381,18 @@ $alert = $_SESSION['alert'];
         Swal.fire({
           title:"Gagal!",
           text:"Data tidak Terhapus!",
+          icon:"error",
+        })
+      }else if(flash == "3"){
+        Swal.fire({
+          title:"Gagal!",
+          text:"Data tidak Tersimpan!",
+          icon:"error",
+        })
+      }else if(flash == "4"){
+        Swal.fire({
+          title:"Gagal!",
+          text:"Data Sudah Ada!",
           icon:"error",
         })
       }

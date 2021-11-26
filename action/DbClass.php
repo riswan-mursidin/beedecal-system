@@ -291,6 +291,36 @@
             $query = "UPDATE customer_stiker SET name_customer='$value1', telpn_customer='$value2', status_customer='$value3', prov_customer='$value4', kota_kab_customer='$value5', kec_customer='$value6', kode_pos_customer='$value7', address_customer='$value8' WHERE username_customer='$user'";
             return mysqli_query($this->conn, $query);
         }
+
+        public function insertMerk(
+            string $owner,
+            string $value1,
+            string $value2
+        ){
+            $query = "INSERT INTO merek_galeri (jenis_merek,name_merek,id_owner) VALUES('$value1','$value2','$owner')"; 
+            return mysqli_query($this->conn, $query);
+        }
+
+        public function updateMerk(
+            string $edit,
+            string $value1,
+            string $value2,
+            string $oldvalue1,
+            string $oldvalue2
+        ){
+            if($value1 != $oldvalue1 && $value2 != $oldvalue2){
+                $query = "UPDATE merek_galeri SET jenis_merek='$value1', name_merek='$value2' WHERE id_merek='$edit'";
+                return mysqli_query($this->conn, $query);
+            }elseif($value1 != $oldvalue1){
+                $query = "UPDATE merek_galeri SET jenis_merek='$value1' WHERE id_merek='$edit'";
+                return mysqli_query($this->conn, $query);
+            }elseif($value2 != $oldvalue2){
+                $query = "UPDATE merek_galeri SET name_merek='$value2' WHERE id_merek='$edit'";
+                return mysqli_query($this->conn, $query);
+            }else{
+                return true;
+            }
+        }
     }
 
 session_start();

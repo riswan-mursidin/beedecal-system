@@ -17,12 +17,19 @@ if($row['id_owner'] == "0"){
 }
 $alert = "";
 
-// $edit = $_GET['edit'];
+$edit = $_GET['edit'];
 
-// $readonly = $edit != "" ? "readonly" : "";
+$readonly = $edit != "" ? "readonly" : "";
 
-// $editselect = $db->selectTable("user_galeri","username_user",$edit);
-// $rowedit = mysqli_fetch_assoc($editselect);
+$editselect = $db->selectTable("customer_stiker","username_customer",$edit);
+$rowedit = mysqli_fetch_assoc($editselect);
+
+if($edit != ""){
+  if(mysqli_num_rows($editselect) == 0){
+    header('Location: konfigurasi-pelanggantoko');
+    exit();
+  }
+}
 
 if(isset($_POST['submit_pelanggan'])){
   // var data pribadi
@@ -60,12 +67,22 @@ if(isset($_POST['submit_pelanggan'])){
   $kodepos = $_POST['kodepos'];
   $alamat = $_POST['alamat'];
 
-  $checkusername = $db->selectTable("customer_stiker","username_customer",$username);
-  if(mysqli_fetch_assoc($checkusername) > 0){
-    $alert = "3";
+  if($edit == ""){
+    $checkusername = $db->selectTable("customer_stiker","username_customer",$username);
+    if(mysqli_fetch_assoc($checkusername) > 0){
+      $alert = "3";
+    }else{
+      $put = $db->insertCustomer($fullname,$username,$pass,$email,$no,$nameprov,$namekab,$namekec,$kodepos,$alamat,$id);
+      if($put){
+        $_SESSION['alert'] = "1";
+        header('Location: konfigurasi-pelanggantoko');
+        exit();
+      }
+    }
   }else{
-    $put = $db->insertCustomer($fullname,$username,$pass,$email,$no,$nameprov,$namekab,$namekec,$kodepos,$alamat,$id);
-    if($put){
+    $status = $_POST['status'];
+    $update = $db->updateCustomer($edit,$fullname,$no,$status,$nameprov,$namekab,$namekec,$kodepos,$alamat);
+    if($update){
       $_SESSION['alert'] = "1";
       header('Location: konfigurasi-pelanggantoko');
       exit();
@@ -221,28 +238,29 @@ if(isset($_POST['submit_pelanggan'])){
                         <hr>
                         <div class="col-md-3">
                           <div class="form-floating">
-                            <input placeholder="floot" type="text" class="form-control" name="username" id="username" style="text-transform: lowercase;" required>
+                            <input placeholder="floot" type="text" <?= $readonly ?> class="form-control" name="username" value="<?= $edit != "" ? $rowedit['username_customer'] : "" ?>" id="username" style="text-transform: lowercase;" required>
                             <label for="username">Username</label>
                           </div>
                         </div>
                         <div class="col-md-4">
                           <div class="form-floating">
-                            <input placeholder="floot" type="email" class="form-control" name="email" id="email">
+                            <input placeholder="floot" type="email" <?= $readonly ?> class="form-control" value="<?= $edit != "" ? $rowedit['email_customer'] : "" ?>" name="email" id="email">
                             <label for="email">Email</label>
                           </div>
                         </div>
                         <div class="col-md-5">
                           <div class="form-floating">
-                            <input placeholder="floot" type="text" class="form-control" name="fullname" id="fullname" required>
+                            <input placeholder="floot" type="text" value="<?= $edit != "" ? $rowedit['name_customer'] : "" ?>" class="form-control" name="fullname" id="fullname" required>
                             <label for="fullname">Nama Lengkap</label>
                           </div>
                         </div>
                         <div class="col-md-6">
                           <div class="form-floating">
-                            <input placeholder="floot" type="number" class="form-control" name="no" id="no" required>
+                            <input placeholder="floot" type="number" value="<?= $edit != "" ? $rowedit['telpn_customer'] : "" ?>" class="form-control" name="no" id="no" required>
                             <label for="no">No. Telpn</label>
                           </div>
                         </div>
+                        <?php if($edit == ""){ ?>
                         <div class="col-md-3">
                           <div class="form-floating">
                             <input placeholder="floot" type="password" class="form-control" name="password" value="123456" id="password" required>
@@ -255,6 +273,24 @@ if(isset($_POST['submit_pelanggan'])){
                             <label for="passwordconf">Konfirmasi Password</label>
                           </div>
                         </div>
+                        <?php }else{ ?>
+                          <div class="col-md-6">
+                          <div class="form-floating">
+                            <select name="status" id="statuscus" class="form-select" aria-label="Floating label select example" required>
+                              <option value="">--PILIH STATUS--</option>
+                              <?php  
+                              $value = $edit != "" ? $rowedit['status_customer'] : "";
+                              $status = array("Aktif","Tidak Aktif");
+                              foreach($status as $stat){
+                                $select = $value == $stat ? 'selected="selected"' : "";
+                              ?>
+                              <option value="<?= $stat ?>" <?= $select ?>><?= $stat ?></option>
+                              <?php } ?>
+                            </select>
+                            <label for="statuscus">Status</label>
+                          </div>
+                        </div>
+                        <?php } ?>
                         <div class="col-md-12 mt-4">
                           <label for="" class="form-label">Data Alamat</label>
                         </div>
@@ -263,10 +299,14 @@ if(isset($_POST['submit_pelanggan'])){
                           <div class="form-floating">
                             <select class="form-select" name="province" id="province" onchange="viewKab(this.value)" aria-label="Floating label select example" required>
                               <option selected>--PILIH PROVINSI--</option>
-                              <?php 
+                              <?php
+                              $idprov = $edit != "" ? "" : 0;
+                              $value = $edit != "" ? $rowedit['prov_customer'] : "";
                               $provs = $db->dataIndonesia("prov",null);
                               foreach($provs as $key => $prov){
-                                echo '<option value="'.$prov["province_id"].'">'.$prov["province"].'</option>';
+                                $select = $value == $prov['province'] ? 'selected="selected"' : "";
+                                $idprov .= $value == $prov['province'] ? $prov["province_id"] : "";
+                                echo '<option value="'.$prov["province_id"].'" '.$select.'>'.$prov["province"].'</option>';
                               }
                               ?>
                             </select>
@@ -277,6 +317,16 @@ if(isset($_POST['submit_pelanggan'])){
                           <div class="form-floating">
                             <select class="form-select" name="kabkota" id="kabkota" onchange="viewkec(this.value)" aria-label="Floating label select example" required>
                               <option value="">--PILIH KAB/KOTA--</option>
+                              <?php  
+                              $idkab = "";
+                              $value = $edit != "" ? $rowedit['kota_kab_customer'] : "";
+                              $kab_kota = $db->dataIndonesia("kab_kota",$idprov);
+                              foreach ($kab_kota as $key => $kab){
+                                $select = $value == $kab["city_name"] ? 'selected="selected"' : "";
+                                $idkab .= $value == $kab["city_name"] ? $kab["city_id"] : "";
+                                echo '<option value="'.$kab["city_id"].'" '.$select.'>'.$kab["city_name"].'</option>';
+                              }
+                              ?>
                             </select>
                             <label for="kabkota">Kab/Kota</label>
                           </div>
@@ -285,19 +335,27 @@ if(isset($_POST['submit_pelanggan'])){
                           <div class="form-floating">
                             <select class="form-select" name="kec" id="kec" aria-label="Floating label select example" required>
                               <option value="">--PILIH KECAMATAN--</option>
+                              <?php 
+                              $value = $edit != "" ? $rowedit['kec_customer'] : "";
+                              $kecamatan = $db->dataIndonesia("kec",$idkab);
+                              foreach ($kecamatan as $key => $kec){
+                                $select = $value == $kec["subdistrict_name"] ? 'selected="selected"' : "";
+                                echo '<option value="'.$kec["subdistrict_id"].'" '.$select.'>'.$kec["subdistrict_name"].'</option>';
+                              }
+                              ?>
                             </select>
                             <label for="kec">Kecamatan</label>
                           </div>
                         </div>
                         <div class="col-md-3">
                           <div class="form-floating">
-                            <input placeholder="floot" type="number" class="form-control" name="kodepos" id="kodepos" required>
+                            <input placeholder="floot" type="number" class="form-control" value="<?= $edit != "" ? $rowedit['kode_pos_customer'] : "" ?>" name="kodepos" id="kodepos" required>
                             <label for="kodepos">Kode Pos</label>
                           </div>
                         </div>
                         <div class="col-md-12">
                           <div class="form-floating">
-                            <textarea class="form-control" placeholder="Leave a comment here" name="alamat" id="alamat" style="height: 100px"></textarea>
+                            <textarea class="form-control" placeholder="Leave a comment here" name="alamat" id="alamat" style="height: 100px"><?= $edit != "" ? $rowedit['address_customer'] : "" ?></textarea>
                             <label for="alamat">Alamat Lengkap</label>
                           </div>
                         </div>

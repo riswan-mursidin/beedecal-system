@@ -276,6 +276,21 @@
             $query = "INSERT INTO customer_stiker (name_customer,username_customer,password_customer,email_customer,telpn_customer,prov_customer,kota_kab_customer,kec_customer,kode_pos_customer,address_customer,id_owner) VALUES('$value1','$value2','$value3','$value4','$value5','$value6','$value7','$value8','$value9','$value10','$value11')";
             return mysqli_query($this->conn, $query);
         }
+
+        public function updateCustomer(
+            string $user,
+            string $value1,
+            string $value2,
+            string $value3,
+            string $value4,
+            string $value5,
+            string $value6,
+            string $value7,
+            string $value8
+        ){
+            $query = "UPDATE customer_stiker SET name_customer='$value1', telpn_customer='$value2', status_customer='$value3', prov_customer='$value4', kota_kab_customer='$value5', kec_customer='$value6', kode_pos_customer='$value7', address_customer='$value8' WHERE username_customer='$user'";
+            return mysqli_query($this->conn, $query);
+        }
     }
 
 session_start();

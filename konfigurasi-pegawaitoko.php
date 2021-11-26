@@ -8,6 +8,25 @@ if($_SESSION['login_stiker_admin'] != true ){
 
 $db = new ConfigClass();
 
+// pegawai
+$pegawai = $_GET['delete'];
+$check = $db->selectTable("user_galeri","username_user",$pegawai);
+if(mysqli_num_rows($check) != 0 && $pegawai != ""){
+    $delete = $db->deleteTable("user_galeri",$pegawai,"username_user");
+    if($delete){
+        $rowfoto = mysqli_fetch_assoc($check);
+        $foto = $rowfoto['foto_user'];
+        unlink($foto);
+        $_SESSION['alert'] = "1";
+        header('Location: konfigurasi-pegawaitoko');
+        exit();
+    }else{
+        $_SESSION['alert'] = "2";
+        header('Location: konfigurasi-pegawaitoko');
+        exit();
+    }
+}
+
 $userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
 $row = mysqli_fetch_assoc($userselect);
 $usernamelogin = $row['username_user'];
@@ -172,7 +191,7 @@ $alert = $_SESSION['alert'];
                             <td>
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                               <a href="tambah-pegawai?edit=<?= $rowviews['username_user']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
-                              <a href="delete-pegawai?edit=<?= $rowviews['username_user']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
+                              <a href="konfigurasi-pegawaitoko?delete=<?= $rowviews['username_user']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
                             </div>
                             </td>
                           </tr>

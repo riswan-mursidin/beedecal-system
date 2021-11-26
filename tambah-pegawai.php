@@ -24,6 +24,13 @@ $readonly = $edit != "" ? "readonly" : "";
 $editselect = $db->selectTable("user_galeri","username_user",$edit);
 $rowedit = mysqli_fetch_assoc($editselect);
 
+if($edit != ""){
+  if(mysqli_num_rows($editselect) == 0){
+    header('Location: konfigurasi-pegawaitoko');
+    exit();
+  }
+}
+
 if(isset($_POST['submit_pegawai'])){
   $email = $_POST['email'];
   $jk = $_POST['jk'];

@@ -18,66 +18,66 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-$delete = $_GET['delete'];
+// $delete = $_GET['delete'];
 
-$checkdata = $db->selectTable("merek_galeri","id_merek",$delete);
-if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
-  $delete = $db->deleteTable("merek_galeri",$delete,"id_merek");
-  if($delete){
-    $alert = "1";
-  }else{
-    $alert = "2";
-  }
-}
+// $checkdata = $db->selectTable("merek_galeri","id_merek",$delete);
+// if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
+//   $delete = $db->deleteTable("merek_galeri",$delete,"id_merek");
+//   if($delete){
+//     $alert = "1";
+//   }else{
+//     $alert = "2";
+//   }
+// }
 
-$edit = $_GET['edit'];
+// $edit = $_GET['edit'];
 
-$editselect = $db->selectTable("merek_galeri","id_merek",$edit);
-$rowselect = mysqli_fetch_assoc($editselect);
-if($edit != ""){
-  if(mysqli_num_rows($editselect) == 0){
-    header('Location: konfigurasiproduk-merek');
-    exit();
-  }
-}
+// $editselect = $db->selectTable("merek_galeri","id_merek",$edit);
+// $rowselect = mysqli_fetch_assoc($editselect);
+// if($edit != ""){
+//   if(mysqli_num_rows($editselect) == 0){
+//     header('Location: konfigurasiproduk-merek');
+//     exit();
+//   }
+// }
 
-if(isset($_POST['add_merek'])){
-  $jenis = $_POST['category'];
-  $merek = $_POST['merek'];
+// if(isset($_POST['add_merek'])){
+//   $jenis = $_POST['category'];
+//   $merek = $_POST['merek'];
 
-  if($edit == ""){
-    $check = $db->selectTable("merek_galeri","jenis_merek",$jenis,"name_merek",$merek);
-    if(mysqli_num_rows($check) > 0){
-      $alert = "4";
-    }else{
-      $insert = $db->insertMerk($id,$jenis,$merek);
-      if($insert){
-        $alert = "1";
-      }else{
-        $alert = "3";
-      }
-    }
-  }else{
-    $oldjenis = $rowselect['jenis_merek'];
-    $oldmerek = $rowselect['name_merek'];
+//   if($edit == ""){
+//     $check = $db->selectTable("merek_galeri","jenis_merek",$jenis,"name_merek",$merek);
+//     if(mysqli_num_rows($check) > 0){
+//       $alert = "4";
+//     }else{
+//       $insert = $db->insertMerk($id,$jenis,$merek);
+//       if($insert){
+//         $alert = "1";
+//       }else{
+//         $alert = "3";
+//       }
+//     }
+//   }else{
+//     $oldjenis = $rowselect['jenis_merek'];
+//     $oldmerek = $rowselect['name_merek'];
 
-    $update = $db->updateMerk($edit,$jenis,$merek,$oldjenis,$oldmerek);
-    if($update){
-      $_SESSION['alert'] = "1";
-      header('Location: konfigurasiproduk-merek');
-      exit();
-    }else{
-      $alert = '3';
-    }
-  }
-}
+//     $update = $db->updateMerk($edit,$jenis,$merek,$oldjenis,$oldmerek);
+//     if($update){
+//       $_SESSION['alert'] = "1";
+//       header('Location: konfigurasiproduk-merek');
+//       exit();
+//     }else{
+//       $alert = '3';
+//     }
+//   }
+// }
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | MEREK</title>
+    <title>STIKER | JENIS BAHAN</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -171,7 +171,7 @@ if(isset($_POST['add_merek'])){
             <div class="row">
               <div class="col-12">
                 <div class=" page-title-box d-sm-flex align-items-center justify-content-between" >
-                  <h4 class="mb-sm-0">Merek</h4>
+                  <h4 class="mb-sm-0">Jenis Bahan</h4>
 
                   <div class="page-title-right">
                     <ol class="breadcrumb m-0">
@@ -193,15 +193,8 @@ if(isset($_POST['add_merek'])){
                       <div class="mb-3">
                         <label for="category" class="form-label">Jenis Kendaraan</label>
                         <select name="category" id="category" class="form-select" required>
-                          <option value="">--PILIH JENIS--</option>
-                          <?php  
-                          $val = $edit != "" ? $rowselect['jenis_merek'] : "";
-                          $sels = array('Mobil','Motor');
-                          foreach($sels as $sel){
-                            $select = $val == $sel ? 'selected="selected"' : "";
-                          ?>
-                          <option value="<?= $sel ?>" <?= $select ?>><?= $sel ?></option>
-                          <?php } ?>
+                          <option value="">--PILIH BAHAN--</option>
+                          <?= $db->formatJenis("select",0,"",$id) ?></option>
                         </select>
                       </div>
                       <div class="mb-3">

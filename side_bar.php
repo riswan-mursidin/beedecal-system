@@ -154,7 +154,7 @@
                     <a href="konfigurasiproduk-produk.html">Produk</a>
                   </li>
                   <li>
-                    <a href="konfigurasiproduk-jenisbahan.html">Jenis Bahan</a>
+                    <a href="konfigurasiproduk-jenisbahan">Jenis Bahan</a>
                   </li>
                 </ul>
               </li>

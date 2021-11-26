@@ -66,6 +66,18 @@
 
     class ConfigClass extends DbClass{
 
+        public function formatJenis($param,$id,string $spasi,$owner){
+            if($param == "select"){
+                $check = $this->selectTable("bahan_stiker","id_parent_bahan",$id,"id_owner",$owner);
+                if(mysqli_num_rows($check) > 0){
+                    while($row = mysqli_fetch_assoc($check)){
+                        echo '<option value="'.$row['id_bahan'].'">'.$spasi.$row['nama_bahan'];
+                        $this->formatJenis($param,$row['id_bahan'], $spasi.=$row['nama_bahan']."/",$owner);
+                    }
+                }
+            }
+        }
+
         public function dataIndonesia(string $param, ?string $id){
             if($param == "prov"){
 

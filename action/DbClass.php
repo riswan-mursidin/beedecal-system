@@ -65,14 +65,36 @@
     }
 
     class ConfigClass extends DbClass{
+        // format fullname
+        public function nameFormater($name){
+            $array_name = explode(" ", $name);
+            $wordcount = count($array_name);
+            $word = "";
+            for($i=0; $i<$wordcount; $i++){
+                $word .= ucfirst($array_name[$i])." ";
+            }
+            return $word;
+        }
 
         public function formatJenis($param,$id,string $spasi,$owner){
             if($param == "select"){
-                $check = $this->selectTable("bahan_stiker","id_parent_bahan",$id,"id_owner",$owner);
+                $check = $this->selectTable("bahan_stiker","id_bahan",$id,"id_owner",$owner);
                 if(mysqli_num_rows($check) > 0){
-                    while($row = mysqli_fetch_assoc($check)){
-                        echo '<option value="'.$row['id_bahan'].'">'.$spasi.$row['nama_bahan'];
-                        $this->formatJenis($param,$row['id_bahan'], $spasi.=$row['nama_bahan']."/",$owner);
+                    $row = mysqli_fetch_assoc($check);
+                    echo '<option value="">'.$spasi.$this->nameFormater($row["nama_bahan"]).'</option>';
+                    $sub = $this->selectTable("bahan_stiker","id_parent_bahan",$row["id_bahan"],"id_owner",$owner);
+                    while($rowsub=mysqli_fetch_assoc($sub)){
+                        $this->formatJenis("select",$rowsub['id_bahan'],"-".$spasi,$owner);
+                    }
+                }
+            }else{
+                $check = $this->selectTable("bahan_stiker","id_bahan",$id,"id_owner",$owner);
+                if(mysqli_num_rows($check) > 0){
+                    $row = mysqli_fetch_assoc($check);
+                    if($row["id_parent_bahan"] == 0){
+                        echo $this->nameFormater($row["nama_bahan"]).$spasi;
+                    }else{
+                        $this->formatJenis($param,$row['id_parent_bahan'], $spasi.="/".$row['nama_bahan'],$owner);
                     }
                 }
             }

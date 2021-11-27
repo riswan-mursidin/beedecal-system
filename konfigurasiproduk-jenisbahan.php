@@ -194,7 +194,12 @@ $alert = $_SESSION['alert'];
                         <label for="category" class="form-label">Jenis Kendaraan</label>
                         <select name="category" id="category" class="form-select" required>
                           <option value="">--PILIH BAHAN--</option>
-                          <?= $db->formatJenis("select",0,"",$id) ?></option>
+                          <?php  
+                            $chooce = $db->selectTable("bahan_stiker","id_owner",$id,"id_parent_bahan","0");
+                            while($rowchooce = mysqli_fetch_assoc($chooce)){
+                          ?>
+                          <?= $db->formatJenis("select",$rowchooce['id_bahan'],"",$id) ?>
+                          <?php } ?>
                         </select>
                       </div>
                       <div class="mb-3">

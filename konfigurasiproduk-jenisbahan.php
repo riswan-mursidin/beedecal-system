@@ -18,17 +18,18 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-// $delete = $_GET['delete'];
+$delete = $_GET['delete'];
 
-// $checkdata = $db->selectTable("merek_galeri","id_merek",$delete);
-// if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
-//   $delete = $db->deleteTable("merek_galeri",$delete,"id_merek");
-//   if($delete){
-//     $alert = "1";
-//   }else{
-//     $alert = "2";
-//   }
-// }
+$checkdata = $db->selectTable("bahan_stiker","id_bahan",$delete);
+if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
+  $deletel = $db->deleteTable("bahan_stiker",$delete,"id_bahan");
+  if($deletel){
+    $subdel = $db->deleteRekursif($delete);
+    $alert = "1";
+  }else{
+    $alert = "2";
+  }
+}
 
 // $edit = $_GET['edit'];
 
@@ -41,22 +42,22 @@ $alert = $_SESSION['alert'];
 //   }
 // }
 
-// if(isset($_POST['add_merek'])){
-//   $jenis = $_POST['category'];
-//   $merek = $_POST['merek'];
+if(isset($_POST['add_kategori'])){
+  $jenis = $_POST['category'];
+  $name = $_POST['nama_jenis'];
 
 //   if($edit == ""){
-//     $check = $db->selectTable("merek_galeri","jenis_merek",$jenis,"name_merek",$merek);
-//     if(mysqli_num_rows($check) > 0){
-//       $alert = "4";
-//     }else{
-//       $insert = $db->insertMerk($id,$jenis,$merek);
-//       if($insert){
-//         $alert = "1";
-//       }else{
-//         $alert = "3";
-//       }
-//     }
+    $check = $db->selectTable("bahan_stiker","id_owner",$id,"id_parent_bahan",$jenis,"nama_bahan",$name);
+    if(mysqli_num_rows($check) > 0){
+      $alert = "4";
+    }else{
+      $insert = $db->insertBahan($id,$jenis,$name);
+      if($insert){
+        $alert = "1";
+      }else{
+        $alert = "3";
+      }
+    }
 //   }else{
 //     $oldjenis = $rowselect['jenis_merek'];
 //     $oldmerek = $rowselect['name_merek'];
@@ -70,7 +71,7 @@ $alert = $_SESSION['alert'];
 //       $alert = '3';
 //     }
 //   }
-// }
+}
 
 ?>
 <!DOCTYPE html>
@@ -188,25 +189,26 @@ $alert = $_SESSION['alert'];
               <div class="col-12 col-md-3">
                 <div class="card">
                   <div class="card-body">
-                    <div class="card-title">Tambah Merek</div>
+                    <div class="card-title">Tambah Jenis Bahan</div>
                     <form method="post" action="">
                       <div class="mb-3">
-                        <label for="category" class="form-label">Jenis Kendaraan</label>
-                        <select name="category" id="category" class="form-select" required>
-                          <option value="">--PILIH BAHAN--</option>
+                        <label for="category" class="form-label">Jenis Bahan</label>
+                        <select name="category" id="category" class="form-select" required> 
+                          <option value="">--PILIH JENIS BAHAN--</option>
+                          <option value="0">Buat Baru</option>
                           <?php  
-                            $chooce = $db->selectTable("bahan_stiker","id_owner",$id,"id_parent_bahan","0");
+                            $chooce = $db->selectTable("bahan_stiker","id_owner",$id);
                             while($rowchooce = mysqli_fetch_assoc($chooce)){
                           ?>
-                          <?= $db->formatJenis("select",$rowchooce['id_bahan'],"",$id) ?>
+                          <option value="<?= $rowchooce['id_bahan'] ?>"><?= $db->formatJenis("",$rowchooce['id_bahan'],null,$id) ?></option>
                           <?php } ?>
                         </select>
                       </div>
                       <div class="mb-3">
-                        <label for="merek" class="form-label">Merek</label>
-                        <input type="text" class="form-control" id="merek" value="<?= $edit != "" ? $rowselect['name_merek'] : "" ?>" name="merek" required>
+                        <label for="nama_jenis" class="form-label">Nama Jenis</label>
+                        <input type="text" class="form-control" id="nama_jenis"  name="nama_jenis" required>
                       </div>
-                      <button type="submit" name="add_merek" class="btn btn-primary">Submit</button>
+                      <button type="submit" name="add_kategori" class="btn btn-primary">Submit</button>
                     </form>
                   </div>
                 </div>
@@ -219,25 +221,23 @@ $alert = $_SESSION['alert'];
                         <thead>
                           <tr>
                             <th>#</th>
-                            <th>Jenis</th>
-                            <th>Merek</th>
+                            <th>Kategori</th>
                             <th>Aksi</th>
                           </tr>
                         </thead>
                         <tbody>
                           <?php  
                           $no = 0;
-                          $viewmerek = $db->selectTable("merek_galeri","id_owner",$id);
-                          while($rowmerek = mysqli_fetch_assoc($viewmerek)){
+                          $viewkategori = $db->selectTable("bahan_stiker","id_owner",$id);
+                          while($rowkategori = mysqli_fetch_assoc($viewkategori)){
                           ?>
                           <tr>
                             <td><?= ++$no ?></td>
-                            <td><?= $rowmerek['jenis_merek'] ?></td>
-                            <td><?= $rowmerek['name_merek'] ?></td>
+                            <td><?= $db->formatJenis("",$rowkategori['id_bahan'],null,$id) ?></td>
                             <td>
                               <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                <a href="konfigurasiproduk-merek?edit=<?= $rowmerek['id_merek']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
-                                <a href="konfigurasiproduk-merek?delete=<?= $rowmerek['id_merek']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
+                                <a href="konfigurasiproduk-jenisbahan?edit=<?= $rowkategori['id_bahan']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
+                                <a href="konfigurasiproduk-jenisbahan?delete=<?= $rowkategori['id_bahan']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
                               </div>
                             </td>
                           </tr>

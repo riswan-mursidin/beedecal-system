@@ -20,6 +20,7 @@
             $connection = mysqli_connect($this->SERVERNAME, $this->USERNAME, $this->PASSWORD, $this->DBNAME);
             if($connection){
                 $this->conn = $connection;
+                // mysqli_close($connection);
             }
         }
         
@@ -52,8 +53,6 @@
                 $query = "SELECT * FROM $tableparam";
                 return mysqli_query($connect, $query);
             }
-                
-            
         }
 
         public function deleteTable($tableparam, $value, $field){
@@ -76,7 +75,14 @@
             return $word;
         }
 
-        public function formatJenis($param,$id,string $spasi,$owner){
+        public function boldText($txt){
+            $t = explode(" | ", $txt);
+            $end = "<b>".end($t)."</b>";
+            $count = strlen($txt) - strlen(end($t));
+            echo substr_replace($txt,$end,$count,strlen($txt));
+        }
+
+        public function formatJenis($param,$id,?string $spasi,$owner){
             if($param == "select"){
                 $check = $this->selectTable("bahan_stiker","id_bahan",$id,"id_owner",$owner);
                 if(mysqli_num_rows($check) > 0){
@@ -92,9 +98,11 @@
                 if(mysqli_num_rows($check) > 0){
                     $row = mysqli_fetch_assoc($check);
                     if($row["id_parent_bahan"] == 0){
-                        echo $this->nameFormater($row["nama_bahan"]).$spasi;
+                        $cetak = $this->boldText($this->nameFormater($row["nama_bahan"]).$spasi);
+                        echo $cetak;
                     }else{
-                        $this->formatJenis($param,$row['id_parent_bahan'], $spasi.="/".$row['nama_bahan'],$owner);
+                        $n = $this->nameFormater($row["nama_bahan"]);
+                        $this->formatJenis($param,$row['id_parent_bahan']," | ".$n.$spasi,$owner);
                     }
                 }
             }
@@ -355,6 +363,26 @@
                 return true;
             }
         }
+
+        public function insertBahan(
+            string $owner,
+            string $value1,
+            string $value2
+        ){
+            $query = "INSERT INTO bahan_stiker (nama_bahan,id_parent_bahan,id_owner) VALUES('$value2','$value1','$owner')"; 
+            return mysqli_query($this->conn, $query);
+        }
+
+        public function deleteRekursif($id_parent_bahan){
+            $sel = $this->selectTable("bahan_stiker","id_parent_bahan",$id_parent_bahan);
+            if(mysqli_num_rows($sel) > 0){
+                while($rowsel = mysqli_fetch_assoc($sel)){
+                    $this->deleteRekursif($rowsel['id_bahan']);
+                }
+                $delete = $this->deleteTable("bahan_stiker",$id_parent_bahan,"id_parent_bahan");
+            }
+        }
+    
     }
 
 session_start();

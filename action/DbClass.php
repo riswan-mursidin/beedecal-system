@@ -351,14 +351,29 @@
             string $oldvalue2
         ){
             if($value1 != $oldvalue1 && $value2 != $oldvalue2){
-                $query = "UPDATE merek_galeri SET jenis_merek='$value1', name_merek='$value2' WHERE id_merek='$edit'";
-                return mysqli_query($this->conn, $query);
+                $check = $this->selectTable("merek_galeri","jenis_merek",$value1,"name_merek",$value2);
+                if(mysqli_num_rows($check) > 0){
+                    return 4;
+                }else{
+                    $query = "UPDATE merek_galeri SET jenis_merek='$value1', name_merek='$value2' WHERE id_merek='$edit'";
+                    return mysqli_query($this->conn, $query);
+                }
             }elseif($value1 != $oldvalue1){
-                $query = "UPDATE merek_galeri SET jenis_merek='$value1' WHERE id_merek='$edit'";
-                return mysqli_query($this->conn, $query);
+                $check = $this->selectTable("merek_galeri","jenis_merek",$value1,"name_merek",$value2);
+                if(mysqli_num_rows($check) > 0){
+                    return 4;
+                }else{
+                    $query = "UPDATE merek_galeri SET jenis_merek='$value1' WHERE id_merek='$edit'";
+                    return mysqli_query($this->conn, $query);
+                }
             }elseif($value2 != $oldvalue2){
-                $query = "UPDATE merek_galeri SET name_merek='$value2' WHERE id_merek='$edit'";
-                return mysqli_query($this->conn, $query);
+                $check = $this->selectTable("merek_galeri","jenis_merek",$value1,"name_merek",$value2);
+                if(mysqli_num_rows($check) > 0){
+                    return 4;
+                }else{
+                    $query = "UPDATE merek_galeri SET name_merek='$value2' WHERE id_merek='$edit'";
+                    return mysqli_query($this->conn, $query);
+                }
             }else{
                 return true;
             }
@@ -388,8 +403,51 @@
                 $query = "UPDATE bahan_stiker SET nama_bahan='$value' WHERE id_bahan='$param'";
                 return mysqli_query($this->conn,$query);
             }else{
-                return 4;
+                return true;
             }
+        }
+
+        public function insertUkuran($owner,$value){
+            $query = "INSERT INTO ukuran_stiker (lebar_ukuran,id_owner) VALUES('$value','$owner')";
+            return mysqli_query($this->conn, $query);
+        }
+
+        public function updateUkuran($param,$value){
+            $query = "UPDATE ukuran_stiker SET lebar_ukuran='$value' WHERE id_ukuran='$param'";
+            return mysqli_query($this->conn, $query);
+        }
+
+        public function InsertBank(
+            string $owner,
+            string $value1,
+            string $value2,
+            string $value3
+        ){
+            $query = "INSERT INTO bank_galeri (name_bank,pemilik_bank,rek_bank,id_owner) VALUES('$value1','$value2','$value3','$owner')";
+            return mysqli_query($this->conn, $query);
+        }
+
+        public function updateBank(
+            string $param,
+            string $value1,
+            string $value2,
+            string $value3
+        ){
+            $query = "UPDATE bank_galeri SET name_bank='$value1', pemilik_bank='$value2', rek_bank='$value3' WHERE id_bank='$param'";
+            return mysqli_query($this->conn, $query);
+        }
+
+        public function insertType(
+            string $value1,
+            string $value2,
+            string $value3,
+            string $value4,
+            string $value5,
+            string $owner
+            ){
+            $query = "INSERT INTO type_galeri (name_type,fullbodydash_harga_type,fullbody_harga_type,lite_harga_type,id_merek,id_owner) VALUES('$value1','$value2','$value3','$value4','$value5','$owner')";
+            $result = mysqli_query($this->conn, $query);
+            return $result;
         }
     
     }

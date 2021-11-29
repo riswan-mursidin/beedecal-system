@@ -43,7 +43,7 @@ if($edit != ""){
 
 if(isset($_POST['add_merek'])){
   $jenis = $_POST['category'];
-  $merek = $_POST['merek'];
+  $merek = strtolower($_POST['merek']);
 
   if($edit == ""){
     $check = $db->selectTable("merek_galeri","jenis_merek",$jenis,"name_merek",$merek);
@@ -59,11 +59,13 @@ if(isset($_POST['add_merek'])){
     }
   }else{
     $oldjenis = $rowselect['jenis_merek'];
-    $oldmerek = $rowselect['name_merek'];
+    $oldmerek = strtolower($rowselect['name_merek']);
 
     $update = $db->updateMerk($edit,$jenis,$merek,$oldjenis,$oldmerek);
-    if($update){
-      $_SESSION['alert'] = "1";
+    if($update == 4){
+      $alert = $update;
+    }elseif($update){
+      // $_SESSION['alert'] = "1";
       header('Location: konfigurasiproduk-merek');
       exit();
     }else{
@@ -235,7 +237,7 @@ if(isset($_POST['add_merek'])){
                           <tr>
                             <td><?= ++$no ?></td>
                             <td><?= $rowmerek['jenis_merek'] ?></td>
-                            <td><?= $rowmerek['name_merek'] ?></td>
+                            <td><?= $db->nameFormater($rowmerek['name_merek']) ?></td>
                             <td>
                               <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                                 <a href="konfigurasiproduk-merek?edit=<?= $rowmerek['id_merek']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>

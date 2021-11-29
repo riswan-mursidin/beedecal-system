@@ -148,13 +148,16 @@
                     <a href="konfigurasiproduk-merek">Merek</a>
                   </li>
                   <li>
-                    <a href="konfigurasiproduk-tipe.html">Tipe</a>
+                    <a href="konfigurasiproduk-tipe">Tipe</a>
                   </li>
                   <li>
                     <a href="konfigurasiproduk-produk.html">Produk</a>
                   </li>
                   <li>
                     <a href="konfigurasiproduk-jenisbahan">Jenis Bahan</a>
+                  </li>
+                  <li>
+                    <a href="konfigurasiproduk-ukuranbahan">Ukuran Bahan</a>
                   </li>
                 </ul>
               </li>
@@ -167,6 +170,9 @@
                 <ul class="sub-menu" aria-expanded="false">
                   <li>
                     <a href="konfigurasi-profiltoko">Profil Toko</a>
+                  </li>
+                  <li>
+                    <a href="konfigurasi-rek">Rekening Toko</a>
                   </li>
                   <li>
                     <a href="konfigurasi-pegawaitoko">Pegawai Toko</a>

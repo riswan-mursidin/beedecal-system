@@ -18,60 +18,47 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-$delete = $_GET['delete'];
+// $delete = $_GET['delete'];
 
-$checkdata = $db->selectTable("bahan_stiker","id_bahan",$delete);
-if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
-  $deletel = $db->deleteTable("bahan_stiker",$delete,"id_bahan");
-  if($deletel){
-    $subdel = $db->deleteRekursif($delete);
-    $alert = "1";
-  }else{
-    $alert = "2";
-  }
-}
+// $checkdata = $db->selectTable("bank_galeri","id_bank",$delete);
+// if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
+//   $deletel = $db->deleteTable("bank_galeri",$delete,"id_bank");
+//   if($deletel){
+//     $alert = "1";
+//   }else{
+//     $alert = "2";
+//   }
+// }
 
-$edit = $_GET['edit'];
+// $edit = $_GET['edit'];
 
-$editselect = $db->selectTable("bahan_stiker","id_bahan",$edit);
-$rowselect = mysqli_fetch_assoc($editselect);
-if($edit != ""){
-  if(mysqli_num_rows($editselect) == 0){
-    header('Location: konfigurasiproduk-jenisbahan');
-    exit();
-  }
-}
+// $editselect = $db->selectTable("bank_galeri","id_bank",$edit);
+// $rowselect = mysqli_fetch_assoc($editselect);
+// if($edit != ""){
+//   if(mysqli_num_rows($editselect) == 0){
+//     header('Location: konfigurasiproduk-ukuranbahan');
+//     exit();
+//   }
+// }
 
-if(isset($_POST['add_kategori'])){
-  $jenis = $_POST['category'];
-  $name = $_POST['nama_jenis'];
+if(isset($_POST['add_tipe'])){
+    $merk = $_POST['merek'];
+    $type = $_POST['tipe']; 
+    $fullbody = $_POST['fullbody'];
+    $fulldash = $_POST['fullbodydash'];
+    $lite = $_POST['lite'];
 
-  if($edit == ""){
-    $check = $db->selectTable("bahan_stiker","id_owner",$id,"id_parent_bahan",$jenis,"nama_bahan",$name);
+    $check = $db->selectTable("type_galeri","id_owner",$id,"name_type",$type,"id_merek",$merk);
     if(mysqli_num_rows($check) > 0){
       $alert = "4";
     }else{
-      $insert = $db->insertBahan($id,$jenis,$name);
+      $insert = $db->insertType($type,$fulldash,$fullbody,$lite,$merk,$id);
       if($insert){
         $alert = "1";
       }else{
         $alert = "3";
       }
     }
-  }else{
-    $oldname = $rowselect['nama_bahan'];
-
-    $update = $db->updatebahan($edit,$name,$oldname);
-    if($update == 4){
-      $alert = $update;
-    }elseif($update){
-      $_SESSION['alert'] = "1";
-      header('Location: konfigurasiproduk-jenisbahan');
-      exit();
-    }else{
-      $alert = '3';
-    }
-  }
 }
 
 ?>
@@ -79,7 +66,7 @@ if(isset($_POST['add_kategori'])){
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | JENIS BAHAN</title>
+    <title>STIKER | TIPE PRODUK</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -173,7 +160,7 @@ if(isset($_POST['add_kategori'])){
             <div class="row">
               <div class="col-12">
                 <div class=" page-title-box d-sm-flex align-items-center justify-content-between" >
-                  <h4 class="mb-sm-0">Jenis Bahan</h4>
+                  <h4 class="mb-sm-0">Tipe Produk</h4>
 
                   <div class="page-title-right">
                     <ol class="breadcrumb m-0">
@@ -190,28 +177,66 @@ if(isset($_POST['add_kategori'])){
               <div class="col-12 col-md-3">
                 <div class="card">
                   <div class="card-body">
-                    <div class="card-title">Tambah Jenis Bahan</div>
+                    <div class="card-title">Tambah Tipe</div>
                     <form method="post" action="">
                       <div class="mb-3">
-                        <label for="category" class="form-label">Jenis Bahan</label>
-                        <select name="category" id="category" class="form-select" required <?=  $edit != "" ? "disabled" : "" ?>> 
-                          <option value="">--PILIH JENIS BAHAN--</option>
-                          <option value="0">Buat Baru</option>
+                        <label for="merek" class="form-label">Merek</label>
+                        <select name="merek" id="merek" class="form-select" required>
+                          <option value="">--PILIH MEREK--</option>
                           <?php  
-                            $val = $edit != "" ? $rowselect['id_parent_bahan'] : $_POST['category'] ; 
-                            $chooce = $db->selectTable("bahan_stiker","id_owner",$id);
-                            while($rowchooce = mysqli_fetch_assoc($chooce)){
-                              $select = $rowchooce['id_bahan'] == $val ? 'selected="selected"' : "";
+                          $mobil = $db->selectTable("merek_galeri","id_owner",$id,"jenis_merek","Mobil"); 
+                          if(mysqli_num_rows($mobil) > 0){
                           ?>
-                          <option value="<?= $rowchooce['id_bahan'] ?>" <?= $select ?>><?= $db->formatJenis("",$rowchooce['id_bahan'],null,$id) ?></option>
+                          <optgroup label="Mobil">
+                            <?php 
+                            $mobil = $db->selectTable("merek_galeri","id_owner",$id,"jenis_merek","Mobil"); 
+                            while($rowmobil = mysqli_fetch_assoc($mobil)){
+                            ?>
+                            <option value="<?= $rowmobil['id_merek'] ?>"><?= $db->nameFormater($rowmobil['name_merek']) ?></option>
+                            <?php } ?>
+                          </optgroup>
+                          <?php 
+                          } 
+                          $motor = $db->selectTable("merek_galeri","id_owner",$id,"jenis_merek","Motor");  
+                          if(mysqli_num_rows($motor) > 0){
+                          ?>
+                          <optgroup label="Motor">
+                            <?php 
+                            $motor = $db->selectTable("merek_galeri","id_owner",$id,"jenis_merek","Motor"); 
+                            while($rowmotor = mysqli_fetch_assoc($motor)){
+                            ?>
+                            <option value="<?= $rowmotor['id_merek'] ?>"><?= $db->nameFormater($rowmotor['name_merek']) ?></option>
+                            <?php } ?>
+                          </optgroup>
                           <?php } ?>
                         </select>
                       </div>
                       <div class="mb-3">
-                        <label for="nama_jenis" class="form-label">Nama Jenis</label>
-                        <input type="text" class="form-control" id="nama_jenis" value="<?= $edit != "" ? $rowselect['nama_bahan'] : $_POST['nama_jenis'] ?>" name="nama_jenis" required>
+                        <label for="tipe" class="form-label">Tipe</label>
+                        <input type="text" class="form-control" id="tipe" value="<?= $edit != "" ? $rowselect['name_type'] : $_POST['tipe'] ?>" name="tipe" required>
                       </div>
-                      <button type="submit" name="add_kategori" class="btn btn-primary">Submit</button>
+                      <div class="mb-3">
+                        <label for="full" class="form-label">Fullbody</label>
+                        <div class="input-group">
+                          <span class="input-group-text">Rp.</span>
+                          <input type="number" class="form-control" placeholder="0.00" id="full" name="fullbody">
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <label for="fulldash" class="form-label">Fullbody Dashboard</label>
+                        <div class="input-group">
+                          <span class="input-group-text">Rp.</span>
+                          <input type="number" class="form-control" placeholder="0.00" id="fulldash" name="fullbodydash">
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <label for="lite" class="form-label">Lite</label>
+                        <div class="input-group">
+                          <span class="input-group-text">Rp.</span>
+                          <input type="number" class="form-control" placeholder="0.00" id="lite" name="lite">
+                        </div>
+                      </div>
+                      <button type="submit" name="add_tipe" class="btn btn-primary">Submit</button>
                     </form>
                   </div>
                 </div>
@@ -219,32 +244,38 @@ if(isset($_POST['add_kategori'])){
               <div class="col-12 col-md-9">
                 <div class="card">
                   <div class="card-body">
-                    <div class="card-title">List Bahan</div>
+                    <div class="card-title">Tipe Produk</div>
                       <table id="datatable" class="table table-bordered table-hover dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                         <thead>
                           <tr>
                             <th>#</th>
-                            <th>Kategori</th>
-                            <!-- <th>Panjang (CM)</th>
-                            <th>Lebar (CM)</th> -->
+                            <th>Jenis</th>
+                            <th>Merek</th>
+                            <th>Tipe</th>
+                            <th>Harga</th>
                             <th>Aksi</th>
                           </tr>
                         </thead>
                         <tbody>
                           <?php  
                           $no = 0;
-                          $viewkategori = $db->selectTable("bahan_stiker","id_owner",$id);
-                          while($rowkategori = mysqli_fetch_assoc($viewkategori)){
+                          $viewtipe = $db->selectTable("type_galeri","id_owner",$id);
+                          while($rowtipe = mysqli_fetch_assoc($viewtipe)){
                           ?>
                           <tr>
                             <td><?= ++$no ?></td>
-                            <td><?= $db->formatJenis("",$rowkategori['id_bahan'],null,$id) ?></td>
-                            <!-- <td><?= $rowkategori['panjang_bahan'] ?></td>
-                            <td><?= $rowkategori['lebar_bahan'] ?></td> -->
+                            <td><?= $rowtipe['id_merek'] ?></td>
+                            <td><?= $rowtipe['id_merek'] ?></td>
+                            <td><?= $rowtipe['name_type'] ?></td>
+                            <td>
+                              <?= $rowtipe['fullbodydash_harga_type'] != "" ? "Fullbody Dash : Rp.". number_format($rowtipe['fullbodydash_harga_type'],0,",",".")."<br>" : "" ?>
+                              <?= $rowtipe['fullbody_harga_type'] != "" ? "Fullbody : Rp.". number_format($rowtipe['fullbody_harga_type'],0,",",".")."<br>" : "" ?>
+                              <?= $rowtipe['lite_harga_type'] != "" ? "Lite : Rp.". number_format($rowtipe['lite_harga_type'],0,",",".")."<br>" : "" ?>
+                            </td>
                             <td>
                               <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                <a href="konfigurasiproduk-jenisbahan?edit=<?= $rowkategori['id_bahan']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
-                                <a href="konfigurasiproduk-jenisbahan?delete=<?= $rowkategori['id_bahan']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
+                                <a href="konfigurasi-rek?edit=<?= $rowbank['id_bank']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
+                                <a href="konfigurasi-rek?delete=<?= $rowbank['id_bank']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
                               </div>
                             </td>
                           </tr>
@@ -424,4 +455,4 @@ if(isset($_POST['add_kategori'])){
   </body>
 </html>
 
-<?php $_SESSION['alert'] = ""; ?>
+<?php $_SESSION['alert'] = ""; mysqli_close($db->conn) ?>

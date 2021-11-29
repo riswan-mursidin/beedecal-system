@@ -31,46 +31,47 @@ if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
   }
 }
 
-// $edit = $_GET['edit'];
+$edit = $_GET['edit'];
 
-// $editselect = $db->selectTable("merek_galeri","id_merek",$edit);
-// $rowselect = mysqli_fetch_assoc($editselect);
-// if($edit != ""){
-//   if(mysqli_num_rows($editselect) == 0){
-//     header('Location: konfigurasiproduk-merek');
-//     exit();
-//   }
-// }
+$editselect = $db->selectTable("bahan_stiker","id_bahan",$edit);
+$rowselect = mysqli_fetch_assoc($editselect);
+if($edit != ""){
+  if(mysqli_num_rows($editselect) == 0){
+    header('Location: konfigurasiproduk-jenisbahan');
+    exit();
+  }
+}
 
 if(isset($_POST['add_kategori'])){
   $jenis = $_POST['category'];
   $name = $_POST['nama_jenis'];
 
-//   if($edit == ""){
+  if($edit == ""){
     $check = $db->selectTable("bahan_stiker","id_owner",$id,"id_parent_bahan",$jenis,"nama_bahan",$name);
     if(mysqli_num_rows($check) > 0){
       $alert = "4";
     }else{
       $insert = $db->insertBahan($id,$jenis,$name);
-      if($insert){
+      if($insert == 4){
+        $alert = $insert;
+      }elseif($insert){
         $alert = "1";
       }else{
         $alert = "3";
       }
     }
-//   }else{
-//     $oldjenis = $rowselect['jenis_merek'];
-//     $oldmerek = $rowselect['name_merek'];
+  }else{
+    $oldname = $rowselect['nama_bahan'];
 
-//     $update = $db->updateMerk($edit,$jenis,$merek,$oldjenis,$oldmerek);
-//     if($update){
-//       $_SESSION['alert'] = "1";
-//       header('Location: konfigurasiproduk-merek');
-//       exit();
-//     }else{
-//       $alert = '3';
-//     }
-//   }
+    $update = $db->updatebahan($edit,$name,$oldname);
+    if($update){
+      $_SESSION['alert'] = "1";
+      header('Location: konfigurasiproduk-jenisbahan');
+      exit();
+    }else{
+      $alert = '3';
+    }
+  }
 }
 
 ?>
@@ -193,20 +194,22 @@ if(isset($_POST['add_kategori'])){
                     <form method="post" action="">
                       <div class="mb-3">
                         <label for="category" class="form-label">Jenis Bahan</label>
-                        <select name="category" id="category" class="form-select" required> 
+                        <select name="category" id="category" class="form-select" required <?=  $edit != "" ? "disabled" : "" ?>> 
                           <option value="">--PILIH JENIS BAHAN--</option>
                           <option value="0">Buat Baru</option>
                           <?php  
+                            $val = $edit != "" ? $rowselect['id_parent_bahan'] : $_POST['category'] ; 
                             $chooce = $db->selectTable("bahan_stiker","id_owner",$id);
                             while($rowchooce = mysqli_fetch_assoc($chooce)){
+                              $select = $rowchooce['id_bahan'] == $val ? 'selected="selected"' : "";
                           ?>
-                          <option value="<?= $rowchooce['id_bahan'] ?>"><?= $db->formatJenis("",$rowchooce['id_bahan'],null,$id) ?></option>
+                          <option value="<?= $rowchooce['id_bahan'] ?>" <?= $select ?>><?= $db->formatJenis("",$rowchooce['id_bahan'],null,$id) ?></option>
                           <?php } ?>
                         </select>
                       </div>
                       <div class="mb-3">
                         <label for="nama_jenis" class="form-label">Nama Jenis</label>
-                        <input type="text" class="form-control" id="nama_jenis"  name="nama_jenis" required>
+                        <input type="text" class="form-control" id="nama_jenis" value="<?= $edit != "" ? $rowselect['nama_bahan'] : $_POST['nama_jenis'] ?>" name="nama_jenis" required>
                       </div>
                       <button type="submit" name="add_kategori" class="btn btn-primary">Submit</button>
                     </form>
@@ -222,6 +225,8 @@ if(isset($_POST['add_kategori'])){
                           <tr>
                             <th>#</th>
                             <th>Kategori</th>
+                            <!-- <th>Panjang (CM)</th>
+                            <th>Lebar (CM)</th> -->
                             <th>Aksi</th>
                           </tr>
                         </thead>
@@ -234,6 +239,8 @@ if(isset($_POST['add_kategori'])){
                           <tr>
                             <td><?= ++$no ?></td>
                             <td><?= $db->formatJenis("",$rowkategori['id_bahan'],null,$id) ?></td>
+                            <!-- <td><?= $rowkategori['panjang_bahan'] ?></td>
+                            <td><?= $rowkategori['lebar_bahan'] ?></td> -->
                             <td>
                               <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                                 <a href="konfigurasiproduk-jenisbahan?edit=<?= $rowkategori['id_bahan']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>

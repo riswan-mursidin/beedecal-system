@@ -382,6 +382,15 @@
                 $delete = $this->deleteTable("bahan_stiker",$id_parent_bahan,"id_parent_bahan");
             }
         }
+
+        public function updateBahan($param,$value,$oldvalue){
+            if($value != $oldvalue){
+                $query = "UPDATE bahan_stiker SET nama_bahan='$value' WHERE id_bahan='$param'";
+                return mysqli_query($this->conn,$query);
+            }else{
+                return 4;
+            }
+        }
     
     }
 

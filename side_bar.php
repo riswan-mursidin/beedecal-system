@@ -151,7 +151,10 @@
                     <a href="konfigurasiproduk-tipe">Tipe</a>
                   </li>
                   <li>
-                    <a href="konfigurasiproduk-produk.html">Produk</a>
+                    <a href="konfigurasiproduk-produk">Produk</a>
+                  </li>
+                  <li>
+                    <a href="konfigurasiproduk-produk">Etalase</a>
                   </li>
                   <li>
                     <a href="konfigurasiproduk-jenisbahan">Jenis Bahan</a>

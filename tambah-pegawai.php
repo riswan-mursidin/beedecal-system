@@ -533,3 +533,4 @@ if(isset($_POST['submit_pegawai'])){
     <script src="assets/js/app.js"></script>
   </body>
 </html>
+<?php mysqli_close($db->conn) ?>

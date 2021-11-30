@@ -348,3 +348,4 @@ if(mysqli_num_rows($checktoko) > 0){
     <script src="assets/js/app.js"></script>
   </body>
 </html>
+<?php mysqli_close($db->conn) ?>

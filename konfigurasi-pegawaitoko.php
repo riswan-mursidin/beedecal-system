@@ -359,5 +359,5 @@ $alert = $_SESSION['alert'];
     </script>
   </body>
 </html>
-
-<?php $_SESSION['alert'] = ""; ?>
+<?php mysqli_close($db->conn) ?>
+<?php $_SESSION['alert'] = "";  ?>

@@ -220,3 +220,4 @@ $usernamelogin = $row['username_user']
     <script src="assets/js/app.js"></script>
   </body>
 </html>
+<?php mysqli_close($db->conn) ?>

@@ -24,7 +24,9 @@ $checkdata = $db->selectTable("ukuran_stiker","id_ukuran",$delete);
 if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
   $deletel = $db->deleteTable("ukuran_stiker",$delete,"id_ukuran");
   if($deletel){
-    $alert = "1";
+    $_SESSION['alert'] = "1";
+    header('Location: konfigurasiproduk-ukuranbahan');
+    exit();
   }else{
     $alert = "2";
   }
@@ -51,21 +53,29 @@ if(isset($_POST['add_ukuran'])){
     }else{
       $insert = $db->insertUkuran($id,$ukuran);
       if($insert){
-        $alert = "1";
+        $_SESSION['alert'] = "1";
+        header('Location: konfigurasiproduk-ukuranbahan');
+        exit();
       }else{
         $alert = "3";
       }
     }
   }else{
-    $oldukuran = $rowselect['nama_bahan'];
-
-    $update = $db->updateUkuran($edit,$ukuran);
-    if($update){
-      $_SESSION['alert'] = "1";
-      header('Location: konfigurasiproduk-ukuranbahan');
-      exit();
+    $oldukuran = $rowselect['lebar_ukuran'];
+    $update = $db->updateUkuran($edit," ");
+    $check = $db->selectTable("ukuran_stiker","id_owner",$id,"lebar_ukuran",$ukuran);
+    if(mysqli_num_rows($check) > 0){
+      $update = $db->updateUkuran($edit,$oldukuran);
+      $alert = "4";
     }else{
-      $alert = '3';
+      $update = $db->updateUkuran($edit,$ukuran);
+      if($update){
+        $_SESSION['alert'] = "1";
+        header('Location: konfigurasiproduk-ukuranbahan');
+        exit();
+      }else{
+        $alert = '3';
+      }
     }
   }
 }

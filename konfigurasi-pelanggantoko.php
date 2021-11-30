@@ -370,3 +370,4 @@ $alert = $_SESSION['alert'];
 </html>
 
 <?php $_SESSION['alert'] = ""; ?>
+<?php mysqli_close($db->conn) ?><?php mysqli_close($db->conn) ?>

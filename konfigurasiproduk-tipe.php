@@ -18,47 +18,80 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-// $delete = $_GET['delete'];
+function showMerk($merk){
+  global $db;
+  $show = $db->selectTable("merek_galeri","id_merek",$merk);
+  foreach($show as $views){
+    $result[] = $views;
+  }
+  return $result;
+}
 
-// $checkdata = $db->selectTable("bank_galeri","id_bank",$delete);
-// if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
-//   $deletel = $db->deleteTable("bank_galeri",$delete,"id_bank");
-//   if($deletel){
-//     $alert = "1";
-//   }else{
-//     $alert = "2";
-//   }
-// }
+$delete = $_GET['delete'];
 
-// $edit = $_GET['edit'];
+$checkdata = $db->selectTable("type_galeri","id_type",$delete);
+if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
+  $deletel = $db->deleteTable("type_galeri",$delete,"id_type");
+  if($deletel){
+    $_SESSION['alert'] = "1";
+    header('Location: konfigurasiproduk-tipe');
+    exit();
+  }else{
+    $alert = "2";
+  }
+}
 
-// $editselect = $db->selectTable("bank_galeri","id_bank",$edit);
-// $rowselect = mysqli_fetch_assoc($editselect);
-// if($edit != ""){
-//   if(mysqli_num_rows($editselect) == 0){
-//     header('Location: konfigurasiproduk-ukuranbahan');
-//     exit();
-//   }
-// }
+$edit = $_GET['edit'];
+
+$editselect = $db->selectTable("type_galeri","id_owner",$edit);
+$rowselect = mysqli_fetch_assoc($editselect);
+if($edit != ""){
+  if(mysqli_num_rows($editselect) == 0){
+    header('Location: konfigurasiproduk-tipe');
+    exit();
+  }
+}
 
 if(isset($_POST['add_tipe'])){
     $merk = $_POST['merek'];
-    $type = $_POST['tipe']; 
+    $type = strtolower($_POST['tipe']); 
     $fullbody = $_POST['fullbody'];
     $fulldash = $_POST['fullbodydash'];
     $lite = $_POST['lite'];
-
+  if($edit == ""){
     $check = $db->selectTable("type_galeri","id_owner",$id,"name_type",$type,"id_merek",$merk);
     if(mysqli_num_rows($check) > 0){
       $alert = "4";
     }else{
       $insert = $db->insertType($type,$fulldash,$fullbody,$lite,$merk,$id);
       if($insert){
-        $alert = "1";
+        $_SESSION['alert'] = "1";
+        header('Location: konfigurasiproduk-tipe');
+        exit();
       }else{
         $alert = "3";
       }
     }
+  }else{
+    $oldmerk = $rowselect['id_merek'];
+    $oldtype = $rowselect['name_type']; 
+    $oldfullbody = $rowselect['fullbody_harga_type'];
+    $oldfulldash = $rowselect['fullbodydash_harga_type'];
+    $oldlite = $rowselect['lite_harga_type'];
+    $update = $db->updateType(" ",$oldfulldash,$oldfullbody,$oldlite," ",$edit);
+    $check = $db->selectTable("type_galeri","id_owner",$id,"name_type",$type,"id_merek",$merk);
+    if(mysqli_num_rows($check) > 0){
+      $update = $db->updateType($oldtype,$oldfulldash,$oldfullbody,$oldlite,$oldmerk,$edit);
+      $alert = "4";
+    }else{
+      $update = $db->updateType($type,$fulldash,$fullbody,$lite,$merk,$edit);
+      if($update){
+        $_SESSION['alert'] = "1";
+        header('Location: konfigurasiproduk-tipe');
+        exit();
+      }
+    }
+  }
 }
 
 ?>
@@ -184,6 +217,7 @@ if(isset($_POST['add_tipe'])){
                         <select name="merek" id="merek" class="form-select" required>
                           <option value="">--PILIH MEREK--</option>
                           <?php  
+                          $val = $edit != "" ? $rowselect['id_merek'] : $_POST['merek'];
                           $mobil = $db->selectTable("merek_galeri","id_owner",$id,"jenis_merek","Mobil"); 
                           if(mysqli_num_rows($mobil) > 0){
                           ?>
@@ -191,8 +225,9 @@ if(isset($_POST['add_tipe'])){
                             <?php 
                             $mobil = $db->selectTable("merek_galeri","id_owner",$id,"jenis_merek","Mobil"); 
                             while($rowmobil = mysqli_fetch_assoc($mobil)){
+                              $select = $val == $rowmobil['id_merek'] ? 'selected="selected"' : "";
                             ?>
-                            <option value="<?= $rowmobil['id_merek'] ?>"><?= $db->nameFormater($rowmobil['name_merek']) ?></option>
+                            <option value="<?= $rowmobil['id_merek'] ?>" <?= $select ?>><?= $db->nameFormater($rowmobil['name_merek']) ?></option>
                             <?php } ?>
                           </optgroup>
                           <?php 
@@ -204,8 +239,9 @@ if(isset($_POST['add_tipe'])){
                             <?php 
                             $motor = $db->selectTable("merek_galeri","id_owner",$id,"jenis_merek","Motor"); 
                             while($rowmotor = mysqli_fetch_assoc($motor)){
+                              $select = $val == $rowmotor['id_merek'] ? 'selected="selected"' : "";
                             ?>
-                            <option value="<?= $rowmotor['id_merek'] ?>"><?= $db->nameFormater($rowmotor['name_merek']) ?></option>
+                            <option value="<?= $rowmotor['id_merek'] ?>" <?= $select ?> ><?= $db->nameFormater($rowmotor['name_merek']) ?></option>
                             <?php } ?>
                           </optgroup>
                           <?php } ?>
@@ -219,21 +255,21 @@ if(isset($_POST['add_tipe'])){
                         <label for="full" class="form-label">Fullbody</label>
                         <div class="input-group">
                           <span class="input-group-text">Rp.</span>
-                          <input type="number" class="form-control" placeholder="0.00" id="full" name="fullbody">
+                          <input type="number" class="form-control" placeholder="0.00" id="full" name="fullbody" value="<?= $edit != "" ? $rowselect['fullbody_harga_type'] : $_POST['fullbody'] ?>">
                         </div>
                       </div>
                       <div class="mb-3">
                         <label for="fulldash" class="form-label">Fullbody Dashboard</label>
                         <div class="input-group">
                           <span class="input-group-text">Rp.</span>
-                          <input type="number" class="form-control" placeholder="0.00" id="fulldash" name="fullbodydash">
+                          <input type="number" class="form-control" placeholder="0.00" id="fulldash" name="fullbodydash" value="<?= $edit != "" ? $rowselect['fullbodydash_harga_type'] : $_POST['fullbodydash'] ?>">
                         </div>
                       </div>
                       <div class="mb-3">
                         <label for="lite" class="form-label">Lite</label>
                         <div class="input-group">
                           <span class="input-group-text">Rp.</span>
-                          <input type="number" class="form-control" placeholder="0.00" id="lite" name="lite">
+                          <input type="number" class="form-control" placeholder="0.00" id="lite" name="lite" value="<?= $edit != "" ? $rowselect['lite_harga_type'] : $_POST['lite'] ?>">
                         </div>
                       </div>
                       <button type="submit" name="add_tipe" class="btn btn-primary">Submit</button>
@@ -264,9 +300,14 @@ if(isset($_POST['add_tipe'])){
                           ?>
                           <tr>
                             <td><?= ++$no ?></td>
-                            <td><?= $rowtipe['id_merek'] ?></td>
-                            <td><?= $rowtipe['id_merek'] ?></td>
-                            <td><?= $rowtipe['name_type'] ?></td>
+                            <?php 
+                            $m = showMerk($rowtipe['id_merek']);
+                            foreach($m as $rowmerk){
+                            ?>
+                            <td><?= $db->nameFormater($rowmerk['jenis_merek']) ?></td>
+                            <td><?= $db->nameFormater($rowmerk['name_merek']) ?></td>
+                            <?php } ?>
+                            <td><?= $db->nameFormater($rowtipe['name_type']) ?></td>
                             <td>
                               <?= $rowtipe['fullbodydash_harga_type'] != "" ? "Fullbody Dash : Rp.". number_format($rowtipe['fullbodydash_harga_type'],0,",",".")."<br>" : "" ?>
                               <?= $rowtipe['fullbody_harga_type'] != "" ? "Fullbody : Rp.". number_format($rowtipe['fullbody_harga_type'],0,",",".")."<br>" : "" ?>
@@ -274,8 +315,8 @@ if(isset($_POST['add_tipe'])){
                             </td>
                             <td>
                               <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                <a href="konfigurasi-rek?edit=<?= $rowbank['id_bank']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
-                                <a href="konfigurasi-rek?delete=<?= $rowbank['id_bank']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
+                                <a href="konfigurasiproduk-tipe?edit=<?= $rowtipe['id_type']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
+                                <a href="konfigurasiproduk-tipe?delete=<?= $rowtipe['id_type']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
                               </div>
                             </td>
                           </tr>

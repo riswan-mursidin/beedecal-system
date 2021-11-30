@@ -24,7 +24,9 @@ $checkdata = $db->selectTable("merek_galeri","id_merek",$delete);
 if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
   $delete = $db->deleteTable("merek_galeri",$delete,"id_merek");
   if($delete){
-    $alert = "1";
+    $_SESSION['alert'] = "1";
+    header('Location: konfigurasiproduk-merek');
+    exit();
   }else{
     $alert = "2";
   }
@@ -52,7 +54,9 @@ if(isset($_POST['add_merek'])){
     }else{
       $insert = $db->insertMerk($id,$jenis,$merek);
       if($insert){
-        $alert = "1";
+        $_SESSION['alert'] = "1";
+        header('Location: konfigurasiproduk-merek');
+        exit();
       }else{
         $alert = "3";
       }
@@ -60,16 +64,20 @@ if(isset($_POST['add_merek'])){
   }else{
     $oldjenis = $rowselect['jenis_merek'];
     $oldmerek = strtolower($rowselect['name_merek']);
-
-    $update = $db->updateMerk($edit,$jenis,$merek,$oldjenis,$oldmerek);
-    if($update == 4){
-      $alert = $update;
-    }elseif($update){
-      // $_SESSION['alert'] = "1";
-      header('Location: konfigurasiproduk-merek');
-      exit();
+    $update = $db->updateMerk($edit," "," ");
+    $check = $db->selectTable("merek_galeri","jenis_merek",$jenis,"name_merek",$merek);
+    if(mysqli_num_rows($check) > 0){
+      $update = $db->updateMerk($edit,$oldjenis,$oldmerek);
+      $alert = "4";
     }else{
-      $alert = '3';
+      $update = $db->updateMerk($edit,$jenis,$merek);
+      if($update){
+        $_SESSION['alert'] = "1";
+        header('Location: konfigurasiproduk-merek');
+        exit();
+      }else{
+        $alert = "3";
+      }
     }
   }
 }
@@ -297,7 +305,7 @@ if(isset($_POST['add_merek'])){
         <hr class="mt-0" />
         <h6 class="text-center mb-0">Choose Layouts</h6>
 
-        <div class="p-4">
+        <div class="p-4"> 
           <div class="form-check form-switch mb-3">
             <input
               class="form-check-input theme-choice"
@@ -422,3 +430,4 @@ if(isset($_POST['add_merek'])){
 </html>
 
 <?php $_SESSION['alert'] = ""; ?>
+<?php mysqli_close($db->conn) ?>

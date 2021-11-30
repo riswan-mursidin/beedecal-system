@@ -4,23 +4,18 @@
 
     class DbClass{
         // Configuration Db
-        var $SERVERNAME;
-        var $USERNAME;
-        var $PASSWORD;
-        var $DBNAME;
+        var $SERVERNAME = "localhost"; 
+        var $USERNAME = "root";
+        var $PASSWORD = "" ;
+        var $DBNAME = "galeri_stiker";
         // Var Connection
         var $conn;
         // Table name in array
 
         public function __construct(){
-            $this->SERVERNAME = "localhost"; 
-            $this->USERNAME = "root"; 
-            $this->PASSWORD = ""; 
-            $this->DBNAME = "galeri_stiker";
             $connection = mysqli_connect($this->SERVERNAME, $this->USERNAME, $this->PASSWORD, $this->DBNAME);
             if($connection){
                 $this->conn = $connection;
-                // mysqli_close($connection);
             }
         }
         
@@ -39,19 +34,24 @@
             $connect = $this->conn;
             if(!is_null($value1) && !is_null($field1) && !is_null($value2) && !is_null($field2) && !is_null($value3) && !is_null($field3) && !is_null($value4) && !is_null($field4)){
                 $query = "SELECT * FROM $tableparam WHERE ".$field1."='".$value1."' AND ".$field2."='".$value2."' AND ".$field3."='".$value3."' AND ".$field4."='".$value4."'";
-                return mysqli_query($connect, $query);
+                $result = mysqli_query($connect, $query);
+                return $result;
             }elseif(!is_null($value1) && !is_null($field1) && !is_null($value2) && !is_null($field2) && !is_null($value3) && !is_null($field3)){
                 $query = "SELECT * FROM $tableparam WHERE ".$field1."='".$value1."' AND ".$field2."='".$value2."' AND ".$field3."='".$value3."'";
-                return mysqli_query($connect, $query);
+                $result = mysqli_query($connect, $query);
+                return $result;
             }elseif(!is_null($value1) && !is_null($field1) && !is_null($value2) && !is_null($field2)){
                 $query = "SELECT * FROM $tableparam WHERE ".$field1."='".$value1."' AND ".$field2."='".$value2."'";
-                return mysqli_query($connect, $query);
+                $result = mysqli_query($connect, $query);
+                return $result;
             }elseif(!is_null($value1) && !is_null($field1)){
                 $query = "SELECT * FROM $tableparam WHERE ".$field1."='".$value1."'";
-                return mysqli_query($connect, $query);
+                $result = mysqli_query($connect, $query);
+                return $result;
             }else{
                 $query = "SELECT * FROM $tableparam";
-                return mysqli_query($connect, $query);
+                $result = mysqli_query($connect, $query);
+                return $result;
             }
         }
 
@@ -346,37 +346,10 @@
         public function updateMerk(
             string $edit,
             string $value1,
-            string $value2,
-            string $oldvalue1,
-            string $oldvalue2
+            string $value2
         ){
-            if($value1 != $oldvalue1 && $value2 != $oldvalue2){
-                $check = $this->selectTable("merek_galeri","jenis_merek",$value1,"name_merek",$value2);
-                if(mysqli_num_rows($check) > 0){
-                    return 4;
-                }else{
-                    $query = "UPDATE merek_galeri SET jenis_merek='$value1', name_merek='$value2' WHERE id_merek='$edit'";
-                    return mysqli_query($this->conn, $query);
-                }
-            }elseif($value1 != $oldvalue1){
-                $check = $this->selectTable("merek_galeri","jenis_merek",$value1,"name_merek",$value2);
-                if(mysqli_num_rows($check) > 0){
-                    return 4;
-                }else{
-                    $query = "UPDATE merek_galeri SET jenis_merek='$value1' WHERE id_merek='$edit'";
-                    return mysqli_query($this->conn, $query);
-                }
-            }elseif($value2 != $oldvalue2){
-                $check = $this->selectTable("merek_galeri","jenis_merek",$value1,"name_merek",$value2);
-                if(mysqli_num_rows($check) > 0){
-                    return 4;
-                }else{
-                    $query = "UPDATE merek_galeri SET name_merek='$value2' WHERE id_merek='$edit'";
-                    return mysqli_query($this->conn, $query);
-                }
-            }else{
-                return true;
-            }
+            $query = "UPDATE merek_galeri SET jenis_merek='$value1', name_merek='$value2' WHERE id_merek='$edit'";
+            return mysqli_query($this->conn, $query);
         }
 
         public function insertBahan(
@@ -449,8 +422,22 @@
             $result = mysqli_query($this->conn, $query);
             return $result;
         }
+
+        public function updateType(
+            string $value1,
+            string $value2,
+            string $value3,
+            string $value4,
+            string $value5,
+            string $param
+        ){
+            $query = "UPDATE type_galeri SET name_type='$value1', fullbodydash_harga_type='$value2', fullbody_harga_type='$value3', lite_harga_type='$value4', id_merek='$value5' WHERE id_type='$param'";
+            $result = mysqli_query($this->conn, $query);
+            return $result;
+        }
     
     }
+
 
 session_start();
 error_reporting(0);

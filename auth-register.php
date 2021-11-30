@@ -229,3 +229,4 @@ if(isset($_POST['auth-registion'])){
     </script>
   </body>
 </html>
+<?php mysqli_close($db->conn) ?>

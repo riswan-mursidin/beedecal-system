@@ -196,3 +196,4 @@ if(isset($_POST['auth-login'])){
     </script>
   </body>
 </html>
+<?php mysqli_close($db->conn) ?>

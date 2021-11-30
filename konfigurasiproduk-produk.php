@@ -8,6 +8,22 @@ if($_SESSION['login_stiker_admin'] != true ){
 
 $db = new ConfigClass();
 
+// // pelanggan
+// $pelanggan = $_GET['delete'];
+// $check = $db->selectTable("customer_stiker","username_customer",$pelanggan);
+// if(mysqli_num_rows($check) != 0 && $pelanggan != ""){
+//     $delete = $db->deleteTable("customer_stiker",$pelanggan,"username_customer");
+//     if($delete){
+//         $_SESSION['alert'] = "1";
+//         header('Location: konfigurasi-pelanggantoko');
+//         exit();
+//     }else{
+//         $_SESSION['alert'] = "2";
+//         header('Location: konfigurasi-pelanggantoko');
+//         exit();
+//     }
+// }
+
 $userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
 $row = mysqli_fetch_assoc($userselect);
 $usernamelogin = $row['username_user'];
@@ -18,74 +34,13 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-$delete = $_GET['delete'];
-
-$checkdata = $db->selectTable("bank_galeri","id_bank",$delete);
-if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
-  $deletel = $db->deleteTable("bank_galeri",$delete,"id_bank");
-  if($deletel){
-    $_SESSION['alert'] = "1";
-    header('Location: konfigurasi-rek');
-    exit();
-  }else{
-    $alert = "2";
-  }
-}
-
-$edit = $_GET['edit'];
-
-$editselect = $db->selectTable("bank_galeri","id_bank",$edit);
-$rowselect = mysqli_fetch_assoc($editselect);
-if($edit != ""){
-  if(mysqli_num_rows($editselect) == 0){
-    header('Location: konfigurasi-rek');
-    exit();
-  }
-}
-
-if(isset($_POST['add_rek'])){
-    $bank = strtolower($_POST['bank']);
-    $pemilik = strtolower($_POST['nama']);
-    $rek = $_POST['rek'];
-
-  if($edit == ""){
-    $check = $db->selectTable("bank_galeri","id_owner",$id,"name_bank",$bank,"rek_bank",$rek,"pemilik_bank",$pemilik);
-    if(mysqli_num_rows($check) > 0){
-      $alert = "4";
-    }else{
-      $insert = $db->InsertBank($id,$bank,$pemilik,$rek);
-      if($insert){
-        $_SESSION['alert'] = "1";
-        header('Location: konfigurasi-rek');
-        exit();
-      }else{
-        $alert = "3";
-      }
-    }
-  }else{
-    $oldbank = $rowselect['name_bank'];
-    $oldpemilik = $rowselect['pemilik_bank'];
-    $oldrek = $rowselect['rek_bank'];
-    $update = $db->updateBank($edit," "," "," ");
-    $check = $db->selectTable("bank_galeri","id_owner",$id,"name_bank",$bank,"rek_bank",$rek,"pemilik_bank",$pemilik);
-    if(mysqli_num_rows($check) > 0){
-      $update = $db->updateBank($edit,$oldbank,$oldpemilik,$oldrek);
-      $alert = "4";
-    }else{
-      $update = $db->updateBank($edit,$bank,$pemilik,$rek);
-      $_SESSION['alert'] = "1";
-      header('Location: konfigurasi-rek');
-      exit();
-    }
-  }
-}
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | REKENING TOKO</title>
+    <title>STIKER | PRODUK</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -120,7 +75,7 @@ if(isset($_POST['add_rek'])){
     <link href="assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
 
     <!-- Responsive datatable examples -->
-    <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" /> 
+    <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />     
 
     <script type="text/javascript">
             function showTime() {
@@ -178,11 +133,18 @@ if(isset($_POST['add_rek'])){
             <!-- start page title -->
             <div class="row">
               <div class="col-12">
-                <div class=" page-title-box d-sm-flex align-items-center justify-content-between" >
-                  <h4 class="mb-sm-0">Rekening Toko</h4>
+                <div
+                  class="
+                    page-title-box
+                    d-sm-flex
+                    align-items-center
+                    justify-content-between
+                  "
+                >
+                  <h4 class="mb-sm-0">Produk Toko</h4>
 
                   <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
+                  <ol class="breadcrumb m-0">
                       <li class="breadcrumb-item">
                         <span><b><?= date('D').", ".date("Y-m-d") ?></b> | <b id="time"></b></span>  
                       </li>
@@ -192,68 +154,47 @@ if(isset($_POST['add_rek'])){
               </div>
             </div>
             <!-- end page title -->
+            <a href="tambah-produk" class="btn btn-outline-primary mb-3">
+              <i class="dripicons-plus align-middle"></i>Tambah
+            </a>
             <div class="row">
-              <div class="col-12 col-md-3">
+              <div class="col-12">
                 <div class="card">
                   <div class="card-body">
-                    <div class="card-title">Tambah Rekening</div>
-                    <form method="post" action="">
-                      <div class="mb-3">
-                        <label for="bank" class="form-label">Bank</label>
-                        <input type="text" class="form-control" id="bank" value="<?= $edit != "" ? $rowselect['name_bank'] : $_POST['bank'] ?>" name="bank" required>
-                      </div>
-                      <div class="mb-3">
-                        <label for="nama" class="form-label">Atas Nama</label>
-                        <input type="text" class="form-control" id="nama" value="<?= $edit != "" ? $rowselect['pemilik_bank'] : $_POST['nama'] ?>" name="nama" required>
-                      </div>
-                      <div class="mb-3">
-                        <label for="rek" class="form-label">No. Rek</label>
-                        <input type="number" class="form-control" id="rek" value="<?= $edit != "" ? $rowselect['rek_bank'] : $_POST['rek'] ?>" name="rek" required>
-                      </div>
-                      <button type="submit" name="add_rek" class="btn btn-primary">Submit</button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-md-9">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="card-title">Rekening Bank</div>
-                      <table id="datatable" class="table table-bordered table-hover dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>Bank</th>
-                            <th>Atas Nama</th>
-                            <th>No. Rek</th>
-                            <th>Aksi</th>
-                          </tr>
+                    <table id="datatable" class="table table-bordered table-hover dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Nama Produk</th>
+                          <th>Detail</th>
+                          <th>Stok</th>
+                          <th>Harga</th>
+                          <th>Status</th>
+                          <th>Aksi</th>
+                        </tr>
                         </thead>
                         <tbody>
                           <?php  
                           $no = 0;
-                          $viewbank = $db->selectTable("bank_galeri","id_owner",$id);
-                          while($rowbank = mysqli_fetch_assoc($viewbank)){
+                          $views = $db->selectTable("customer_stiker","id_owner",$id);
+                          while($rowviews = mysqli_fetch_assoc($views)){
+
                           ?>
                           <tr>
-                            <td><?= ++$no ?></td>
-                            <td><?= strtoupper($rowbank['name_bank']) ?></td>
-                            <td><?= $db->nameFormater($rowbank['pemilik_bank']) ?></td>
-                            <td><?= $rowbank['rek_bank'] ?></td>
                             <td>
                               <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                <a href="konfigurasi-rek?edit=<?= $rowbank['id_bank']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
-                                <a href="konfigurasi-rek?delete=<?= $rowbank['id_bank']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
+                                <a href="tambah-pelanggan?edit=<?= $rowviews['username_customer']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
+                                <a href="konfigurasi-pelanggantoko?delete=<?= $rowviews['username_customer']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
                               </div>
                             </td>
                           </tr>
                           <?php } ?>
                         </tbody>
-                      </table>
+                    </table>
                   </div>
                 </div>
-              </div>
-            </div>
+              </div> <!-- end col -->
+            </div> <!-- end row -->
           </div>
           <!-- container-fluid -->
         </div>
@@ -264,6 +205,7 @@ if(isset($_POST['add_rek'])){
           <div class="container-fluid">
             <div class="row">
               <div class="col-sm-6">
+                
                 <script>
                   document.write(new Date().getFullYear());
                 </script>
@@ -387,18 +329,6 @@ if(isset($_POST['add_rek'])){
           text:"Data tidak Terhapus!",
           icon:"error",
         })
-      }else if(flash == "3"){
-        Swal.fire({
-          title:"Gagal!",
-          text:"Data tidak Tersimpan!",
-          icon:"error",
-        })
-      }else if(flash == "4"){
-        Swal.fire({
-          title:"Gagal!",
-          text:"Data Sudah Ada!",
-          icon:"error",
-        })
       }
     </script>
     <script>
@@ -424,4 +354,4 @@ if(isset($_POST['add_rek'])){
 </html>
 
 <?php $_SESSION['alert'] = ""; ?>
-<?php mysqli_close($db->conn) ?>
+<?php mysqli_close($db->conn) ?><?php mysqli_close($db->conn) ?>

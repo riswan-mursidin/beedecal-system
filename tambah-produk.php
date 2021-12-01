@@ -8,39 +8,15 @@ if($_SESSION['login_stiker_admin'] != true ){
 
 $db = new ConfigClass();
 
-// // pelanggan
-// $pelanggan = $_GET['delete'];
-// $check = $db->selectTable("customer_stiker","username_customer",$pelanggan);
-// if(mysqli_num_rows($check) != 0 && $pelanggan != ""){
-//     $delete = $db->deleteTable("customer_stiker",$pelanggan,"username_customer");
-//     if($delete){
-//         $_SESSION['alert'] = "1";
-//         header('Location: konfigurasi-pelanggantoko');
-//         exit();
-//     }else{
-//         $_SESSION['alert'] = "2";
-//         header('Location: konfigurasi-pelanggantoko');
-//         exit();
-//     }
-// }
-
 $userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
 $row = mysqli_fetch_assoc($userselect);
-$usernamelogin = $row['username_user'];
-$id = $row['id_owner'];
-// jika yang login buka owner ambil data owner dari id owner
-if($row['id_owner'] == "0"){
-  $id = $row['id_user'];
-}
-$alert = $_SESSION['alert'];
-
-
+$usernamelogin = $row['username_user']
 ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | PRODUK</title>
+    <title>STIKER | PRODUCT</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -66,16 +42,6 @@ $alert = $_SESSION['alert'];
       rel="stylesheet"
       type="text/css"
     />
-
-    <!-- Sweet Alert-->
-    <link href="assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
-
-    <!-- DataTables -->
-    <link href="assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
-    <link href="assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
-
-    <!-- Responsive datatable examples -->
-    <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />     
 
     <script type="text/javascript">
             function showTime() {
@@ -126,7 +92,6 @@ $alert = $_SESSION['alert'];
       <!-- ============================================================== -->
       <!-- Start right Content here -->
       <!-- ============================================================== -->
-      <div id="flash" data-flash="<?= $alert ?>"></div>
       <div class="main-content">
         <div class="page-content">
           <div class="container-fluid">
@@ -141,7 +106,7 @@ $alert = $_SESSION['alert'];
                     justify-content-between
                   "
                 >
-                  <h4 class="mb-sm-0">Produk Toko</h4>
+                  <h4 class="mb-sm-0">Tambah Produk</h4>
 
                   <div class="page-title-right">
                   <ol class="breadcrumb m-0">
@@ -153,55 +118,61 @@ $alert = $_SESSION['alert'];
                 </div>
               </div>
             </div>
-            <!-- end page title -->
-            <a href="tambah-produk" class="btn btn-outline-primary mb-3">
-              <i class="dripicons-plus align-middle"></i>Tambah
-            </a>
             <div class="row">
               <div class="col-12">
                 <div class="card">
                   <div class="card-body">
-                    <table id="datatable" class="table table-bordered table-hover dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Nama Produk</th>
-                          <th>Kategori</th>
-                          <th>Detail</th>
-                          <th>Stok</th>
-                          <th>Berat</th>
-                          <th>Status</th>
-                          <th>Aksi</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                          <?php  
-                          $no = 0;
-                          $views = $db->selectTable("pruduct_stiker","id_owner",$id);
-                          while($rowviews = mysqli_fetch_assoc($views)){
-                          ?>
-                          <tr>
-                            <td><?= ++$no ?></td>
-                            <td><?= $rowviews['nama_product'] ?></td>
-                            <td><?= $rowviews['id_kategori'] ?></td>
-                            <td><?= $rowviews['detail_product'] ?></td>
-                            <td><?= $rowviews['stock_product'] ?></td>
-                            <td><?= $rowviews['weight_product'] ?></td>
-                            <td>
-                              <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                <a href="tambah-produk?edit=<?= $rowviews['id_product']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
-                                <a href="#views=<?= $rowviews['id_product']; ?>" class="btn btn-warning btn-sm"><i class="ri-pencil-line"></i></a>
-                                <a href="konfigurasiproduk-produk?delete=<?= $rowviews['id_product']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
-                              </div>
-                            </td>
-                          </tr>
-                          <?php } ?>
-                        </tbody>
-                    </table>
+                    <form action="" method="post" autocomplete="off" style="padding: 20px;">
+                      <div class="card-title mb-3">Upload Produk</div>
+                      <div class="row mb-4">
+                        <input type="file" onchange="previewImage()" name="foto_produk" id="upload_image" accept="image/png,Image/jpeg" class="d-none">
+                        <label for="upload_image" style="cursor: pointer;" class="col-12">
+                          <img id="preview" style="display: block;margin-left: auto;margin-right: auto; max-width:180px;" src="assets/images/produk/img.jpg" alt="">
+                        </label>
+                        <label for="upload_image" style="cursor: pointer;" class="col-12 mt-2">
+                          <span class="text-info" style="display: block;text-align: center;font-size: 1em;">Ubah Foto</span>
+                        </label>
+                      </div>
+                      <hr>
+                      <div class="card-title mb-3">Informasi Produk</div>
+                      <div class="row g-3">
+                        <div class="col-sm-3">
+                          <label for="name" class="form-label">Nama Produk</label>
+                          <p style="font-size: 12px;">
+                            Cantumkan min. 40 karakter agar semakin<br>menarik dan mudah ditemukan oleh<br>pembeli, terdiri dari jenis produk, merek,<br>dan keterangan seperti warna, bahan, atau tipe.
+                          </p>
+                        </div>
+                        <div class="col-sm-9">
+                          <input type="text" class="form-control">
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="" class="form-label">Kategori</label>
+                        </div>
+                        <div class="col-sm-9">
+                          <select name="" id="" class="form-select">
+                            <option value="">--PILIH kATEGORI--</option>
+                          </select>
+                        </div>
+                      </div>
+                      <hr>
+                      <div class="card-title mb-3">Detail Produk</div>
+                      <div class="row g-3">
+                        <div class="col-sm-3">
+                          <label for="" class="form-label">Deskripsi Produk</label>
+                            <p style="font-size: 12px;">
+                              Cantumkan min. 40 karakter agar semakin<br>menarik dan mudah ditemukan oleh<br>pembeli, terdiri dari jenis produk, merek,<br>dan keterangan seperti warna, bahan, atau tipe.
+                            </p>
+                        </div>
+                        <div class="col-sm">
+                          <textarea name="" id="" rows="4" class="form-control"></textarea>
+                        </div>
+                      </div>
+                    </form>
                   </div>
                 </div>
-              </div> <!-- end col -->
-            </div> <!-- end row -->
+              </div>
+            </div>
+            <!-- end page title -->
           </div>
           <!-- container-fluid -->
         </div>
@@ -212,7 +183,6 @@ $alert = $_SESSION['alert'];
           <div class="container-fluid">
             <div class="row">
               <div class="col-sm-6">
-                
                 <script>
                   document.write(new Date().getFullYear());
                 </script>
@@ -301,64 +271,18 @@ $alert = $_SESSION['alert'];
     <script src="assets/libs/simplebar/simplebar.min.js"></script>
     <script src="assets/libs/node-waves/waves.min.js"></script>
 
-    <!-- Required datatable js -->
-    <script src="assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
-    <!-- Buttons examples -->
-    <script src="assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
-    <script src="assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
-
-    <script src="assets/libs/datatables.net-buttons/js/buttons.html5.min.js"></script>
-    <script src="assets/libs/datatables.net-buttons/js/buttons.print.min.js"></script>
-    <script src="assets/libs/datatables.net-buttons/js/buttons.colVis.min.js"></script>
-    <!-- Responsive examples -->
-    <script src="assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-    <script src="assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
-
-    <!-- Datatable init js -->
-    <script src="assets/js/pages/datatables.init.js"></script>
-    
-    <!-- Sweet Alerts js -->
-    <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
-
     <script src="assets/js/app.js"></script>
     <script>
-      var flash = $('#flash').data('flash');
-      if(flash == "1"){
-        Swal.fire({
-          title:"Berhasil!",
-          text:"Data Tersimpan!",
-          icon:"success",
-        })
-      }else if(flash == "2"){
-        Swal.fire({
-          title:"Gagal!",
-          text:"Data tidak Terhapus!",
-          icon:"error",
-        })
-      }
-    </script>
-    <script>
-      $(document).on('click', '#delete', function(e){
-        e.preventDefault();
-        var link = $(this).attr('href');
-        Swal.fire({
-          title:"Hapus Data!",
-          text:"Apakah Anda yakin?",
-          icon:"warning",
-          showCancelButton: true,
-          confirmButtonColor: '#00a65a',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Ya'
-        }).then((result) => {
-          if(result.isConfirmed){
-            window.location = link;
-          }
-        });
-      });
+        function previewImage() {
+          var oFReader = new FileReader();
+          oFReader.readAsDataURL(document.getElementById("upload_image").files[0]);
+        
+          oFReader.onload = function(oFREvent) {
+            // document.getElementById("image-preview").style.display = "block";
+            document.getElementById("preview").src = oFREvent.target.result;
+          };
+        };
     </script>
   </body>
 </html>
-
-<?php $_SESSION['alert'] = ""; ?>
-<?php mysqli_close($db->conn) ?><?php mysqli_close($db->conn) ?>
+<?php mysqli_close($db->conn) ?>

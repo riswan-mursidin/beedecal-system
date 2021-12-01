@@ -145,16 +145,16 @@
                 </a>
                 <ul class="sub-menu" aria-expanded="false">
                   <li>
-                    <a href="konfigurasiproduk-merek">Merek</a>
+                    <a href="konfigurasiproduk-merek">Merek Kendaraan</a>
                   </li>
                   <li>
-                    <a href="konfigurasiproduk-tipe">Tipe</a>
+                    <a href="konfigurasiproduk-tipe">Tipe/Harga</a>
+                  </li>
+                  <li>
+                    <a href="konfigurasiproduk-kategori">Kategori</a>
                   </li>
                   <li>
                     <a href="konfigurasiproduk-produk">Produk</a>
-                  </li>
-                  <li>
-                    <a href="konfigurasiproduk-produk">Etalase</a>
                   </li>
                   <li>
                     <a href="konfigurasiproduk-jenisbahan">Jenis Bahan</a>

@@ -108,6 +108,34 @@
             }
         }
 
+        public function formatKategori($param,$id,?string $spasi,$owner){
+            if($param == "select"){
+                $check = $this->selectTable("kategori_stiker","id_kategori",$id,"id_owner",$owner);
+                if(mysqli_num_rows($check) > 0){
+                    $row = mysqli_fetch_assoc($check);
+                    if($row["id_parent_kategori"] == 0){
+                        $cetak = $this->boldText($this->nameFormater($row["nama_kategori"]).$spasi);
+                        echo $cetak;
+                    }else{
+                        $n = $this->nameFormater($row["nama_kategori"]);
+                        $this->formatKategori($param,$row['id_parent_kategori']," / ".$n.$spasi,$owner);
+                    }
+                }
+            }else{
+                $check = $this->selectTable("kategori_stiker","id_kategori",$id,"id_owner",$owner);
+                if(mysqli_num_rows($check) > 0){
+                    $row = mysqli_fetch_assoc($check);
+                    if($row["id_parent_kategori"] == 0){
+                        $cetak = $this->boldText($this->nameFormater($row["nama_kategori"]).$spasi);
+                        echo $cetak;
+                    }else{
+                        $n = $this->nameFormater($row["nama_kategori"]);
+                        $this->formatKategori($param,$row['id_parent_kategori']," | ".$n.$spasi,$owner);
+                    }
+                }
+            }
+        }
+
         public function dataIndonesia(string $param, ?string $id){
             if($param == "prov"){
 
@@ -360,6 +388,15 @@
             $query = "INSERT INTO bahan_stiker (nama_bahan,id_parent_bahan,id_owner) VALUES('$value2','$value1','$owner')"; 
             return mysqli_query($this->conn, $query);
         }
+        
+        public function insertKategori(
+            string $owner,
+            string $value1,
+            string $value2
+        ){
+            $query = "INSERT INTO kategori_stiker (nama_kategori,id_parent_kategori,id_owner) VALUES('$value2','$value1','$owner')"; 
+            return mysqli_query($this->conn, $query);
+        }
 
         public function deleteRekursif($id_parent_bahan){
             $sel = $this->selectTable("bahan_stiker","id_parent_bahan",$id_parent_bahan);
@@ -371,13 +408,24 @@
             }
         }
 
-        public function updateBahan($param,$value,$oldvalue){
-            if($value != $oldvalue){
-                $query = "UPDATE bahan_stiker SET nama_bahan='$value' WHERE id_bahan='$param'";
-                return mysqli_query($this->conn,$query);
-            }else{
-                return true;
+        public function deleteRekursifOne($id_parent_kategori){
+            $sel = $this->selectTable("kategori_stiker","id_parent_kategori",$id_parent_kategori);
+            if(mysqli_num_rows($sel) > 0){
+                while($rowsel = mysqli_fetch_assoc($sel)){
+                    $this->deleteRekursif($rowsel['id_kategori']);
+                }
+                $delete = $this->deleteTable("kategori_stiker",$id_parent_kategori,"id_parent_kategori");
             }
+        }
+
+        public function updateBahan($param,$value){
+            $query = "UPDATE bahan_stiker SET nama_bahan='$value' WHERE id_bahan='$param'";
+            return mysqli_query($this->conn,$query);
+        }
+        
+        public function updateKategori($param,$value){
+            $query = "UPDATE kategori_stiker SET nama_kategori='$value' WHERE id_kategori='$param'";
+            return mysqli_query($this->conn,$query);
         }
 
         public function insertUkuran($owner,$value){

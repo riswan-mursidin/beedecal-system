@@ -483,6 +483,48 @@
             $result = mysqli_query($this->conn, $query);
             return $result;
         }
+
+        public function insertProduct(
+            string $owner,
+            string $value1,
+            string $value2,
+            string $value3,
+            string $value4,
+            string $value5,
+            string $value6,
+            string $value7,
+            string $value8
+        ){
+            $query = "INSERT INTO product_stiker(name_product,status_product,detail_product,stock_product,weight_product,harga_product,foto_product,id_kategori,id_owner) VALUES ('$value1','$value2','$value3','$value4','$value5','$value6','$value7','$value8','$owner')";
+
+            $result = mysqli_query($this->conn,$query);
+            return $result;
+        }
+
+        public function insertVarian(
+            string $owner,
+            string $value1,
+            string $value2,
+            string $value3
+        ){
+            $query = "INSERT INTO varian_warna (desk_warna,foto_warna,produk_name,id_owner) VALUES('$value1','$value2','$value3','$owner')";
+            $result = mysqli_query($this->conn, $query);
+            return $result;
+        }
+
+        public function compress_image($ext, $path, $to){
+            $rand = md5(rand());
+            $new_path = $to.$rand.".".$ext;
+            $img = "";
+            if($ext == "jpg" || $ext == "jpeg"){
+                $img = imagecreatefromjpeg($path);
+            }elseif($ext == "png"){
+                $img = imagecreatefrompng($path);
+            }
+            $result['bol'] = imagejpeg($img,$new_path,20);
+            $result['db'] = $new_path;
+            return $result;
+        }
     
     }
 

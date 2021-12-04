@@ -167,9 +167,7 @@ $alert = $_SESSION['alert'];
                           <th>#</th>
                           <th>Nama Produk</th>
                           <th>Kategori</th>
-                          <th>Detail</th>
                           <th>Stok</th>
-                          <th>Berat</th>
                           <th>Status</th>
                           <th>Aksi</th>
                         </tr>
@@ -177,20 +175,19 @@ $alert = $_SESSION['alert'];
                         <tbody>
                           <?php  
                           $no = 0;
-                          $views = $db->selectTable("pruduct_stiker","id_owner",$id);
+                          $views = $db->selectTable("product_stiker","id_owner",$id);
                           while($rowviews = mysqli_fetch_assoc($views)){
                           ?>
                           <tr>
                             <td><?= ++$no ?></td>
-                            <td><?= $rowviews['nama_product'] ?></td>
+                            <td><?= $rowviews['name_product'] ?></td>
                             <td><?= $rowviews['id_kategori'] ?></td>
-                            <td><?= $rowviews['detail_product'] ?></td>
                             <td><?= $rowviews['stock_product'] ?></td>
-                            <td><?= $rowviews['weight_product'] ?></td>
+                            <td><?= $rowviews['status_product'] ?></td>
                             <td>
                               <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                                 <a href="tambah-produk?edit=<?= $rowviews['id_product']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
-                                <a href="#views=<?= $rowviews['id_product']; ?>" class="btn btn-warning btn-sm"><i class="ri-pencil-line"></i></a>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" class="btn btn-warning btn-sm"><i class=" ri-eye-line"></i></a>
                                 <a href="konfigurasiproduk-produk?delete=<?= $rowviews['id_product']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
                               </div>
                             </td>
@@ -206,6 +203,28 @@ $alert = $_SESSION['alert'];
           <!-- container-fluid -->
         </div>
         <!-- End Page-content -->
+
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Review Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <img src="assets/images/produk/img.jpg" style="display: block;margin-left: auto;margin-right: auto; max-width:180px;">
+                <div class="row mt-3">
+                  <label for="" class="form-label col-md-3">Nama Produk</label>
+                  <span class="col-md-9">Nama Produk</span>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Footer -->
         <footer class="footer">

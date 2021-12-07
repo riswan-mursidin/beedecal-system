@@ -1,3 +1,4 @@
+      <?php $role = $row['level_user'] ?>
       <div class="vertical-menu">
         <div data-simplebar class="h-100">
           <!--- Sidemenu -->
@@ -29,7 +30,7 @@
                       <li><a href="#">Menunggu Konfirmasi</a></li>
                     </ul>
                   </li>
-                  <li><a href="#">Data Pesanan</a></li>
+                  <li><a href="data-pesanan">Data Pesanan</a></li>
                 </ul>
               </li>
               <!-- Produksi -->

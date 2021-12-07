@@ -81,8 +81,7 @@ if(isset($_POST['input_produk_back'])){
                 }
               }
               $insertvarian = $db->insertVarian($id,$color,$new_warna_path,$nama_produk);
-            }else{
-              $alert = "4";
+            }else{  
               $_SESSION['faild'] += 1;
               continue;
             }

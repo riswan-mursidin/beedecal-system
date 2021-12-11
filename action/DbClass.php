@@ -525,8 +525,97 @@
             $result['db'] = $new_path;
             return $result;
         }
+
+        // format date
+        public function dateFormatter($date){
+            $array_date = explode("-", $date);
+            $day = explode(" ",$array_date[2]);
+            $month = $array_date[1];
+            $year = $array_date[0];
+            switch($month){
+                case 1:
+                    return $day[0]." Januari ".$year;
+                    break;
+                case 2:
+                    return $day[0]." Februari ".$year;
+                    break;
+                case 3:
+                    return $day[0]." Maret ".$year;
+                    break;
+                case 4:
+                    return $day[0]." April ".$year;
+                    break;
+                case 5:
+                    return $day[0]." Mei ".$year;
+                    break;
+                case 6:
+                    return $day[0]." Juni ".$year;
+                    break;
+                case 7:
+                    return $day[0]." Juli ".$year;
+                    break;
+                case 8:
+                    return $day[0]." Agustus ".$year;
+                    break;
+                case 9:
+                    return $day[0]." September ".$year;
+                    break;
+                case 10:
+                    return $day[0]." Oktober ".$year;
+                    break;
+                case 11:
+                    return $day[0]." November ".$year;
+                    break;
+                case 12:
+                    return $day[0]." Desember ".$year;
+                    break;
+            }
+        }
+
+        public function formatHari($day){
+            switch($day){
+                case "Mon":
+                    return "Senin";
+                    break;
+                case "Tue":
+                    return "Selasa";
+                    break;
+                case "Wed":
+                    return "Rabu";
+                    break;
+                case "Thu":
+                    return "Kamis";
+                    break;
+                case "Fri":
+                    return "Jumat";
+                    break;
+                case "Sat":
+                    return "Sabtu";
+                    break;
+                case "Sun":
+                    return "Minggu";
+                    break;
+            }
+        }
+
+        // public function insertOrder(
+        //     string $owner,
+        //     string $value1 = null,
+        //     string $value2 = null,
+        //     string $value3 = null,
+        //     string $value4 = null,
+        //     string $value5 = null,
+        //     string $value6 = null
+        // ){
+        //     $query = "INSERT INTO data_pemesanan (status_produk_order,code_order,id_customer,status_pay_order,tgl_order,status_order,id_owner) VALUES('$value1','$value2','$value3','$value4','$value5','$value6','$owner')";
+        //     $result = mysqli_query($this->conn,$query);
+
+        //     return $result;
+        // }
     
     }
+
+    
 
 
 session_start();

@@ -8,6 +8,15 @@ if($_SESSION['login_stiker_admin'] != true ){
 
 $db = new ConfigClass();
 
+if(isset($_POST['create_spk'])){
+  $d = date('d');
+  $m = date('m');
+  $y = date('Y');
+  $niq = 1;
+  $spk = "SPK-".$d.$m.$y.$niq;
+  // $db->insertOrder($id, $spk);
+}
+
 $userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
 $row = mysqli_fetch_assoc($userselect);
 $usernamelogin = $row['username_user'];
@@ -51,9 +60,14 @@ $alert = $_SESSION['alert'];
       type="text/css"
     />
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+    <script src="assets/select2/dist/js/jquery.min.js"></script>
+    <link href="assets/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="assets/select2/dist/js/select2.min.js"></script>
+
     <script>
       function showSubJenis() {
         var p = document.getElementById("jenisp").value;
@@ -158,7 +172,7 @@ $alert = $_SESSION['alert'];
             </div>
             <!-- end page title -->
             <!-- card order -->
-            <form action="">
+            <form action="" method="post">
               <div class="row">
                 <div class="col-12">
                   <div class="card">
@@ -166,8 +180,9 @@ $alert = $_SESSION['alert'];
                       <div class="card-title">Informasi Pemesanan</div>
                       <div class="row g-3 mt-3">
                         <div class="col-md-3">
-                          <label for="jenisp" class="form-label">Jenis Pesanan</label>
-                          <select name="jenis_pesanann" id="jenisp" class="form-select">
+                          <label for="jenisp" class="form-label">Kategori Produk</label>
+                          <select name="kategori_produk" id="jenisp" class="form-select" required>
+                            <option value="">PILIH KATEGORI</option>
                             <option value="Mobil">Mobil</option>
                             <option value="Motor">Motor</option>
                             <option value="Other">Lainnya</option>
@@ -175,49 +190,53 @@ $alert = $_SESSION['alert'];
                         </div>
                         <div class="col-md-3">
                           <label for="jenispr" class="form-label">Jenis Produk</label>
-                          <select name="Jenis_produk" id="jenispr" class="form-select">
+                          <select name="Jenis_produk" id="jenispr" class="form-select" required>
+                            <option value="">PILIH JENIS</option>
                             <option value="Custom">Custom</option>
                             <option value="No Custom">Produk <?= $db->nameFormater($rowstore['name_store']) ?></option>
                           </select>
                         </div>
                         <div class="col-md-3">
-                          <label for="kategori_type" class="form-label">Produk</label>
-                          <div class="input-group">
-                            <select onchange="showVarian()" name="kategori_produk" id="kategori_type" class="form-select" required>
+                          <label for="kategori_type" class="form-label">Produk Tersedia</label>
+                          <div class="input-group" style="width: 100%;">
+                            <select onchange="showVarian()" name="produk" id="kategori_type" class="form-control js-example-basic-single" required>
                               <option value="" hidden>Empty</option>
                             </select>
-                            <button class="btn btn-warning" onclick="showSubJenis()" data-bs-toggle="tooltip" data-bs-placement="top" title="Views" type="button"><i class="ri-eye-line"></i></button>
+                            <button class="btn btn-secondary" onclick="showSubJenis()" data-bs-toggle="tooltip" data-bs-placement="top" title="Views" type="button"><i class="ri-eye-line"></i></button>
                           </div>
                         </div>
                         <div class="col-md-3">
-                          <label for="harga" class="form-label">Harga Varian</label>
+                          <label for="harga" class="form-label">Harga/Varian Produk</label>
                           <select name="varian_harga" id="harga" class="form-select">
-                            <option value="">PILIH VARIAN</option>
+                            <option value="">PILIH</option>
                           </select>
                         </div>
                         <div class="col-md-3">
-                          <label for="" class="form-label">Desain</label>
-                          <select name="" id="" class="form-select">
+                          <label for="desain_status" class="form-label">Desain</label>
+                          <select name="desain_status" id="desain_status" class="form-select">
                             <option value="Ya">YA</option>
                             <option value="Tidak">Tidak</option>
                           </select>
                         </div>
                         <div class="col-md-3">
-                          <label for="" class="form-label">Desain</label>
-                          <select name="" id="" class="form-select">
-                            
+                          <label for="cetak_status" class="form-label">Cetak</label>
+                          <select name="cetak_status" id="cetak_status" class="form-select">
+                            <option value="Ya">YA</option>
+                            <option value="Tidak">Tidak</option>
                           </select>
                         </div>
                         <div class="col-md-3">
-                          <label for="" class="form-label">Desain</label>
-                          <select name="" id="" class="form-select">
-                            
+                          <label for="laminating" class="form-label">Laminating</label>
+                          <select name="laminating" id="laminating" class="form-select">
+                            <option value="Ya">YA</option>
+                            <option value="Tidak">Tidak</option>
                           </select>
                         </div>
                         <div class="col-md-3">
-                          <label for="" class="form-label">Desain</label>
-                          <select name="" id="" class="form-select">
-                            
+                          <label for="pemasangan_status" class="form-label">Pemasangan</label>
+                          <select name="pemasangan_status" id="pemasangan_status" class="form-select">
+                            <option value="Ya">YA</option>
+                            <option value="Tidak">Tidak</option>
                           </select>
                         </div>
                       </div>
@@ -229,9 +248,9 @@ $alert = $_SESSION['alert'];
                     <div class="card-body">
                       <div class="card-title">Detail Pemesanan</div>
                       <div class="row g-3">
-                        <label for="pelanggan" class="col-sm-2 col-form-label">Pelanggan</label>
-                        <div class="col-sm-10">
-                          <select name="pangggan" style="height: 100px; font-sixe: 20px" class="js-example-placeholder-single form-control">
+                        <label for="select2" class="col-sm-2 col-form-label">Pelanggan</label>
+                        <div class="col-sm-4">
+                          <select name="pangggan" class="form-control js-example-basic-single" id="select2" style="width: 100%;">
                             <?php  
                               $cs = $db->selectTable("customer_stiker","id_owner",$id);
                               while($rowcs=mysqli_fetch_assoc($cs)){
@@ -240,7 +259,97 @@ $alert = $_SESSION['alert'];
                             <?php } ?>
                           </select>
                         </div>
+                        <div class="col-sm-3">
+                          <input type="text" name="keterangan" placeholder="Keterangan" id="" class="form-control">
+                        </div>
+                        <div class="col-sm-3">
+                          <div class="input-group">
+                            <input type="text" name="diskon" placeholder="Diskon" id="diskon" class="form-control">
+                            <span class="input-group-text">%</span>
+                          </div>
+                        </div>
+                        <label for="" class="col-sm-2 col-form-label">Tanggal Pemesanan</label>
+                        <div class="col-sm-10">
+                          <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1"><i class="ri-calendar-todo-fill"></i></span>
+                            <input type="text" style="cursor: not-allowed;" class="form-control" value="<?= $db->formatHari(date("D")).", ".$db->dateFormatter(date("Y-m-d")) ?>" disabled>
+                          </div>
+                        </div>
+                        <label for="pengiriman" class="col-sm-2 col-form-label">Pengiriman</label>
+                        <div class="col-sm-10">
+                          <select name="pengiriman" id="pengiriman" class="form-select">
+                            <option value="Ya">YA</option>
+                            <option value="Tidak">Tidak</option>
+                          </select>
+                        </div>
                       </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="card-title">Detail Pengiriman</div>
+                      <div class="row g-3">
+                        <label for="" class="col-sm-2 col-form-label">Kurir</label>
+                        <div class="col-sm-10">
+                          <select name="" id="kurir" class="form-select">
+                            <option value="">PILIH KURIR</option>
+                          </select>
+                        </div>
+                        <label for="" class="col-sm-2 col-form-label">Tujuan Pengiriman</label>
+                        <div class="col-sm-4">
+                          <select name="" id="prov" class="form-select">
+                            <option value="">PILIH PROVINSI</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-3">
+                          <select name="" id="" class="form-select">
+                            <option value="">PILIH KAB/KOTA</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-3">
+                          <select name="" id="" class="form-select">
+                            <option value="">PILIH KECAMATAN</option>
+                          </select>
+                        </div>
+                        <label for="" class="col-sm-2 col-form-label">Berat</label>
+                        <div class="col-sm-10">
+                          <input type="number" name="berat" step="0.01" id="" class="form-control">
+                        </div>
+                        <label for="" class="col-sm-2 col-form-label">Ongkos Kirim</label>
+                        <div class="col-sm-10">
+                          <div class="input-group">
+                            <span class="input-group-text">Rp.</span>
+                            <input type="number" name="" id="" class="form-control">
+                            <button class="btn btn-outline-secondary" type="button" id="button-addon2">Cek</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="card-title">Detail Pembayaran</div>
+                      <div class="row g-3">
+                        <label for="" class="col-sm-2 col-form-label">Pembayaran</label>
+                        <div class="col-sm-5">
+                          <div class="input-group">
+                            <span class="input-group-text">Rp.</span>
+                            <input type="number" id="" placeholder="Jumlah Pembayaran" class="form-control" readonly>
+                          </div>
+                          <span style="font-size:0.8rem"><strong>*jika pembayaran tidak memenuhi harga produk, maka berstatus DP</strong></span>
+                        </div>
+                        <div class="col-sm-5">
+                          <div class="input-group">
+                            <span class="input-group-text">Rp.</span>
+                            <input type="number" name="pembayaran" id="" placeholder="Enter Pembayaran" class="form-control">
+                          </div>
+                        </div>
+                      </div>
+                      <button type="submit" name="create_spk" class="btn btn-primary mt-3">Buat SPK</button>
                     </div>
                   </div>
                 </div>
@@ -338,22 +447,32 @@ $alert = $_SESSION['alert'];
     <!-- Right bar overlay-->
     <div class="rightbar-overlay"></div>
 
+    <script>
+      $(document).ready(function() {
+          $('#select2').select2({
+            // maximumSelectionLength: 1,
+            placeholder: 'Pelanggan Toko',
+            allowClear: true,
+            minimumInputLength: 0
+          });
+      });
+    </script>
+    <script>
+      $(document).ready(function() {
+          $('#kategori_type').select2({
+            minimumInputLength: 0
+          });
+      });
+    </script>
+
     <!-- JAVASCRIPT -->
-    <script src="assets/libs/jquery/jquery.min.js"></script>
     <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/libs/metismenu/metisMenu.min.js"></script>
     <script src="assets/libs/simplebar/simplebar.min.js"></script>
     <script src="assets/libs/node-waves/waves.min.js"></script>
 
     <script src="assets/js/app.js"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <script>
-      $(".js-example-placeholder-single").select2({
-          placeholder: "PILIH PELANGGAN",
-          allowClear: true
-      });
-    </script>
+    
   </body>
 </html>
 <?php mysqli_close($db->conn) ?>

@@ -8,6 +8,39 @@ if($_SESSION['login_stiker_admin'] != true ){
 
 $db = new ConfigClass();
 
+function showAddress($param, $idprov=null, $idkab=null, $idkec=null){
+  global $db;
+
+  if($param == "prov"){
+    $nameprov = "";
+    $func_prov = $db->dataIndonesia("prov",null);
+    foreach($func_prov as $key => $prov){
+      if($prov['province_id'] == $idprov){
+        $nameprov = $prov['province'];
+      }
+    }
+    return $nameprov;
+  }elseif($param == "kabkota"){
+    $namekab = "";
+    $func_kab = $db->dataIndonesia("kab_kota",$idprov);
+    foreach($func_kab as $key => $kab){
+      if($kab['city_id'] == $idkab){
+        $namekab = $kab['city_name'];
+      }
+    }
+    return $namekab;
+  }elseif($param == "kec"){
+    $namekec = "";
+    $func_kec = $db->dataIndonesia("kec",$idkab);
+    foreach($func_kec as $key => $kec){
+      if($kec['subdistrict_id'] == $idkec){
+        $namekec = $kec['subdistrict_name'];
+      }
+    }
+    return $namekec;
+  } 
+}
+
 // pelanggan
 $pelanggan = $_GET['delete'];
 $check = $db->selectTable("customer_stiker","username_customer",$pelanggan);
@@ -188,9 +221,9 @@ $alert = $_SESSION['alert'];
                             <td><?= $rowviews['name_customer']; ?></td>
                             <td><?= $rowviews['email_customer']; ?></td>
                             <td>
-                              <?= $rowviews['prov_customer']; ?><br>
-                              <?= $rowviews['kota_kab_customer']; ?><br>
-                              <?= $rowviews['kec_customer']; ?><br>
+                              <?= showAddress("prov",$rowviews['prov_customer']); ?><br>
+                              <?= showAddress("kabkota",$rowviews['prov_customer'],$rowviews['kota_kab_customer']); ?><br>
+                              <?= showAddress("kec",null,$rowviews['kota_kab_customer'],$rowviews['kec_customer']); ?><br>
                               <?= $rowviews['kode_pos_customer']; ?><br>
                               <?= $rowviews['address_customer']; ?>
                             </td>

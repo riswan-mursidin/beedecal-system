@@ -1,9 +1,9 @@
 <?php  
 
-class RajaOnkir{
+class RajaOngkir{
     private string $key = '3edd124529d0527e0cff142cd3ec17a6';
 
-    public function checkOngkir(string $kurir, string $tujuan, float $berat){
+    public function checkOngkir(string $kurir, string $asal, string $tujuan, string $berat){
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -14,10 +14,10 @@ class RajaOnkir{
             CURLOPT_TIMEOUT => 30,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => "origin=&originType=city&destination=574&destinationType=subdistrict&weight=1700&courier=jne",
+            CURLOPT_POSTFIELDS => "origin=$asal&originType=city&destination=$tujuan&destinationType=subdistrict&weight=$berat&courier=$kurir",
             CURLOPT_HTTPHEADER => array(
                 "content-type: application/x-www-form-urlencoded",
-                "key: $this->key"
+                "key: 3edd124529d0527e0cff142cd3ec17a6"
             ),
         ));
 
@@ -26,8 +26,13 @@ class RajaOnkir{
 
         curl_close($curl);
 
-        $array = json_decode($response,TRUE);
-        return $array["rajaongkir"]["results"];
+        if($err){
+            return "error";
+        }else{
+            $data = json_decode($response);
+            return $data->rajaongkir->results[0];
+        }
+                
     }
     
 }

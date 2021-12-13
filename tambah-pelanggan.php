@@ -45,7 +45,7 @@ if(isset($_POST['submit_pelanggan'])){
   $func_prov = $db->dataIndonesia("prov",null);
   foreach($func_prov as $key => $prov){
     if($prov['province_id'] == $idprov){
-      $nameprov = $prov['province'];
+      $nameprov = $prov['province_id'];
     }
   }
   $namekab = "";
@@ -53,7 +53,7 @@ if(isset($_POST['submit_pelanggan'])){
   $func_kab = $db->dataIndonesia("kab_kota",$idprov);
   foreach($func_kab as $key => $kab){
     if($kab['city_id'] == $idkab){
-      $namekab = $kab['city_name'];
+      $namekab = $kab['city_id'];
     }
   }
   $namekec = "";
@@ -61,7 +61,7 @@ if(isset($_POST['submit_pelanggan'])){
   $func_kec = $db->dataIndonesia("kec",$idkab);
   foreach($func_kec as $key => $kec){
     if($kec['subdistrict_id'] == $idkec){
-      $namekec = $kec['subdistrict_name'];
+      $namekec = $kec['subdistrict_id'];
     }
   }
   $kodepos = $_POST['kodepos'];
@@ -120,7 +120,7 @@ if(isset($_POST['submit_pelanggan'])){
     <link
       href="assets/css/app.min.css"
       id="app-style"
-      rel="stylesheet"
+      rel="styleshee t"
       type="text/css"
     />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>

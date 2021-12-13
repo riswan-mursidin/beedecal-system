@@ -63,6 +63,56 @@ $alert = $_SESSION['alert'];
     
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script>
+      function viewKab(str) {
+        $.ajax({
+          type:'post',
+          url:'api_kab_kota.php?prov_id='+str,
+          success:function(hasil_kab){
+            $("select[name=kabkota]").html(hasil_kab);
+          }
+        })
+      }
+    </script>
+    <script>
+      function viewkec(str) {
+        $.ajax({
+          type:'post',
+          url:'api_kecamatan.php?city_id='+str,
+          success:function(hasil_kec){
+            $("select[name=kec]").html(hasil_kec);
+          }
+        })
+      }
+    </script>
+    <script>
+      function showOngkir(){
+        var kurir = document.getElementById("kurir").value;
+        var asal = "254";
+        var tujuan = document.getElementById("kec").value;
+        var berat = document.getElementById("berat").value;
+        $.ajax({
+          type:'post',
+          url:'count_ongkir.php?kurir='+kurir+'&asal='+asal+'&tujuan='+tujuan+'&berat='+berat,
+          success:function(hasil_costs){
+            $("select[name=resultcost]").html(hasil_costs);
+          }
+        })
+      }
+    </script>
+    <script>
+      function addressCustomer(id){
+        if(id != ""){
+          $.ajax({
+            type:'post',
+            url:'select_address.php?id='+id,
+            success:function(hasil_address){
+              $("div[id=data_customer]").html(hasil_address);
+            }
+          })
+        }
+      }
+    </script>
 
     <script src="assets/select2/dist/js/jquery.min.js"></script>
     <link href="assets/select2/dist/css/select2.min.css" rel="stylesheet" />
@@ -76,7 +126,7 @@ $alert = $_SESSION['alert'];
           type:'post',
           url:'data_produk_kategori.php?jenisp='+p+'&jenispr='+pr+'&id='+<?= $id ?>,
           success:function(hasil_views){
-            $("select[name=kategori_produk").html(hasil_views);
+            $("select[name=produk").html(hasil_views);
           }
         })
       }
@@ -250,7 +300,8 @@ $alert = $_SESSION['alert'];
                       <div class="row g-3">
                         <label for="select2" class="col-sm-2 col-form-label">Pelanggan</label>
                         <div class="col-sm-4">
-                          <select name="pangggan" class="form-control js-example-basic-single" id="select2" style="width: 100%;">
+                          <select name="palanggan" onchange="addressCustomer(this.value)" class="form-control js-example-basic-single" id="select2" style="width: 100%;">
+                            <option value="" hidden>PILIH PELANGGAN</option>
                             <?php  
                               $cs = $db->selectTable("customer_stiker","id_owner",$id);
                               while($rowcs=mysqli_fetch_assoc($cs)){
@@ -290,39 +341,55 @@ $alert = $_SESSION['alert'];
                   <div class="card">
                     <div class="card-body">
                       <div class="card-title">Detail Pengiriman</div>
-                      <div class="row g-3">
+                      <div class="row g-3 mb-3">
                         <label for="" class="col-sm-2 col-form-label">Kurir</label>
                         <div class="col-sm-10">
-                          <select name="" id="kurir" class="form-select">
-                            <option value="">PILIH KURIR</option>
+                          <select name="kurir" id="kurir" class="form-select">
+                            <optgroup label="PILIH KURIR">
+                              <option value="pos">POS Indonesia (POS)</option>
+                              <option value="lion">Lion Parcel (LION)</option>
+                              <option value="jne">Jalur Nugraha Ekakurir (JNE)</option>
+                              <option value="j&t">J&T Express (J&T)</option>
+                            </optgroup>
                           </select>
                         </div>
-                        <label for="" class="col-sm-2 col-form-label">Tujuan Pengiriman</label>
-                        <div class="col-sm-4">
-                          <select name="" id="prov" class="form-select">
-                            <option value="">PILIH PROVINSI</option>
-                          </select>
-                        </div>
-                        <div class="col-sm-3">
-                          <select name="" id="" class="form-select">
-                            <option value="">PILIH KAB/KOTA</option>
-                          </select>
-                        </div>
-                        <div class="col-sm-3">
-                          <select name="" id="" class="form-select">
-                            <option value="">PILIH KECAMATAN</option>
-                          </select>
-                        </div>
+                      </div>
+                      <div class="row g-3 mb-3" id="data_customer">
+                          <label for="" class="col-sm-2 col-form-label">Tujuan Pengiriman</label>
+                          <div class="col-sm-4">
+                            <select name="prov" id="prov" class="form-select" onchange="viewKab(this.value)">
+                              <option value="">--PILIH PROVINSI--</option>
+                              <?php  
+                              $provs = $db->dataIndonesia("prov",null);
+                              foreach($provs as $prov){
+                                echo '<option value="'.$prov['province_id'].'">'.$prov['province'].'</option>';
+                              }
+                              ?>
+                            </select>
+                          </div>
+                          <div class="col-sm-3">
+                            <select name="kabkota" id="kabkota" class="form-select" onchange="viewkec(this.value)" required>
+                              <option value="">--PILIH KAB/KOTA--</option>
+                            </select>
+                          </div>
+                          <div class="col-sm-3">
+                            <select name="kec" id="kec" class="form-select" required>
+                              <option value="">--PILIH KECAMATAN--</option>
+                            </select>
+                          </div>
+                      </div>
+                      <div class="row g-3 mb-3">
                         <label for="" class="col-sm-2 col-form-label">Berat</label>
                         <div class="col-sm-10">
-                          <input type="number" name="berat" step="0.01" id="" class="form-control">
+                          <input type="number" name="berat" step="0.01" id="berat" class="form-control">
                         </div>
                         <label for="" class="col-sm-2 col-form-label">Ongkos Kirim</label>
                         <div class="col-sm-10">
                           <div class="input-group">
-                            <span class="input-group-text">Rp.</span>
-                            <input type="number" name="" id="" class="form-control">
-                            <button class="btn btn-outline-secondary" type="button" id="button-addon2">Cek</button>
+                            <select required name="resultcost" id="resut_pengiriman" class="form-control">
+                              <option value="">PILIH PAKET</option>
+                            </select>
+                            <button class="btn btn-warning" type="button" id="button-addon2" onclick="showOngkir()">Cek</button>
                           </div>
                         </div>
                       </div>

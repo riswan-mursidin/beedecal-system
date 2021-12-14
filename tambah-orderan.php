@@ -63,6 +63,10 @@ $alert = $_SESSION['alert'];
     
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+    <script src="assets/select2/dist/js/jquery.min.js"></script>
+    <link href="assets/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="assets/select2/dist/js/select2.min.js"></script>
     <script>
       function viewKab(str) {
         $.ajax({
@@ -113,10 +117,124 @@ $alert = $_SESSION['alert'];
         }
       }
     </script>
-
-    <script src="assets/select2/dist/js/jquery.min.js"></script>
-    <link href="assets/select2/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="assets/select2/dist/js/select2.min.js"></script>
+    <script>
+      function detailPengiriman(str){
+        var detail = document.getElementById("detailpengiriman");
+        var id = document.getElementById("pelanggan").value;
+        if(str == "Ya"){
+          detail.style.display = "block";
+          if(id != ""){
+            $.ajax({
+              type:'post',
+              url:'select_address.php?id='+id,
+              success:function(hasil_address){
+                $("div[id=data_customer]").html(hasil_address);
+              }
+            })
+          }
+        }else{
+          detail.style.display = "none";
+        }
+      }
+    </script>
+    <script>
+      function showFee(fee){
+        var feepemasang = document.getElementById("feepemasang").value;
+        var diskon = document.getElementById("diskon").value;
+        if(diskon != ""){
+          var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
+          if(feepemasang != ""){
+            var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang);
+          }else{
+            var feeView = document.getElementById("fee").value = parseFloat(hasil);
+          }
+        }else{
+          if(feepemasang != ""){
+            var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang);
+          }else{
+            var feeView = document.getElementById("fee").value = parseInt(fee);
+          }
+        }
+      }
+    </script>
+    <script>
+      function showFee2(install){
+        var diskon = document.getElementById("diskon").value;
+        var fee = document.getElementById("harga").value;
+        if(diskon != ""){
+          var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
+          if(install != ""){
+            var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(install);
+          }else{
+            var feeView = document.getElementById("fee").value = parseFloat(hasil);
+          }
+        }else{
+          if(install != ""){
+            var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(install);
+          }else{
+            var feeView = document.getElementById("fee").value = parseInt(fee);
+          }
+        }
+      }
+    </script>
+    <script>
+      function showFee3(diskon){
+        var fee = document.getElementById("harga").value;
+        var feepemasang = document.getElementById("feepemasang").value;
+        if(diskon != ""){
+          var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
+          if(feepemasang != ""){
+            var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang);
+          }else{
+            var feeView = document.getElementById("fee").value = parseFloat(hasil);
+          }
+        }else{
+          if(feepemasang != ""){
+            var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang);
+          }else{
+            var feeView = document.getElementById("fee").value = parseInt(fee);
+          }
+        }
+      }
+    </script>
+    <script>
+      function sisaDari(str){
+        var diskon = document.getElementById("diskon").value;
+        var fee = document.getElementById("harga").value;
+        var feepemasang = document.getElementById("feepemasang").value;
+        if(diskon != ""){
+          var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
+          if(feepemasang != ""){
+            if(str != ""){
+              var feeView = document.getElementById("fee").value = parseFloat(parseFloat(hasil) + parseFloat(feepemasang)) - parseFloat(str);
+            }else{
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang);
+            }
+          }else{
+            if(str != ""){
+            var feeView = document.getElementById("fee").value = parseFloat(hasil) - parseFloat(str);
+            }else{
+              var feeView = document.getElementById("fee").value = parseFloat(hasil);
+              
+            }
+          }
+        }else{
+          if(feepemasang != ""){
+            if(str != ""){
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang) - parseFloat(str);
+            }else{
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang);
+            }
+          }else{
+            if(str != ""){
+              var feeView = document.getElementById("fee").value = parseInt(fee) - parseFloat(str);
+            }else{
+              var feeView = document.getElementById("fee").value = parseInt(fee);
+            }
+          }
+        }
+      }
+    </script>
 
     <script>
       function showSubJenis() {
@@ -142,6 +260,26 @@ $alert = $_SESSION['alert'];
             $("select[name=varian_harga").html(hasil_views);
           }
         })
+      }
+    </script>
+    <script>
+      function showDetailDesain(str){
+        var detailDesain = document.getElementById("desain_detail");
+        if(str == "Ya"){
+          detailDesain.style.display = "block";
+        }else{
+          detailDesain.style.display = "none";
+        }
+      }
+    </script>
+    <script>
+      function showDetailPasang(str){
+        var detailPasang = document.getElementById("pasang_detail");
+        if(str == "Ya"){
+          detailPasang.style.display = "block";
+        }else{
+          detailPasang.style.display = "none";
+        }
       }
     </script>
 
@@ -222,7 +360,7 @@ $alert = $_SESSION['alert'];
             </div>
             <!-- end page title -->
             <!-- card order -->
-            <form action="" method="post">
+            <form action="" method="post" enctype="multipart/form-data">
               <div class="row">
                 <div class="col-12">
                   <div class="card">
@@ -257,36 +395,77 @@ $alert = $_SESSION['alert'];
                         </div>
                         <div class="col-md-3">
                           <label for="harga" class="form-label">Harga/Varian Produk</label>
-                          <select name="varian_harga" id="harga" class="form-select">
+                          <select name="varian_harga" id="harga" class="form-select" onchange="showFee(this.value)">
                             <option value="">PILIH</option>
                           </select>
                         </div>
                         <div class="col-md-3">
                           <label for="desain_status" class="form-label">Desain</label>
-                          <select name="desain_status" id="desain_status" class="form-select">
+                          <select name="desain_status" id="desain_status" class="form-select" onchange="showDetailDesain(this.value)">
                             <option value="Ya">YA</option>
-                            <option value="Tidak">Tidak</option>
+                            <option value="Tidak" selected="selected">Tidak</option>
                           </select>
                         </div>
                         <div class="col-md-3">
                           <label for="cetak_status" class="form-label">Cetak</label>
                           <select name="cetak_status" id="cetak_status" class="form-select">
                             <option value="Ya">YA</option>
-                            <option value="Tidak">Tidak</option>
+                            <option value="Tidak" selected="selected">Tidak</option>
                           </select>
                         </div>
                         <div class="col-md-3">
                           <label for="laminating" class="form-label">Laminating</label>
                           <select name="laminating" id="laminating" class="form-select">
                             <option value="Ya">YA</option>
-                            <option value="Tidak">Tidak</option>
+                            <option value="Tidak" selected="selected">Tidak</option>
                           </select>
                         </div>
                         <div class="col-md-3">
                           <label for="pemasangan_status" class="form-label">Pemasangan</label>
-                          <select name="pemasangan_status" id="pemasangan_status" class="form-select">
+                          <select name="pemasangan_status" id="pemasangan_status" class="form-select" onchange="showDetailPasang(this.value)">
                             <option value="Ya">YA</option>
-                            <option value="Tidak">Tidak</option>
+                            <option value="Tidak" selected="selected">Tidak</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12" id="desain_detail" style="display: none;">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="card-title">Detail Desain</div>
+                      <div class="row g-3">
+                        <label for="" class="col-sm-2 col-form-label">Upload Contoh Desain</label>
+                        <div class="col-sm-10">
+                          <input type="file" name="contoh_desain" id="" class="form-control">
+                        </div>
+                        <label for="" class="col-sm-2 col-form-label">Deskripsi Desain</label>
+                        <div class="col-sm-10">
+                          <textarea name="" id="" rows="3" class="form-control"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12" id="pasang_detail" style="display: none;">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="card-title">Detail Pemasangan</div>
+                      <div class="row g-3">
+                        <label for="" class="col-sm-2 col-form-label">Harga Pasang</label>
+                        <div class="col-sm-10">
+                          <div class="input-group">
+                            <span class="input-group-text">Rp.</span>
+                            <input type="number" name="" id="feepemasang" placeholder="0.00" onkeyup="showFee2(this.value)" class="form-control">
+                          </div>
+                        </div>
+                        <label for="" class="col-sm-2 col-form-label">Kategori Pemasang</label>
+                        <div class="col-sm-10">
+                          <select name="" id="" class="form-select">
+                            <option value="">Freelance & Karyawan</option>
+                            <option value="">Freelance</option>
+                            <option value="">Karyawan</option>
                           </select>
                         </div>
                       </div>
@@ -300,7 +479,7 @@ $alert = $_SESSION['alert'];
                       <div class="row g-3">
                         <label for="select2" class="col-sm-2 col-form-label">Pelanggan</label>
                         <div class="col-sm-4">
-                          <select name="palanggan" onchange="addressCustomer(this.value)" class="form-control js-example-basic-single" id="select2" style="width: 100%;">
+                          <select name="palanggan" onchange="addressCustomer(this.value)" class="form-control js-example-basic-single" id="pelanggan" style="width: 100%;">
                             <option value="" hidden>PILIH PELANGGAN</option>
                             <?php  
                               $cs = $db->selectTable("customer_stiker","id_owner",$id);
@@ -315,7 +494,7 @@ $alert = $_SESSION['alert'];
                         </div>
                         <div class="col-sm-3">
                           <div class="input-group">
-                            <input type="text" name="diskon" placeholder="Diskon" id="diskon" class="form-control">
+                            <input type="number" step="0.01" name="diskon" placeholder="Diskon" id="diskon" class="form-control" onkeyup="showFee3(this.value)">
                             <span class="input-group-text">%</span>
                           </div>
                         </div>
@@ -328,16 +507,16 @@ $alert = $_SESSION['alert'];
                         </div>
                         <label for="pengiriman" class="col-sm-2 col-form-label">Pengiriman</label>
                         <div class="col-sm-10">
-                          <select name="pengiriman" id="pengiriman" class="form-select">
+                          <select name="pengiriman" onchange="detailPengiriman(this.value)" id="pengiriman" class="form-select">
                             <option value="Ya">YA</option>
-                            <option value="Tidak">Tidak</option>
+                            <option value="Tidak" selected="selected">Tidak</option>
                           </select>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-12">
+                <div class="col-12" id="detailpengiriman" style="display: none;">
                   <div class="card">
                     <div class="card-body">
                       <div class="card-title">Detail Pengiriman</div>
@@ -405,14 +584,14 @@ $alert = $_SESSION['alert'];
                         <div class="col-sm-5">
                           <div class="input-group">
                             <span class="input-group-text">Rp.</span>
-                            <input type="number" id="" placeholder="Jumlah Pembayaran" class="form-control" readonly>
+                            <input type="number" id="fee" placeholder="Jumlah Pembayaran" step="0.01" class="form-control" readonly>
                           </div>
                           <span style="font-size:0.8rem"><strong>*jika pembayaran tidak memenuhi harga produk, maka berstatus DP</strong></span>
                         </div>
                         <div class="col-sm-5">
                           <div class="input-group">
                             <span class="input-group-text">Rp.</span>
-                            <input type="number" name="pembayaran" id="" placeholder="Enter Pembayaran" class="form-control">
+                            <input type="number" name="pembayaran" id="debit" placeholder="Enter Pembayaran" onkeyup="sisaDari(this.value)" class="form-control">
                           </div>
                         </div>
                       </div>
@@ -516,7 +695,7 @@ $alert = $_SESSION['alert'];
 
     <script>
       $(document).ready(function() {
-          $('#select2').select2({
+          $('#pelanggan').select2({
             // maximumSelectionLength: 1,
             placeholder: 'Pelanggan Toko',
             allowClear: true,

@@ -245,6 +245,7 @@
 
         public function compressFoto($sc, $newpath){
             $source_image = imagecreatefrompng($sc);
+
             return imagepng($source_image,$newpath,9);
         }
 
@@ -271,6 +272,51 @@
                     }
                 }
             }
+        }
+
+        public function compress_image($ext, $path, $to){
+            $rand = md5(rand());
+            $new_path = $to.$rand.".".$ext;
+            $img = "";
+            if($ext == "jpg" || $ext == "jpeg"){
+                $img = imagecreatefromjpeg($path);
+            }elseif($ext == "png"){
+                $img = imagecreatefrompng($path);
+            }
+            $result['bol'] = imagejpeg($img,$new_path,20);
+            $result['db'] = $new_path;
+            return $result;
+        }
+
+        public function saveFoto2($folder, $foto_name, $foto_path){
+            if(!file_exists($folder)){
+                mkdir($folder);
+            }
+            $ranname = md5(rand());
+            $format_foto = end(explode(".",$foto_name));
+            $new_foto_name = $ranname.".".$format_foto;
+            $new_foto_path = $folder.$new_foto_name;
+            $move = file_put_contents($new_foto_path, $foto_path);
+            if($move){
+                $compress = $this->compress_image($format_foto, $new_foto_path, "compress");
+                if($compress['bol']){
+                    return $compress['db'];
+                }
+            }
+        }
+
+        public function createSpk(){
+            $date = date("Y-m-d");
+            $cek_spk = "SELECT * FROM data_pemesanan WHERE tanggal_order='$date' ORDER BY code_order DESC LIMIT 1";
+            $result = mysqli_query($this->conn, $cek_spk);
+            if(mysqli_num_rows($result) > 0){
+                $row = mysqli_fetch_assoc($result);
+                $spkdb = $row['code_order'];
+                substr_replace($spkdb,'00',8,9);
+            }else{
+                return "SPK-".date("d").date("m").date("Y")."001";
+            }
+
         }
 
         // update table user
@@ -509,20 +555,6 @@
         ){
             $query = "INSERT INTO varian_warna (desk_warna,foto_warna,produk_name,id_owner) VALUES('$value1','$value2','$value3','$owner')";
             $result = mysqli_query($this->conn, $query);
-            return $result;
-        }
-
-        public function compress_image($ext, $path, $to){
-            $rand = md5(rand());
-            $new_path = $to.$rand.".".$ext;
-            $img = "";
-            if($ext == "jpg" || $ext == "jpeg"){
-                $img = imagecreatefromjpeg($path);
-            }elseif($ext == "png"){
-                $img = imagecreatefrompng($path);
-            }
-            $result['bol'] = imagejpeg($img,$new_path,20);
-            $result['db'] = $new_path;
             return $result;
         }
 

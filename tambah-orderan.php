@@ -8,14 +8,6 @@ if($_SESSION['login_stiker_admin'] != true ){
 
 $db = new ConfigClass();
 
-if(isset($_POST['create_spk'])){
-  $d = date('d');
-  $m = date('m');
-  $y = date('Y');
-  $niq = 1;
-  $spk = "SPK-".$d.$m.$y.$niq;
-  // $db->insertOrder($id, $spk);
-}
 
 $userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
 $row = mysqli_fetch_assoc($userselect);
@@ -28,6 +20,35 @@ if($row['id_owner'] == "0"){
 $store = $db->selectTable("store_galeri","id_owner",$id);
 $rowstore = mysqli_fetch_assoc($store);
 $alert = $_SESSION['alert'];
+
+if(isset($_POST['create_spk'])){
+  // create spk
+  $create_spk = $db->createSpk();
+
+  // informasi Pemesanan
+  $kategori_produk = $_POST['kategori_produk'];
+  $jenis_produk = $_POST['jenis_produk'];
+  $produk_id = $_POST['produk'];
+  $varian_harga = $_POST['varian_harga'];
+  $desain_status = $_POST['desain_status'];
+  $cetak_status = $_POST['cetak_status'];
+  $laminating = $_POST['laminating'];
+  $pemasangan_status = $_POST['pemasangan_status'];
+
+  // detail desain
+  $dbfoto = "empty";
+  if($desain_status == "Ya"){
+    $foto_path = $_FILES['contoh_desain']['tmp_name'];
+    $foto_name = $_FILES['contoh_desain']['name'];
+    $folder = "assets/images/contoh_desain";
+    $save_file = $db->saveFoto2($folder, $foto_name, $foto_path);
+    $dbfoto = $save_file;
+  }
+
+  // detail pasang
+  $harga_pasang = $pemasangan_status == "Ya" ? $_POST['harga_pasang'] : '0';
+  $kategori_pemasang = $pemasangan_status == "Ya" ? $_POST['kategori_pemasang'] : '';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -399,6 +420,7 @@ $alert = $_SESSION['alert'];
                             <option value="">PILIH</option>
                           </select>
                         </div>
+
                         <div class="col-md-3">
                           <label for="desain_status" class="form-label">Desain</label>
                           <select name="desain_status" id="desain_status" class="form-select" onchange="showDetailDesain(this.value)">
@@ -415,10 +437,7 @@ $alert = $_SESSION['alert'];
                         </div>
                         <div class="col-md-3">
                           <label for="laminating" class="form-label">Laminating</label>
-                          <select name="laminating" id="laminating" class="form-select">
-                            <option value="Ya">YA</option>
-                            <option value="Tidak" selected="selected">Tidak</option>
-                          </select>
+                          <input type="text" name="laminating" id="laminating" class="form-control" placeholder="input jika ada">
                         </div>
                         <div class="col-md-3">
                           <label for="pemasangan_status" class="form-label">Pemasangan</label>
@@ -457,15 +476,15 @@ $alert = $_SESSION['alert'];
                         <div class="col-sm-10">
                           <div class="input-group">
                             <span class="input-group-text">Rp.</span>
-                            <input type="number" name="" id="feepemasang" placeholder="0.00" onkeyup="showFee2(this.value)" class="form-control">
+                            <input type="number" name="harga_pasang" id="feepemasang" placeholder="0.00" onkeyup="showFee2(this.value)" class="form-control">
                           </div>
                         </div>
                         <label for="" class="col-sm-2 col-form-label">Kategori Pemasang</label>
                         <div class="col-sm-10">
-                          <select name="" id="" class="form-select">
-                            <option value="">Freelance & Karyawan</option>
-                            <option value="">Freelance</option>
-                            <option value="">Karyawan</option>
+                          <select name="kategori_pemasang" id="" class="form-select">
+                            <option value="Freelance & Karyawan">Freelance & Karyawan</option>
+                            <option value="Freelance">Freelance</option>
+                            <option value="Karyawan">Karyawan</option>
                           </select>
                         </div>
                       </div>
@@ -535,7 +554,7 @@ $alert = $_SESSION['alert'];
                       </div>
                       <div class="row g-3 mb-3" id="data_customer">
                           <label for="" class="col-sm-2 col-form-label">Tujuan Pengiriman</label>
-                          <div class="col-sm-4">
+                          <div class="col-sm-3">
                             <select name="prov" id="prov" class="form-select" onchange="viewKab(this.value)">
                               <option value="">--PILIH PROVINSI--</option>
                               <?php  
@@ -556,7 +575,15 @@ $alert = $_SESSION['alert'];
                               <option value="">--PILIH KECAMATAN--</option>
                             </select>
                           </div>
+                          <div class="col-sm-1">
+                            <input type="number" name="kode_pos" id="kode_pos" class="form-control" placeholder="Kode Pos">
+                          </div>
+                          <label for="" class="col-sm-2 col-form-label">Alamat Lengkap</label>
+                          <div class="col-sm">
+                            <textarea name="alamat_lengkap" id="" rows="3" class="form-control"></textarea>
+                          </div>
                       </div>
+
                       <div class="row g-3 mb-3">
                         <label for="" class="col-sm-2 col-form-label">Berat</label>
                         <div class="col-sm-10">

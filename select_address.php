@@ -15,10 +15,12 @@ $rowcustomer = mysqli_fetch_assoc($customer);
 $prov_post = $rowcustomer['prov_customer'];
 $kab_kota_post = $rowcustomer['kota_kab_customer'];
 $kec_post = $rowcustomer['kec_customer'];
+$kode_pos = $rowcustomer['kode_pos_customer'];
+$alamat_lengkap = $rowcustomer['address_customer'];
 
 ?>
 <label for="" class="col-sm-2 col-form-label">Tujuan Pengiriman</label>
-<div class="col-sm-4">
+<div class="col-sm-3">
     <select name="prov" id="prov" class="form-select" onchange="viewKab(this.value)">
         <option value="">--PILIH PROVINSI--</option>
         <?php  
@@ -53,4 +55,11 @@ $kec_post = $rowcustomer['kec_customer'];
         }
         ?>
     </select>
+</div>
+<div class="col-sm-1">
+    <input type="number" name="kode_pos" id="kode_pos" class="form-control" value="<?= $kode_pos ?>" placeholder="Kode Pos">
+</div>
+<label for="" class="col-sm-2 col-form-label">Alamat Lengkap</label>
+<div class="col-sm">
+    <textarea name="alamat_lengkap" id="" rows="3" class="form-control"><?= $alamat_lengkap ?></textarea>
 </div>

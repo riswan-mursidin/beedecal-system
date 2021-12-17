@@ -295,8 +295,8 @@
             $ranname = md5(rand());
             $format_foto = end(explode(".",$foto_name));
             $new_foto_name = $ranname.".".$format_foto;
-            $new_foto_path = $folder.$new_foto_name;
-            $move = file_put_contents($new_foto_path, $foto_path);
+            $new_foto_path = $folder."/".$new_foto_name;
+            $move = move_uploaded_file($foto_path, $new_foto_path);
             if($move){
                 $compress = $this->compress_image($format_foto, $new_foto_path, "compress");
                 if($compress['bol']){
@@ -305,16 +305,24 @@
             }
         }
 
-        public function createSpk(){
+        public function createSpk($owner){
             $date = date("Y-m-d");
-            $cek_spk = "SELECT * FROM data_pemesanan WHERE tanggal_order='$date' ORDER BY code_order DESC LIMIT 1";
+            $cek_spk = "SELECT * FROM data_pemesanan WHERE tgl_order='$date' AND id_owner='$owner' ORDER BY code_order DESC LIMIT 1";
             $result = mysqli_query($this->conn, $cek_spk);
             if(mysqli_num_rows($result) > 0){
                 $row = mysqli_fetch_assoc($result);
                 $spkdb = $row['code_order'];
-                substr_replace($spkdb,'00',8,9);
+                $spk = substr($spkdb, -3) + 1; 
+                if(substr($spkdb,-3,2) == "00"){
+                    return substr_replace($spkdb,"00".$spk,10,3);
+                }elseif(substr($spkdb,-3,1) == "0"){
+                    return substr_replace($spkdb,"0".$spk,10,3);
+                }else{
+                    return substr_replace($spkdb,$spk,10,3);
+                }
             }else{
-                return "SPK-".date("d").date("m").date("Y")."001";
+                $year = substr(date("Y"),-2);
+                return "SPK-".date("d").date("m").$year."001";
             }
 
         }
@@ -555,6 +563,50 @@
         ){
             $query = "INSERT INTO varian_warna (desk_warna,foto_warna,produk_name,id_owner) VALUES('$value1','$value2','$value3','$owner')";
             $result = mysqli_query($this->conn, $query);
+            return $result;
+        }
+
+        public function insertOrder(
+            string $owner,
+            string $value1,
+            string $value2,
+            string $value3,
+            string $value4,
+            string $value5,
+            string $value6,
+            string $value7,
+            string $value8,
+            string $value9,
+            string $value10,
+            string $value11,
+            string $value12,
+            string $value13,
+            string $value14,
+            string $value15,
+            string $value16,
+            string $value17,
+            string $value18,
+            string $value19,
+            string $value20,
+            string $value21,
+            string $value22,
+            string $value23,
+            string $value24,
+            string $value25,
+            string $value26,
+            string $value27,
+            string $value28,
+            string $value29,
+            string $value30,
+            string $value31,
+            string $value32,
+            string $value33
+        ){
+            $query = "INSERT INTO data_pemesanan ( jenis_produk_order,code_order,id_customer,status_pay_order,tgl_order,status_order,id_owner,kategori_produk_order,produk_order,harga_produk_order,model_stiker_order,status_desain_order,status_cetak_order,laminating_order,status_pasang_order,contoh_desain_order,desk_desain_order,kategori_pemasang_order,harga_pasang_order,keterangan_order,diskon_order,status_pengiriman_order,kurir_pengiriman_order,prov_send_order,kab_send_order,kec_send_order,kode_pos_send_order,alamat_lengkap_send_order,berat_send_order,ongkir_send_order,nama_paket_send_order,estimasi_send_order,sisa_pembayaran_order,pembayaran_customer_order) VALUES('".$value1."','".$value2."','".$value3."','".$value4."','".$value5."','".$value6."','".$owner."','".$value7."','".$value8."','".$value9."','".$value10."','".$value11."','".$value12."','".$value13."','".$value14."','".$value15."','".$value16."','".$value17."','".$value18."','".$value19."','".$value20."','".$value21."','".$value22."','".$value23."','".$value24."','".$value25."','".$value26."','".$value27."','".$value28."','".$value29."','".$value30."','".$value31."','".$value32."','".$value33."')";
+            $result = mysqli_query($this->conn, $query);
+            if(!$result){
+                return mysqli_error($this->conn);
+            }
             return $result;
         }
 

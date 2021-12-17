@@ -17,6 +17,22 @@ if($row['id_owner'] == "0"){
   $id = $row['id_user'];
 }
 $alert = $_SESSION['alert'];
+
+// pelanggan
+$order = $_GET['order'];
+$check = $db->selectTable("data_pemesanan","code_order",$order);
+if(mysqli_num_rows($check) != 0 && $order != ""){
+    $delete = $db->deleteTable("data_pemesanan",$order,"code_order");
+    if($delete){
+        $_SESSION['alert'] = "1";
+        header('Location: data-pesanan');
+        exit();
+    }else{
+        $_SESSION['alert'] = "2";
+        header('Location: data-pesanan');
+        exit();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -52,7 +68,7 @@ $alert = $_SESSION['alert'];
     <!-- Sweet Alert-->
     <link href="assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
 
-    !-- DataTables -->
+    <!-- DataTables -->
     <link href="assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
 
@@ -108,6 +124,7 @@ $alert = $_SESSION['alert'];
       <!-- ============================================================== -->
       <!-- Start right Content here -->
       <!-- ============================================================== -->
+      <div id="flash" data-flash="<?= $alert ?>"></div>
       <div class="main-content">
         <div class="page-content">
           <div class="container-fluid">
@@ -171,9 +188,9 @@ $alert = $_SESSION['alert'];
                           <td><?= $roworder['status_order'] ?></td>
                           <td>
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                              <a href="<?= $roworder[''] ?>" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="ri-pencil-line"></i></a>
+                              <a href="tambah-orderan.php?order=<?= $roworder['code_order'] ?>" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="ri-pencil-line"></i></a>
                               <a href="<?= $roworder[''] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Details"><i class="ri-eye-line"></i></a>
-                              <a href="<?= $roworder[''] ?>" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" id="delete"><i class="ri-delete-bin-line"></i></a>
+                              <a href="data-pesanan.php?order=<?= $roworder['code_order'] ?>" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" id="delete"><i class="ri-delete-bin-line"></i></a>
                             </div>
                           </td>
                         </tr>

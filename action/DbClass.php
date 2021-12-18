@@ -306,8 +306,8 @@
         }
 
         public function createSpk($owner){
-            $date = date("Y-m-d");
-            $cek_spk = "SELECT * FROM data_pemesanan WHERE tgl_order='$date' AND id_owner='$owner' ORDER BY code_order DESC LIMIT 1";
+            $date = date("m");
+            $cek_spk = "SELECT * FROM data_pemesanan WHERE month(tgl_order)='$date' AND id_owner='$owner' ORDER BY code_order DESC LIMIT 1";
             $result = mysqli_query($this->conn, $cek_spk);
             if(mysqli_num_rows($result) > 0){
                 $row = mysqli_fetch_assoc($result);
@@ -602,11 +602,55 @@
             string $value32,
             string $value33
         ){
-            $query = "INSERT INTO data_pemesanan ( jenis_produk_order,code_order,id_customer,status_pay_order,tgl_order,status_order,id_owner,kategori_produk_order,produk_order,harga_produk_order,model_stiker_order,status_desain_order,status_cetak_order,laminating_order,status_pasang_order,contoh_desain_order,desk_desain_order,kategori_pemasang_order,harga_pasang_order,keterangan_order,diskon_order,status_pengiriman_order,kurir_pengiriman_order,prov_send_order,kab_send_order,kec_send_order,kode_pos_send_order,alamat_lengkap_send_order,berat_send_order,ongkir_send_order,nama_paket_send_order,estimasi_send_order,sisa_pembayaran_order,pembayaran_customer_order) VALUES('".$value1."','".$value2."','".$value3."','".$value4."','".$value5."','".$value6."','".$owner."','".$value7."','".$value8."','".$value9."','".$value10."','".$value11."','".$value12."','".$value13."','".$value14."','".$value15."','".$value16."','".$value17."','".$value18."','".$value19."','".$value20."','".$value21."','".$value22."','".$value23."','".$value24."','".$value25."','".$value26."','".$value27."','".$value28."','".$value29."','".$value30."','".$value31."','".$value32."','".$value33."')";
+            $query = "INSERT INTO data_pemesanan ( jenis_produk_order,code_order,id_customer,status_pay_order,tgl_order,status_order,id_owner,kategori_produk_order,produk_order,harga_produk_order,model_stiker_order,status_desain_order,status_cetak_order,laminating_order,status_pasang_order,contoh_desain_order,desk_desain_order,kategori_pemasang_order,harga_pasang_order,keterangan_order,diskon_order,status_pengiriman_order,kurir_pengiriman_order,prov_send_order,kab_send_order,kec_send_order,kode_pos_send_order,alamat_lengkap_send_order,berat_send_order,ongkir_send_order,nama_paket_send_order,estimasi_send_order,sisa_pembayaran_order) VALUES('".$value1."','".$value2."','".$value3."','".$value4."','".$value5."','".$value6."','".$owner."','".$value7."','".$value8."','".$value9."','".$value10."','".$value11."','".$value12."','".$value13."','".$value14."','".$value15."','".$value16."','".$value17."','".$value18."','".$value19."','".$value20."','".$value21."','".$value22."','".$value23."','".$value24."','".$value25."','".$value26."','".$value27."','".$value28."','".$value29."','".$value30."','".$value31."','".$value32."')";
             $result = mysqli_query($this->conn, $query);
             if(!$result){
                 return mysqli_error($this->conn);
             }
+            return $result;
+        }
+
+        public function updateOrder(
+            string $owner,
+            string $spk,
+            string $jenis_produk,
+            string $customer_id,
+            string $status_pay,
+            string $status_order,
+            string $kategori_produk,
+            string $produk_id,
+            string $varian_harga,
+            string $varian_model,
+            string $desain_status,
+            string $cetak_status,
+            string $laminating,
+            string $pemasangan_status,
+            string $dbfoto,
+            string $desk_desain,
+            string $kategori_pemasang,
+            string $harga_pasang,
+            string $keterangan,
+            string $diskon,
+            string $status_pengiriman,
+            string $kurir,
+            string $prov_desti,
+            string $kabkota_desti,
+            string $kec_desti,
+            string $kode_pos,
+            string $alamat_lengkap,
+            string $berat,
+            string $cost,
+            string $name_paket,
+            string $etd,
+            string $sisabayar
+        ){
+            $query = "";
+            if($dbfoto == "empty"){
+                $query = "UPDATE data_pemesanan SET jenis_produk_order='$jenis_produk', id_customer='$customer_id', status_pay_order='$status_pay', status_order='$status_order', sisa_pembayaran_order='$sisabayar', kategori_produk_order='$kategori_produk', produk_order='$produk_id', harga_produk_order='$varian_harga', model_stiker_order='$varian_model', status_desain_order='$desain_status', status_cetak_order='$cetak_status', laminating_order='$laminating', status_pasang_order='$pemasangan_status', desk_desain_order='$desk_desain', kategori_pemasang_order='$kategori_pemasang', harga_pasang_order='$harga_pasang', keterangan_order='$keterangan', diskon_order='$diskon', status_pengiriman_order='$status_pengiriman', kurir_pengiriman_order='$kurir', prov_send_order='$prov_desti', kab_send_order='$kabkota_desti', kec_send_order='$kec_desti', kode_pos_send_order='$kode_pos', alamat_lengkap_send_order='$alamat_lengkap', berat_send_order='$berat', ongkir_send_order='$cost', nama_paket_send_order='$name_paket', estimasi_send_order='$etd' WHERE code_order ='$spk' AND id_owner='$owner'";
+            }else{
+                $query = "UPDATE data_pemesanan SET jenis_produk_order='$jenis_produk', id_customer='$customer_id', status_pay_order='$status_pay', status_order='$status_order', sisa_pembayaran_order='$sisabayar', kategori_produk_order='$kategori_produk', produk_order='$produk_id', harga_produk_order='$varian_harga', model_stiker_order='$varian_model', status_desain_order='$desain_status', status_cetak_order='$cetak_status', laminating_order='$laminating', status_pasang_order='$pemasangan_status', contoh_desain_order='$dbfoto', desk_desain_order='$desk_desain', kategori_pemasang_order='$kategori_pemasang', harga_pasang_order='$harga_pasang', keterangan_order='$keterangan', diskon_order='$diskon', status_pengiriman_order='$status_pengiriman', kurir_pengiriman_order='$kurir', prov_send_order='$prov_desti', kab_send_order='$kabkota_desti', kec_send_order='$kec_desti', kode_pos_send_order='$kode_pos', alamat_lengkap_send_order='$alamat_lengkap', berat_send_order='$berat', ongkir_send_order='$cost', nama_paket_send_order='$name_paket', estimasi_send_order='$etd' WHERE code_order ='$spk' AND id_owner='$owner'";
+            }
+            $result = mysqli_query($this->conn, $query);
             return $result;
         }
 
@@ -682,20 +726,31 @@
             }
         }
 
-        // public function insertOrder(
-        //     string $owner,
-        //     string $value1 = null,
-        //     string $value2 = null,
-        //     string $value3 = null,
-        //     string $value4 = null,
-        //     string $value5 = null,
-        //     string $value6 = null
-        // ){
-        //     $query = "INSERT INTO data_pemesanan (status_produk_order,code_order,id_customer,status_pay_order,tgl_order,status_order,id_owner) VALUES('$value1','$value2','$value3','$value4','$value5','$value6','$owner')";
-        //     $result = mysqli_query($this->conn,$query);
+        public function insertDetailTr(
+            string $owner,
+            string $v1,
+            string $v2,
+            string $v3
+        ){
+            $query = "INSERT INTO detail_transaksi (code_order,tgl_transaksi,jumlah_transaksi,id_owner) VALUES('$v1','$v2','$v3','$owner')";
+            $result = mysqli_query($this->conn, $query);
+            return $result;
+        }
 
-        //     return $result;
-        // }
+        public function updateDetailTr(
+            string $id,
+            string $fee,
+            string $sisa,
+            string $spk
+        ){
+            $query = "UPDATE detail_transaksi SET jumlah_transaksi='$fee' WHERE id='$id'";
+            $result = mysqli_query($this->conn, $query);
+            if($result){
+                $query2 = "UPDATE data_pemesanan SET sisa_pembayaran_order='$sisa' WHERE code_order='$spk'";
+                $result2 = mysqli_query($this->conn, $query2);
+                return $result2;
+            }
+        }
     
     }
 

@@ -36,84 +36,150 @@ if($edit != ""){
   }
 }
 
-$asal_sementara = "256";
+$tr = $db->selectTable("detail_transaksi","code_order",$edit,"id_owner",$id); 
+while($rowtr=mysqli_fetch_assoc($tr)){
+  if(isset($_POST['tr_id'.$rowtr['id']])){
+    $fee = $_POST['fee'.$rowtr['id']];
+    $sisa = "";
+    if($fee < $rowtr['jumlah_transaksi']){  
+      $updatefee = $rowtr['jumlah_transaksi'] - $fee;
+      $sisa = $rowedit['sisa_pembayaran_order'] + $updatefee;
+    }else{
+      $updatefee = $fee - $rowtr['jumlah_transaksi'];
+      $sisa = $rowedit['sisa_pembayaran_order'] - $updatefee;
+    }
+    $updatetr = $db->updateDetailTr($rowtr['id'],$fee,$sisa,$rowedit['code_order']);
+    if($updatetr){
+      $alert = "1";
+      $editselect = $db->selectTable("data_pemesanan","code_order",$edit,"id_owner",$id);
+      $rowedit = mysqli_fetch_assoc($editselect);
+    }
+  }
+}
+
+$jum_trans = 0;
+if($edit != ""){
+  $trr = $db->selectTable("detail_transaksi","code_order",$edit,"id_owner",$id); 
+  while($rowtrr=mysqli_fetch_assoc($trr)){
+    $jum_trans += $rowtrr['jumlah_transaksi'];
+  }
+}
+
+$asal_sementara = "254";
 
 if(isset($_POST['create_spk'])){
-  if($edit != ""){
+  // create spk
+  $spk = $db->createSpk($id);
+  
+  // informasi Pemesanan
+  $kategori_produk = $_POST['kategori_produk'];
+  $jenis_produk = $_POST['jenis_produk'];
+  $produk_id = $_POST['produk'];
+  $varian = $_POST['varian_harga'];
+  $array_varian = explode(" - ",$varian);
+  $varian_harga = $array_varian[0];
+  $varian_model = end(explode(" - ",$varian));
+  $desain_status = $_POST['desain_status'];
+  $cetak_status = $_POST['cetak_status'];
+  $laminating = $_POST['laminating'];
+  $pemasangan_status = $_POST['pemasangan_status'];
 
+  // detail desain
+  $dbfoto = "empty";
+  if($desain_status == "Ya" && $_FILES['contoh_desain']['name'] != ""){
+    $foto_path = $_FILES['contoh_desain']['tmp_name'];
+    $foto_name = basename($_FILES['contoh_desain']['name']);
+    $folder = "assets/images/contoh_desain";
+    $save_file = $db->saveFoto2($folder, $foto_name, $foto_path);
+    $dbfoto = $save_file;
+  }
+  $desk_desain = $desain_status == "Ya" ? $_POST['desk_desain'] : '';
+
+  // detail pasang
+  $harga_pasang = $pemasangan_status == "Ya" ? $_POST['harga_pasang'] : '0';
+  $kategori_pemasang = $pemasangan_status == "Ya" ? $_POST['kategori_pemasang'] : '';
+
+  // detail pemesanan
+  $customer_id = $_POST['pelanggan'];
+  $keterangan = $_POST['keterangan'];
+  $diskon = $_POST['diskon'];
+  $order_date = date("Y-m-d");
+  $status_pengiriman = $_POST['pengiriman'];
+
+  // detail pengiriman
+  $kurir = $status_pengiriman == "Ya" ? $_POST['kurir'] : '';
+  $prov_desti = $status_pengiriman == "Ya" ? $_POST['prov'] : '';
+  $kabkota_desti = $status_pengiriman == "Ya" ? $_POST['kabkota'] : '';
+  $kec_desti = $status_pengiriman == "Ya" ? $_POST['kec'] : '';
+  $alamat_lengkap = $status_pengiriman == "Ya" ? $_POST['alamat_lengkap'] : '';
+  $kode_pos = $_POST['kode_pos'];
+  $berat = $status_pengiriman == "Ya" ? $_POST['berat'] : '';
+  $paket_ongkir = explode(" - ",$_POST['resultcost']);
+
+  // detail pengiriman
+  $cost = $status_pengiriman == "Ya" ? $paket_ongkir[0] : '';
+  $name_paket = $status_pengiriman == "Ya" ? $paket_ongkir[1] : '';
+  $etd = $status_pengiriman == "Ya" ? $paket_ongkir[2] : '';
+
+  // detail pembayaran
+  $sisabayar = $_POST['sisa_pembayaran'];
+  $status_pay = $sisabayar > 0 ? "Belum Lunas" : "Lunas";
+  $total_pembayaran = $_POST['total_pembayaran'];
+
+  // status order
+  $status_order = ""; 
+  if($desain_status == "Ya"){
+    $status_order = "Menunggu Designer";
+  }elseif($cetak_status == "Ya"){
+    $status_order = "Siap Cetak";
+  }elseif($laminating != ""){
+    $status_order = "Menunggu Finishing";
+  }elseif($pemasangan_status == "Ya"){
+    $status_order = "Siap Dipasang";
   }else{
-    // create spk
-    $spk = $db->createSpk($id);
-  
-    // informasi Pemesanan
-    $kategori_produk = $_POST['kategori_produk'];
-    $jenis_produk = $_POST['jenis_produk'];
-    $produk_id = $_POST['produk'];
-    $varian = $_POST['varian_harga'];
-    $array_varian = explode(" - ",$varian);
-    $varian_harga = $array_varian[0];
-    $varian_model = end(explode(" - ",$varian));
-    $desain_status = $_POST['desain_status'];
-    $cetak_status = $_POST['cetak_status'];
-    $laminating = $_POST['laminating'];
-    $pemasangan_status = $_POST['pemasangan_status'];
-  
-    // detail desain
-    $dbfoto = "empty";
-    if($desain_status == "Ya" && $_FILES['contoh_desain']['name'] != ""){
-      $foto_path = $_FILES['contoh_desain']['tmp_name'];
-      $foto_name = basename($_FILES['contoh_desain']['name']);
-      $folder = "assets/images/contoh_desain";
-      $save_file = $db->saveFoto2($folder, $foto_name, $foto_path);
-      $dbfoto = $save_file;
+    $status_order = "Selesai";
+  }
+
+  if($edit != ""){
+    $query = $db->updateOrder(
+        $id,
+        $edit,
+        $jenis_produk,
+        $customer_id,
+        $status_pay,
+        $status_order,
+        $kategori_produk,
+        $produk_id,
+        $varian_harga,
+        $varian_model,
+        $desain_status,
+        $cetak_status,
+        $laminating,
+        $pemasangan_status,
+        $dbfoto,
+        $desk_desain,
+        $kategori_pemasang,
+        $harga_pasang,
+        $keterangan,
+        $diskon,
+        $status_pengiriman,
+        $kurir,
+        $prov_desti,
+        $kabkota_desti,
+        $kec_desti,
+        $kode_pos,
+        $alamat_lengkap,
+        $berat,
+        $cost,
+        $name_paket,
+        $etd,
+        $sisabayar
+    );
+    if($query){
+      $_SESSION['alert'] = "1";
+      header('Location:data-pesanan.php');
     }
-    $desk_desain = $desain_status == "Ya" ? $_POST['desk_desain'] : '';
-  
-    // detail pasang
-    $harga_pasang = $pemasangan_status == "Ya" ? $_POST['harga_pasang'] : '0';
-    $kategori_pemasang = $pemasangan_status == "Ya" ? $_POST['kategori_pemasang'] : '';
-  
-    // detail pemesanan
-    $customer_id = $_POST['pelanggan'];
-    $keterangan = $_POST['keterangan'];
-    $diskon = $_POST['diskon'];
-    $order_date = date("Y-m-d");
-    $status_pengiriman = $_POST['pengiriman'];
-  
-    // detail pengiriman
-    $kurir = $status_pengiriman == "Ya" ? $_POST['kurir'] : '';
-    $prov_desti = $status_pengiriman == "Ya" ? $_POST['prov'] : '';
-    $kabkota_desti = $status_pengiriman == "Ya" ? $_POST['kabkota'] : '';
-    $kec_desti = $status_pengiriman == "Ya" ? $_POST['kec'] : '';
-    $alamat_lengkap = $status_pengiriman == "Ya" ? $_POST['alamat_lengkap'] : '';
-    $kode_pos = $_POST['kode_pos'];
-    $berat = $status_pengiriman == "Ya" ? $_POST['berat'] : '';
-    $paket_ongkir = explode(" - ",$_POST['resultcost']);
-  
-    // detail pengiriman
-    $cost = $status_pengiriman == "Ya" ? $paket_ongkir[0] : '';
-    $name_paket = $status_pengiriman == "Ya" ? $paket_ongkir[1] : '';
-    $etd = $status_pengiriman == "Ya" ? $paket_ongkir[2] : '';
-  
-    // detail pembayaran
-    $sisabayar = $_POST['sisa_pembayaran'];
-    $status_pay = $sisabayar > 0 ? "Belum Lunas" : "Lunas";
-    $total_pembayaran = $_POST['total_pembayaran'];
-  
-    // status order
-    $status_order = ""; 
-    if($desain_status == "Ya"){
-      $status_order = "Menunggu Designer";
-    }elseif($cetak_status == "Ya"){
-      $status_order = "Siap Cetak";
-    }elseif($laminating != ""){
-      $status_order = "Menunggu Finishing";
-    }elseif($pemasangan_status == "Ya"){
-      $status_order = "Siap Dipasang";
-    }else{
-      $status_order = "Selesai";
-    }
-  
+  }else{
     $query = $db->insertOrder(
         $id,
         $jenis_produk,
@@ -152,8 +218,16 @@ if(isset($_POST['create_spk'])){
     );
   
     if($query){
-      $_SESSION['alert'] = "1";
-      header('Location:data-pesanan.php');
+      if($total_pembayaran != ""){
+        $transaksi = $db->insertDetailTr($id,$spk,$order_date,$total_pembayaran);
+        if($transaksi){
+          $_SESSION['alert'] = "1";
+          header('Location:data-pesanan.php');
+        }
+      }else{
+        $_SESSION['alert'] = "1";
+        header('Location:data-pesanan.php');
+      }
     }
   }
 }
@@ -181,6 +255,7 @@ if(isset($_POST['create_spk'])){
       rel="stylesheet"
       type="text/css"
     />
+  
     <!-- Icons Css -->
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <!-- App Css-->
@@ -191,7 +266,8 @@ if(isset($_POST['create_spk'])){
       type="text/css"
     />
 
-    
+    <!-- Sweet Alert-->
+    <link href="assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 
@@ -270,7 +346,7 @@ if(isset($_POST['create_spk'])){
     </script>
     <script>
       function showFee(fee){
-        document.getElementById("debit").value = 0;
+        <?= $edit == "" ? 'document.getElementById("debit").value = ""' : '' ?>;
         var feepemasang = document.getElementById("feepemasang").value;
         var diskon = document.getElementById("diskon").value;
         var ongkir = document.getElementById("resut_pengiriman").value;
@@ -278,29 +354,29 @@ if(isset($_POST['create_spk'])){
           var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
           if(feepemasang != ""){
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang) - parseFloat('<?= $jum_trans ?>');
             }
           }else{
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseFloat(hasil);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) - parseFloat('<?= $jum_trans ?>');
             }
           }
         }else{
           if(feepemasang != ""){
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang);
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang) - parseFloat('<?= $jum_trans ?>');
             }
           }else{
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseInt(fee);
+              var feeView = document.getElementById("fee").value = parseInt(fee) - parseFloat('<?= $jum_trans ?>');
             }
           }
         }
@@ -308,7 +384,7 @@ if(isset($_POST['create_spk'])){
     </script>
     <script>
       function showFee2(install){
-        document.getElementById("debit").value = 0;
+        <?= $edit == "" ? 'document.getElementById("debit").value = ""' : '' ?>;
         var diskon = document.getElementById("diskon").value;
         var fee = document.getElementById("harga").value;
         var ongkir = document.getElementById("resut_pengiriman").value;
@@ -316,29 +392,29 @@ if(isset($_POST['create_spk'])){
           var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
           if(install != ""){
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(install) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(install) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(install);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(install) - parseFloat('<?= $jum_trans ?>');
             }
           }else{
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseFloat(hasil);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) - parseFloat('<?= $jum_trans ?>');
             }
           }
         }else{
           if(install != ""){
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(install) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(install) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(install);
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(install) - parseFloat('<?= $jum_trans ?>');
             }
           }else{
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseInt(fee);
+              var feeView = document.getElementById("fee").value = parseInt(fee) - parseFloat('<?= $jum_trans ?>');
             }
           }
         }
@@ -346,7 +422,7 @@ if(isset($_POST['create_spk'])){
     </script>
     <script>
       function showFee3(diskon){
-        document.getElementById("debit").value = 0;
+        <?= $edit == "" ? 'document.getElementById("debit").value = ""' : '' ?>;
         var fee = document.getElementById("harga").value;
         var feepemasang = document.getElementById("feepemasang").value;
         var ongkir = document.getElementById("resut_pengiriman").value;
@@ -354,29 +430,29 @@ if(isset($_POST['create_spk'])){
           var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
           if(feepemasang != ""){
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang) - parseFloat('<?= $jum_trans ?>');
             }
           }else{
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseFloat(hasil);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) - parseFloat('<?= $jum_trans ?>');
             }
           }
         }else{
           if(feepemasang != ""){
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang);
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang) - parseFloat('<?= $jum_trans ?>');
             }
           }else{
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseInt(fee);
+              var feeView = document.getElementById("fee").value = parseInt(fee) - parseFloat('<?= $jum_trans ?>');
             }
           }
         }
@@ -384,7 +460,7 @@ if(isset($_POST['create_spk'])){
     </script>
     <script>
       function showFee4(ongkir){
-        document.getElementById("debit").value = 0;
+        <?= $edit == "" ? 'document.getElementById("debit").value = ""' : '' ?>;
         var feepemasang = document.getElementById("feepemasang").value;
         var diskon = document.getElementById("diskon").value;
         var fee = document.getElementById("harga").value;
@@ -392,29 +468,29 @@ if(isset($_POST['create_spk'])){
           var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
           if(feepemasang != ""){
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang) + parseFloat(ongkir)  - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(feepemasang) - parseFloat('<?= $jum_trans ?>');
             }
           }else{
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseFloat(hasil);
+              var feeView = document.getElementById("fee").value = parseFloat(hasil) - parseFloat('<?= $jum_trans ?>');
             }
           }
         }else{
           if(feepemasang != ""){
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang);
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(feepemasang) - parseFloat('<?= $jum_trans ?>');
             }
           }else{
             if(ongkir != ""){
-              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(ongkir);
+              var feeView = document.getElementById("fee").value = parseInt(fee) + parseFloat(ongkir) - parseFloat('<?= $jum_trans ?>');
             }else{
-              var feeView = document.getElementById("fee").value = parseInt(fee);
+              var feeView = document.getElementById("fee").value = parseInt(fee) - parseFloat('<?= $jum_trans ?>');
             }
           }
         }
@@ -587,6 +663,7 @@ if(isset($_POST['create_spk'])){
       <!-- ============================================================== -->
       <!-- Start right Content here -->
       <!-- ============================================================== -->
+      <div id="flash" data-flash="<?= $alert ?>"></div>
       <div class="main-content">
         <div class="page-content">
           <div class="container-fluid">
@@ -720,10 +797,10 @@ if(isset($_POST['create_spk'])){
                           <label for="desain_status" class="form-label">Desain</label>
                           <select name="desain_status" id="desain_status" class="form-select" onchange="showDetailDesain(this.value)">
                             <?php
-                            $v = $edit != "" ? $rowedit['status_desain_order'] : "";  
+                            $v = $edit != "" ? $rowedit['status_desain_order'] : "Tidak";  
                             $d = array("Ya","Tidak");
                             foreach($d as $x){
-                              $select = $v == $x ? 'selectex="selected"' : '';
+                              $select = $v == $x ? 'selected="selected"' : '';
                             ?>
                             <option value="<?= $x ?>" <?= $select ?>><?= $x ?></option>
                             <?php } ?>
@@ -733,7 +810,7 @@ if(isset($_POST['create_spk'])){
                           <label for="cetak_status" class="form-label">Cetak</label>
                           <select name="cetak_status" id="cetak_status" class="form-select">
                           <?php
-                            $v = $edit != "" ? $rowedit['status_cetak_order'] : "";  
+                            $v = $edit != "" ? $rowedit['status_cetak_order'] : "Tidak";  
                             $d = array("Ya","Tidak");
                             foreach($d as $x){
                               $select = $v == $x ? 'selected="selected"' : '';
@@ -750,7 +827,7 @@ if(isset($_POST['create_spk'])){
                           <label for="pemasangan_status" class="form-label">Pemasangan</label>
                           <select name="pemasangan_status" id="pemasangan_status" class="form-select" onchange="showDetailPasang(this.value)">
                           <?php
-                            $v = $edit != "" ? $rowedit['status_pasang_order'] : "";  
+                            $v = $edit != "" ? $rowedit['status_pasang_order'] : "Tidak";  
                             $d = array("Ya","Tidak");
                             foreach($d as $x){
                               $select = $v == $x ? 'selected="selected"' : '';
@@ -896,7 +973,7 @@ if(isset($_POST['create_spk'])){
                         <div class="col-sm-10">
                           <select name="pengiriman" id="pengiriman_statuss" onchange="detailPengiriman(this.value)" id="pengiriman" class="form-select">
                           <?php
-                            $v = $edit != "" ? $rowedit['status_pengiriman_order'] : "";  
+                            $v = $edit != "" ? $rowedit['status_pengiriman_order'] : "Tidak";  
                             $d = array("Ya","Tidak");
                             foreach($d as $x){
                               $select = $v == $x ? 'selected="selected"' : '';
@@ -1011,7 +1088,8 @@ if(isset($_POST['create_spk'])){
 
                               $data = $rajaongkir->checkOngkir($rowedit['kurir_pengiriman_order'], $asal_sementara, $rowedit['kec_send_order'], $rowedit['berat_send_order']);
                               foreach($data->costs as $d){
-                                echo '<option value="'.$d->cost[0]->value.' - '.$d->service.' - '.$d->cost[0]->etd.'">Rp.'.number_format($d->cost[0]->value,2,",",".").' (Paket: '.$d->service.' Estimasi: '.$d->cost[0]->etd. ')</option>';
+                                $select = $d->service == $rowedit['nama_paket_send_order'] ? 'selected="selected"' : '' ;
+                                echo '<option '.$select.' value="'.$d->cost[0]->value.' - '.$d->service.' - '.$d->cost[0]->etd.'">Rp.'.number_format($d->cost[0]->value,2,",",".").' (Paket: '.$d->service.' Estimasi: '.$d->cost[0]->etd. ')</option>';
                             }
                               ?>
                             </select>
@@ -1097,21 +1175,71 @@ if(isset($_POST['create_spk'])){
                       <div class="card-title">Detail Pembayaran</div>
                       <div class="row g-3">
                         <label for="" class="col-sm-2 col-form-label">Pembayaran</label>
-                        <div class="col-sm-5">
+                        <div class="col-sm-<?= $edit != "" ? "10" : "5" ; ?>">
                           <div class="input-group">
                             <span class="input-group-text">Rp.</span>
-                            <input type="number" id="fee" placeholder="Jumlah Pembayaran" step="0.01" class="form-control" name="sisa_pembayaran" readonly>
+                            <input type="number" id="fee" placeholder="Jumlah Pembayaran" step="0.01" class="form-control" name="sisa_pembayaran" value="<?= $edit != "" ? $rowedit['sisa_pembayaran_order'] : '' ; ?>" readonly>
                           </div>
+                          <?php  
+                          if($edit != ""){
+                          ?>
+                          <table class="table table-responsive table-hover mt-3">
+                            <thead>
+                              <tr>
+                                <th>#</th>
+                                <th>Tanggal</th>
+                                <th>Jumlah Pembayaran</th>
+                                <th>Aksi</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <?php 
+                              $no = 0;
+                              $tr = $db->selectTable("detail_transaksi","code_order",$edit,"id_owner",$id);
+                              while($rowtr=mysqli_fetch_assoc($tr)){
+                              ?>
+                              <form action="" method="post">
+                                <tr>
+                                  <td><?= ++$no ?></td>
+                                  <td><?= $rowtr['tgl_transaksi'] ?></td>
+                                  <td>
+                                    <span id="view2<?= $rowtr['id'] ?>">Rp.<?= number_format($rowtr['jumlah_transaksi'],2,",",".") ?></span> 
+                                    <div class="input-group" id="view<?= $rowtr['id'] ?>" style="display: none;">
+                                      <span class="input-group-text">Rp.</span>
+                                      <input type="text" name="fee<?= $rowtr['id'] ?>" class="form-control" value="<?= $rowtr['jumlah_transaksi'] ?>">
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                                      <button type="submit" style="display: none;" name="tr_id<?= $rowtr['id'] ?>" id="savetr<?= $rowtr['id'] ?>" class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Simpan"><i class="ri-save-line"></i></button>
+                                      <button id="editt<?= $rowtr['id'] ?>" class="btn btn-primary" type="button" onclick="editr(<?= $rowtr['id'] ?>)" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="ri-pencil-line"></i></button>
+                                      <button style="display: none;" id="batall<?= $rowtr['id'] ?>" class="btn btn-danger" type="button" onclick="bataltr(<?= $rowtr['id'] ?>)" data-bs-toggle="tooltip" data-bs-placement="top" title="Batal"><i class="mdi mdi-close-thick"></i></button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </form>
+                              <?php } ?>
+                            </tbody>
+                          </table>
+                          <?php } ?>
+                          <?php  
+                            if($edit == ""){
+                          ?>
                           <span style="font-size:0.8rem"><strong>*jika pembayaran tidak memenuhi harga produk, maka berstatus DP</strong></span>
+                          <?php } ?>
                         </div>
+                        <?php  
+                        if($edit == ""){
+                        ?>
                         <div class="col-sm-5">
                           <div class="input-group">
                             <span class="input-group-text">Rp.</span>
-                            <input type="number" name="total_pembayaran" id="debit" placeholder="Enter Pembayaran" onkeyup="sisaDari(this.value)" class="form-control">
+                            <input type="number" name="total_pembayaran" id="debit" placeholder="Enter Pembayaran" onkeyup="sisaDari(this.value)" class="form-control" >
                           </div>
                         </div>
+                        <?php } ?>
                       </div>
-                      <button type="submit" name="create_spk" class="btn btn-primary mt-3">Buat SPK</button>
+                      <button type="submit" name="create_spk" class="btn btn-primary mt-3"><?= $edit != "" ? "Update" : "Buat SPK" ; ?></button>
                     </div>
                   </div>
                 </div>
@@ -1233,7 +1361,44 @@ if(isset($_POST['create_spk'])){
     <script src="assets/libs/simplebar/simplebar.min.js"></script>
     <script src="assets/libs/node-waves/waves.min.js"></script>
 
+    <!-- Sweet Alerts js -->
+    <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
+    <script>
+      function bataltr(str){
+        document.getElementById("savetr"+str).style.display = "none";
+        document.getElementById("view2"+str).style.display = "";
+        document.getElementById("view"+str).style.display = "none";
+        document.getElementById("editt"+str).style.display = "";
+        document.getElementById("batall"+str).style.display = "none";
+      }
+    </script>
+    <script>
+      function editr(str){
+        document.getElementById("savetr"+str).style.display = "";
+        document.getElementById("view2"+str).style.display = "none";
+        document.getElementById("view"+str).style.display = "";
+        document.getElementById("editt"+str).style.display = "none";
+        document.getElementById("batall"+str).style.display = "";
+      }
+    </script>
+
     <script src="assets/js/app.js"></script>
+    <script>
+      var flash = $('#flash').data('flash');
+      if(flash == "1"){
+        Swal.fire({
+          title:"Berhasil!",
+          text:"Data Tersimpan!",
+          icon:"success",
+        })
+      }else if(flash == "2"){
+        Swal.fire({
+          title:"Gagal!",
+          text:"Data tidak Terhapus!",
+          icon:"error",
+        })
+      }
+    </script>
   </body>
 </html>
-<?php mysqli_close($db->conn) ?>
+<?php mysqli_close($db->conn); $_SESSION['alert'] = "" ?>

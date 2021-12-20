@@ -18,40 +18,11 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-$role = $row['level_user'];
-if($role == "Desainer"){
-  $alert = "5";
-  $link = "menunggu_designer";
-  // header('Location: menunggu_designer');
-}
-
-// pelanggan
-$order = $_GET['order'];
-$check = $db->selectTable("data_pemesanan","code_order",$order);
-if(mysqli_num_rows($check) != 0 && $order != ""){
-    $delete = $db->deleteTable("data_pemesanan",$order,"code_order");
-    if($delete){
-        $_SESSION['alert'] = "1";
-        header('Location: data-pesanan');
-        exit();
-    }else{
-        $_SESSION['alert'] = "2";
-        header('Location: data-pesanan');
-        exit();
-    }
-}
-
 function showProduk($id_produk){
   global $db;
   $querydb = $db->selectTable("type_galeri","id_type",$id_produk);
   $rowdb=mysqli_fetch_assoc($querydb);
   $result = $rowdb['name_type'];
-  return $result;
-}
-
-function resultDiskon($harga,$disk){
-  $diskon = $harga * ($disk/100);
-  $result = $harga - $diskon;
   return $result;
 }
 
@@ -117,21 +88,12 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
   return $result;
 }
 
-function statusBadge($txt){
-  if($txt == "Belum Lunas"){
-    $result = '<h5><span class="badge bg-danger">Belum Lunas</span></h5>';
-    return $result;
-  }else{
-    $result = '<h5><span class="badge bg-success">Lunas</span></h5>';
-    return $result;
-  }
-}
 ?> 
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | PEMESANAN</title>
+    <title>STIKER | AREA DESIGNER</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -232,7 +194,7 @@ function statusBadge($txt){
                     justify-content-between
                   "
                 >
-                  <h4 class="mb-sm-0">Data Pemesanan</h4>
+                  <h4 class="mb-sm-0">Siap Didesain</h4>
 
                   <div class="page-title-right">
                   <ol class="breadcrumb m-0">
@@ -245,13 +207,6 @@ function statusBadge($txt){
               </div>
             </div>
             <!-- end page title -->
-            <div class="row">
-              <div class="col-sm-auto">
-                <a href="tambah-orderan" class="btn btn-outline-primary mb-3">
-                  <i class="dripicons-plus align-middle"></i>Tambah
-                </a>
-              </div>
-            </div>
             <!-- page card -->
             <div class="row">
               <div class="col-12">
@@ -262,15 +217,16 @@ function statusBadge($txt){
                         <tr>
                           <th>ID</th>
                           <th>Pelanggan</th>
-                          <th>Pembayaran</th>
                           <th>Tanggal Pesan</th>
+                          <th>Keterangan Desain</th>
+                          <th>Jenis Desain</th>
                           <th>Status</th>
-                          <th>Aksi</th>
+                          <?= $role == "Desainer" ? '<th>Aksi</th>' : '' ?>
                         </tr>
                       </thead>
                       <tbody>
                         <?php  
-                        $order = $db->selectTable("data_pemesanan","id_owner",$id);
+                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Menunggu Designer");
                         while($roworder=mysqli_fetch_assoc($order)){
                         ?>
                         <tr>
@@ -278,7 +234,6 @@ function statusBadge($txt){
                             <?= $roworder['code_order'] ?><br>
                             <?= $roworder['jenis_produk_order'] == 'Custom' ? $db->nameFormater(showProduk($roworder['produk_order'])) : '' ?><br>
                             <?= $roworder['model_stiker_order'] ?><br>
-                            <?= $roworder['laminating_order'] ?>
                           </td>
                           <td>
                             <?php 
@@ -293,22 +248,17 @@ function statusBadge($txt){
                               echo 'Kode Pos: '.$customer['kodepos'].'<br>';
                             ?>
                           </td>
-                          <td>
-                            <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format($roworder['harga_produk_order'],2,",",".").'" class="badge bg-secondary">disk '.$roworder['diskon_order'].'%</span>' : '' ?><br>
-                            Harga Produk: Rp.<?= number_format(resultDiskon($roworder['harga_produk_order'],$roworder['diskon_order']),2,",",".") ?><br>
-                            Harga Pasang: <?= $roworder['status_pasang_order'] == "Ya" ? ' Rp.'.number_format($roworder['harga_pasang_order'],2,",",".") : 'Tidak Dipasang' ?><br>
-                            Harga Pengiriman: <?= $roworder['status_Pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".") : '-,-' ?>
-                            <?= statusBadge($roworder['status_pay_order']) ?>
-                          </td>
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
+                          <td><?= $roworder['desk_desain_order'] ?></td>
+                          <td><?= $roworder['kategori_produk_order'] ?></td>
                           <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>
+                          <?php if($role == "Desainer"){ ?>
                           <td>
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                              <a href="tambah-orderan.php?order=<?= $roworder['code_order'] ?>" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="ri-pencil-line"></i></a>
-                              <a href="<?= $roworder[''] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Details"><i class="ri-eye-line"></i></a>
-                              <a href="data-pesanan.php?order=<?= $roworder['code_order'] ?>" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" id="delete"><i class="ri-delete-bin-line"></i></a>
+                            <a href="get-orderdesain?id_order=<?= $roworder['id_order'] ?>&user=<?= $row['id_user'] ?>" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Desain Pesanan" id="ambilorder"><i class="ri-pencil-line"></i></a>
                             </div>
                           </td>
+                          <?php } ?>
                         </tr>
                         <?php } ?>
                       </tbody>
@@ -473,6 +423,25 @@ function statusBadge($txt){
         var link = $(this).attr('href');
         Swal.fire({
           title:"Hapus Data!",
+          text:"Apakah Anda yakin?",
+          icon:"warning",
+          showCancelButton: true,
+          confirmButtonColor: '#00a65a',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Ya'
+        }).then((result) => {
+          if(result.isConfirmed){
+            window.location = link;
+          }
+        });
+      });
+    </script>
+    <script>
+      $(document).on('click', '#ambilorder', function(e){
+        e.preventDefault();
+        var link = $(this).attr('href');
+        Swal.fire({
+          title:"Ambil Orderan!",
           text:"Apakah Anda yakin?",
           icon:"warning",
           showCancelButton: true,

@@ -18,6 +18,29 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
+if(isset($_POST['aksi_upload'])){
+  $nameproduk = $_POST['namefile'];
+  $id_order = $_POST['id_order'];
+
+  $order = $db->selectTable("data_pemesanan","id_order",$id_order);
+  $roworder = mysqli_fetch_assoc($order);
+  if($roworder['hasil_desain_order'] != ""){
+    unlink($roworder['hasil_desain_order']);
+  }
+
+  $foto_path = $_FILES['hasil_desain']['tmp_name'];
+  $foto_name = basename($_FILES['hasil_desain']['name']);
+  $folder = "assets/images/hasil_desain";
+  $save_file = $db->saveFoto2($folder, $foto_name, $foto_path, $nameproduk);
+  $dbfoto = $save_file;
+
+  $query = "UPDATE data_pemesanan SET hasil_desain_order='$dbfoto' WHERE id_order='$id_order'";
+  $result = mysqli_query($db->conn, $query);
+  if($result){
+    $alert = "1";
+  }
+}
+
 function showProduk($id_produk){
   global $db;
   $querydb = $db->selectTable("type_galeri","id_type",$id_produk);
@@ -220,13 +243,15 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
                           <th>Tanggal Pesan</th>
                           <th>Keterangan Desain</th>
                           <th>Jenis Desain</th>
+                          <th>Contoh Desain</th>
                           <th>Status</th>
+                          <th>Hasil Desain</th>
                           <?= $role == "Desainer" ? '<th>Aksi</th>' : '' ?>
                         </tr>
                       </thead>
                       <tbody>
                         <?php  
-                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Menunggu Designer");
+                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Proses Desain","id_designer",$row['id_user']);
                         while($roworder=mysqli_fetch_assoc($order)){
                         ?>
                         <tr>
@@ -243,19 +268,29 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
                             ?>
                             <?php
                               echo $roworder['keterangan_order'];
-                              // echo 'Kab/Kota: '.$customer['kab'].'<br>';
-                              // echo 'Kec: '.$customer['kec'].'<br>';
-                              // echo 'Kode Pos: '.$customer['kodepos'].'<br>';
                             ?>
                           </td>
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
                           <td><?= $roworder['desk_desain_order'] ?></td>
                           <td><?= $roworder['kategori_produk_order'] ?></td>
-                          <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>
+                          <td align="center">
+                            <a target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View" href="<?= $roworder['contoh_desain_order'] ?>">
+                              <img style="width: 85px;" src="<?= $roworder['contoh_desain_order'] ?>" alt="">
+                            </a>
+                          </td>
+                          <td><?= '<h5><span class="badge bg-danger">'.$roworder['status_order'].' <i class="mdi mdi-autorenew"></span></h5>' ?></i></td>
+                          <td>
+                            <span id="viewsdesain">
+                              <?= $roworder['hasil_desain_order'] == "" ? "Tidak Ada Desain" : '<a target="_blank" href="'.$roworder['hasil_desain_order'].'">View Desain</a>' ?>
+                              </span>
+                          </td>
                           <?php if($role == "Desainer"){ ?>
                           <td>
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                            <a href="action/get-orderdesain.php?id_order=<?= $roworder['id_order'] ?>&user=<?= $row['id_user'] ?>" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Desain Pesanan" id="ambilorder"><i class="ri-pencil-line"></i></a>
+                              <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#upload_hasil_desain<?= $roworder['id_order'] ?>" data-bs-placement="top" title="Upload Desain" class="btn btn-danger btn-sm">
+                                <i class="ri-pencil-line"></i>
+                              </button>
+                              <a href="action/get-orderdesain.php?id_order=<?= $roworder['id_order'] ?>&user=<?= $roworder['id_designer'] ?>&param=batal" id="batal" data-bs-toggle="tooltip" data-bs-placement="top" title="Batal" class="btn btn-danger btn-sm"><i class=" ri-close-fill"></i></a>
                             </div>
                           </td>
                           <?php } ?>
@@ -272,6 +307,34 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
           <!-- container-fluid -->
         </div>
         <!-- End Page-content -->
+
+        <!-- Modal upload hasil desan -->
+        <!-- Modal -->
+        <?php  
+        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Proses Desain","id_designer",$row['id_user']);
+        while($roworder=mysqli_fetch_assoc($order)){
+        ?>
+        <div class="modal fade" id="upload_hasil_desain<?= $roworder['id_order'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <form action="" method="post" class="modal-content" enctype="multipart/form-data">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Upload Hasil Desain</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" name="namefile" value="<?= $roworder['jenis_produk_order'] == 'Custom' ? showProduk($roworder['produk_order']) : '' ?>">
+                <input type="hidden" name="id_order" value="<?= $roworder['id_order'] ?>">
+                <input type="file" name="hasil_desain" id="" class="form-control" required>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" name="aksi_upload" class="btn btn-primary">Upload Desain</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <?php } ?>
+        <!-- End Modal upload hasil desan -->
 
         <!-- Footer -->
         <footer class="footer">
@@ -418,11 +481,11 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
       }
     </script>
     <script>
-      $(document).on('click', '#delete', function(e){
+      $(document).on('click', '#batal', function(e){
         e.preventDefault();
         var link = $(this).attr('href');
         Swal.fire({
-          title:"Hapus Data!",
+          title:"Batal Desain!",
           text:"Apakah Anda yakin?",
           icon:"warning",
           showCancelButton: true,

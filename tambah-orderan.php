@@ -1010,12 +1010,12 @@ if(isset($_POST['create_spk'])){
                                   case "jne":
                                     return "Jalur Nugraha Ekakurir (JNE)";
                                     break;
-                                  case "j&t":
+                                  case "jnt":
                                     return "J&T Express (J&T)";
                                     break;
                                 }
                               }
-                              $kur = array("pos","lion","jne","j&t");
+                              $kur = array("pos","lion","jne","jnt");
                               foreach($kur as $k){
                                 $select = $k == $rowedit['kurir_pengiriman_order'] ? 'selected="selected"' : '';
                               ?>
@@ -1113,7 +1113,7 @@ if(isset($_POST['create_spk'])){
                               <option value="pos">POS Indonesia (POS)</option>
                               <option value="lion">Lion Parcel (LION)</option>
                               <option value="jne">Jalur Nugraha Ekakurir (JNE)</option>
-                              <option value="j&t">J&T Express (J&T)</option>
+                              <option value="jnt">J&T Express (J&T)</option>
                             </optgroup>
                           </select>
                         </div>

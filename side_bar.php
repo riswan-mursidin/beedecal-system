@@ -12,10 +12,7 @@
   
                 <li>
                   <a href="index" class="waves-effect">
-                    <i class="mdi mdi-home-variant-outline"></i
-                    ><span class="badge rounded-pill bg-primary float-end"
-                      >3</span
-                    >
+                    <i class="mdi mdi-home-variant-outline"></i>
                     <span>Dashboard</span>
                   </a>
                 </li>
@@ -204,32 +201,42 @@
         </div>
       <?php }elseif($role == "Desainer"){ ?>
         <div class="vertical-menu">
-        <div data-simplebar class="h-100">
-          <!--- Sidemenu -->
-          <div id="sidebar-menu">
-            <!-- Left Menu Start -->
-            <ul class="metismenu list-unstyled" id="side-menu">
-              <!-- Produksi -->
-              <li>
-                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                  <i class="ri-dashboard-fill"></i>
-                  <span>Produksi</span>
-                </a>
-                <ul class="sub-menu" aria-expanded="false">
-                  <li>
-                    <a href="javascript: void(0);" class="has-arrow waves-effect">
-                      <span>Proses Desain</span>
-                    </a>
-                    <ul class="sub-menu" aria-expanded="false">
-                      <li><a href="menunggu_designer">Menunggu Designer</a></li>
-                      <li><a href="sedang_didesain">Sedang Didesain</a></li>
-                    </ul>
-                  </li>
-                </ul>
-              </li>
-            </ul>
+          <div data-simplebar class="h-100">
+            <!--- Sidemenu -->
+            <div id="sidebar-menu">
+              <!-- Left Menu Start -->
+              <ul class="metismenu list-unstyled" id="side-menu">
+                <!-- Produksi -->
+                <li>
+                  <a href="javascript: void(0);" class="has-arrow waves-effect">
+                    <i class="ri-dashboard-fill"></i>
+                    <span>Produksi</span>
+                  </a>
+                  <ul class="sub-menu" aria-expanded="false">
+                    <li>
+                      <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <span>Proses Desain</span>
+                      </a>
+                      <ul class="sub-menu" aria-expanded="false">
+                        <li>
+                          <a href="menunggu_designer">
+                            <?php  ?>
+                            <span class="badge rounded-pill bg-primary float-end">3</span>
+                            <span>Menunggu Designer</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a href="proses-desain">
+                            Sedang Didesain
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+            <!-- Sidebar -->
           </div>
-          <!-- Sidebar -->
         </div>
-      </div>
       <?php } ?>

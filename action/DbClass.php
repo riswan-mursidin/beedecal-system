@@ -288,9 +288,15 @@
             return $result;
         }
 
-        public function saveFoto2($folder, $foto_name, $foto_path){
+        public function saveFoto2($folder, $foto_name, $foto_path, $produk_name=null){
             if(!file_exists($folder)){
                 mkdir($folder);
+            }
+
+            if(!is_null($produk_name)){
+                $produk_name = str_replace("/\s+/","_",$produk_name);
+            }else{
+                $produk_name = "";
             }
             $ranname = md5(rand());
             $format_foto = end(explode(".",$foto_name));
@@ -298,8 +304,9 @@
             $new_foto_path = $folder."/".$new_foto_name;
             $move = move_uploaded_file($foto_path, $new_foto_path);
             if($move){
-                $compress = $this->compress_image($format_foto, $new_foto_path, "compress");
+                $compress = $this->compress_image($format_foto, $new_foto_path, $folder."/compress".$produk_name);
                 if($compress['bol']){
+                    unlink($new_foto_path);
                     return $compress['db'];
                 }
             }

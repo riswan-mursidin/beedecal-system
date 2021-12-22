@@ -18,12 +18,12 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-$role = $row['level_user'];
-if($role == "Desainer"){
-  $alert = "5";
-  $link = "menunggu_designer";
-  // header('Location: menunggu_designer');
-}
+// $role = $row['level_user'];
+// if($role == "Desainer"){
+//   $alert = "5";
+//   $link = "menunggu_designer";
+//   // header('Location: menunggu_designer');
+// }
 
 // pelanggan
 $order = $_GET['order'];
@@ -31,6 +31,12 @@ $check = $db->selectTable("data_pemesanan","code_order",$order);
 if(mysqli_num_rows($check) != 0 && $order != ""){
     $delete = $db->deleteTable("data_pemesanan",$order,"code_order");
     if($delete){
+        $cth = $db->selectTable("contoh_desain","code_order",$order);
+        while($rowcth=mysqli_fetch_assoc($cth)){
+          unlink($rowcth['foto_contoh']);
+        }
+        $query = "DELETE FROM contoh_desain WHERE code_order='$order'";
+        $result = mysqli_query($db->conn, $query);
         $_SESSION['alert'] = "1";
         header('Location: data-pesanan');
         exit();
@@ -263,6 +269,7 @@ function statusBadge($txt){
                           <th>ID</th>
                           <th>Pelanggan</th>
                           <th>Pembayaran</th>
+                          <th>Produksi</th>
                           <th>Tanggal Pesan</th>
                           <th>Status</th>
                           <th>Aksi</th>
@@ -299,6 +306,12 @@ function statusBadge($txt){
                             Harga Pasang: <?= $roworder['status_pasang_order'] == "Ya" ? ' Rp.'.number_format($roworder['harga_pasang_order'],2,",",".") : 'Tidak Dipasang' ?><br>
                             Harga Pengiriman: <?= $roworder['status_Pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".") : '-,-' ?>
                             <?= statusBadge($roworder['status_pay_order']) ?>
+                          </td>
+                          <td>
+                            Desain: <b><?= $roworder['status_desain_order'] ?></b><br>
+                            Cetak: <b><?= $roworder['status_cetak_order'] ?></b><br>
+                            Laminating: <b><?= $roworder['laminating_order'] ?></b><br>
+                            Pasang: <b><?= $roworder['status_pasang_order'] ?></b><br>
                           </td>
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
                           <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>

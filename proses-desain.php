@@ -111,6 +111,31 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
   return $result;
 }
 
+function showStatus($status,$admin){
+  if($status == "Proses Desain"){
+    if($admin == "Tidak Disetujui"){
+      return '<span class="badge bg-danger">'.$admin.'</span>';
+    }else{
+      return '<span class="badge bg-danger">'.$status.'</span>';
+    }
+  }else{
+    if($admin == "Belum Disetujui"){
+      return '<span class="badge bg-warning">'.$admin.'</span>';
+    }else{
+      return '<span class="badge bg-success">'.$admin.'</span>';
+    }
+  }
+}
+
+function showDesigner($id){
+  global $db;
+  $query = $db->selectTable("user_galeri","id_user",$id,"level_user","Desainer");
+  if(mysqli_num_rows($query) > 0){
+    $row = mysqli_fetch_assoc($query);
+    return $db->nameFormater($row['fullname_user']);
+  }
+}
+
 ?> 
 <!DOCTYPE html>
 <html lang="en">
@@ -186,7 +211,6 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
             setInterval(showTime, 500);         
     </script>
   </head>
-
   <body data-sidebar="dark">
     <!-- <body data-layout="horizontal" data-topbar="dark"> -->
 
@@ -244,15 +268,20 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
                           <th>Keterangan Desain</th>
                           <th>Jenis Desain</th>
                           <th>Contoh Desain</th>
-                          <th>Status</th>
                           <th>Hasil Desain</th>
-                          <?= $role == "Desainer" ? '<th>Aksi</th>' : '' ?>
+                          <?= $role == "Admin" || $role == "Owner" ? "<th>Designer</th>" : '' ?>
+                          <th>Status</th>
+                          <?= $role == "Desainer" || $role == "Admin" || $role == "Owner" ? "<th>Aksi</th>" : '' ?>
                         </tr>
                       </thead>
                       <tbody>
                         <?php  
-                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Proses Desain","id_designer",$row['id_user']);
+                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"id_designer",$row['id_user']);
+                        if($role == "Admin" || $role == "Owner"){
+                          $order = $db->selectTable("data_pemesanan","id_owner",$id);
+                        }
                         while($roworder=mysqli_fetch_assoc($order)){
+                          if($roworder['status_order'] == "Proses Desain" || $roworder['status_order'] == "Selesai Didesain"){
                         ?>
                         <tr>
                           <td>
@@ -275,14 +304,23 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
                           <td><?= $roworder['kategori_produk_order'] ?></td>
                           <td align="center">
                             <a target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View" href="<?= $roworder['contoh_desain_order'] ?>">
-                              <img style="width: 85px;" src="<?= $roworder['contoh_desain_order'] ?>" alt="">
+                              Contoh 1
                             </a>
                           </td>
-                          <td><?= '<h5><span class="badge bg-danger">'.$roworder['status_order'].' <i class="mdi mdi-autorenew"></span></h5>' ?></i></td>
                           <td>
                             <span id="viewsdesain">
                               <?= $roworder['hasil_desain_order'] == "" ? "Tidak Ada Desain" : '<a target="_blank" href="'.$roworder['hasil_desain_order'].'">View Desain</a>' ?>
                               </span>
+                          </td>
+                          <?php  
+                          if($role == "Admin" || $role == "Owner"){
+                          ?>
+                          <td>
+                            <?= showDesigner($roworder['id_designer']); ?>
+                          </td>
+                          <?php } ?>
+                          <td>
+                            <?= showStatus($roworder['status_order'],$roworder['admin_konfirm']) ?>
                           </td>
                           <?php if($role == "Desainer"){ ?>
                           <td>
@@ -290,12 +328,32 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
                               <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#upload_hasil_desain<?= $roworder['id_order'] ?>" data-bs-placement="top" title="Upload Desain" class="btn btn-danger btn-sm">
                                 <i class="ri-pencil-line"></i>
                               </button>
-                              <a href="action/get-orderdesain.php?id_order=<?= $roworder['id_order'] ?>&user=<?= $roworder['id_designer'] ?>&param=batal" id="batal" data-bs-toggle="tooltip" data-bs-placement="top" title="Batal" class="btn btn-danger btn-sm"><i class=" ri-close-fill"></i></a>
+                              <?php if($roworder['status_order'] != "Selesai Didesain"){ ?>
+                              <a href="action/get-orderdesain.php?id_order=<?= $roworder['id_order'] ?>&user=<?= $roworder['id_designer'] ?>&param=selesai" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Selesai"><i class="mdi mdi-check"></i></a>
+                              <?php } 
+                                  $param = $roworder['status_order'] != "Selesai Didesain" ? 'batal' : 'batal selesai';
+                              ?>
+                              <a href="action/get-orderdesain.php?id_order=<?= $roworder['id_order'] ?>&user=<?= $roworder['id_designer'] ?>&param=<?= $param ?>" id="batal" data-bs-toggle="tooltip" data-bs-placement="top" title="Batal" class="btn btn-danger btn-sm"><i class="ri-close-fill"></i></a>
                             </div>
+                          </td>
+                          <?php }elseif($role == "Admin" || $role == "Owner"){ ?>
+                          <td>
+                            <?php  
+                            if($roworder['admin_konfirm'] == "Belum Disetujui"){
+                            ?>
+                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                              <a href="action/confirm-desain.php?param=terima&id=<?= $roworder['id_order'] ?>" class="btn btn-success btn-sm" id="terimadesain" data-bs-toggle="tooltip" data-bs-placement="top" title="Setujui">
+                                <i class="mdi mdi-check"></i>
+                              </a>
+                              <a href="action/confirm-desain.php?param=tolak&id=<?= $roworder['id_order'] ?>" class="btn btn-danger btn-sm" id="tolakdesain" data-bs-toggle="tooltip" data-bs-placement="top" title="Tolak">
+                                <i class="ri-close-fill"></i>
+                              </a>
+                            </div>
+                            <?php } ?>
                           </td>
                           <?php } ?>
                         </tr>
-                        <?php } ?>
+                        <?php }else{continue;}} ?>
                       </tbody>
                     </table>
                   </div>
@@ -465,6 +523,12 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
           text:"Data tidak Terhapus!",
           icon:"error",
         })
+      }else if(flash == "3"){
+        Swal.fire({
+          title:"Gagal!",
+          text:"Data tidak Berubah!",
+          icon:"error",
+        })
       }else if(flash == "5"){
         Swal.fire({
           title:"Berbahaya",
@@ -486,6 +550,44 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
         var link = $(this).attr('href');
         Swal.fire({
           title:"Batal Desain!",
+          text:"Apakah Anda yakin?",
+          icon:"warning",
+          showCancelButton: true,
+          confirmButtonColor: '#00a65a',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Ya'
+        }).then((result) => {
+          if(result.isConfirmed){
+            window.location = link;
+          }
+        });
+      });
+    </script>
+    <script>
+      $(document).on('click', '#terimadesain', function(e){
+        e.preventDefault();
+        var link = $(this).attr('href');
+        Swal.fire({
+          title:"Setujui Desain!",
+          text:"Apakah Anda yakin?",
+          icon:"success",
+          showCancelButton: true,
+          confirmButtonColor: '#00a65a',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Ya'
+        }).then((result) => {
+          if(result.isConfirmed){
+            window.location = link;
+          }
+        });
+      });
+    </script>
+    <script>
+      $(document).on('click', '#tolakdesain', function(e){
+        e.preventDefault();
+        var link = $(this).attr('href');
+        Swal.fire({
+          title:"Tolak Desain!",
           text:"Apakah Anda yakin?",
           icon:"warning",
           showCancelButton: true,

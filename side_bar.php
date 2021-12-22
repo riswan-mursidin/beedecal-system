@@ -45,8 +45,18 @@
                         <span>Proses Desain</span>
                       </a>
                       <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="menunggu_designer">Menunggu Designer</a></li>
-                        <li><a href="sedang_didesain">Sedang Didesain</a></li>
+                        <li>
+                          <a href="menunggu_designer">
+                            <!-- <?php  ?> -->
+                            <span class="badge rounded-pill bg-primary float-end">3</span>
+                            <span>Menunggu Designer</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a href="proses-desain">
+                            Sedang Didesain
+                          </a>
+                        </li>
                       </ul>
                     </li>
                     <li><a href="proses-cetak.html">Proses Cetak</a></li>

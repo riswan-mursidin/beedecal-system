@@ -85,13 +85,15 @@ if(isset($_POST['create_spk'])){
   $pemasangan_status = $_POST['pemasangan_status'];
 
   // detail desain
-  $dbfoto = "empty";
-  if($desain_status == "Ya" && $_FILES['contoh_desain']['name'] != ""){
-    $foto_path = $_FILES['contoh_desain']['tmp_name'];
-    $foto_name = basename($_FILES['contoh_desain']['name']);
-    $folder = "assets/images/contoh_desain";
-    $save_file = $db->saveFoto2($folder, $foto_name, $foto_path);
-    $dbfoto = $save_file;
+  $dbfoto = array();
+  if($desain_status == "Ya"){
+    for($index = 0; $index < count($_FILES['contoh_desain']['name']); $index++){
+      $foto_path = $_FILES['contoh_desain']['tmp_name'][$index];
+      $foto_name = basename($_FILES['contoh_desain']['name'][$index]);
+      $folder = "assets/images/contoh_desain";
+      $save_file = $db->saveFoto2($folder, $foto_name, $foto_path);
+      array_push($dbfoto,$save_file);
+    }
   }
   $desk_desain = $desain_status == "Ya" ? $_POST['desk_desain'] : '';
 
@@ -156,7 +158,6 @@ if(isset($_POST['create_spk'])){
         $cetak_status,
         $laminating,
         $pemasangan_status,
-        $dbfoto,
         $desk_desain,
         $kategori_pemasang,
         $harga_pasang,
@@ -196,7 +197,6 @@ if(isset($_POST['create_spk'])){
         $cetak_status,
         $laminating,
         $pemasangan_status,
-        $dbfoto,
         $desk_desain,
         $kategori_pemasang,
         $harga_pasang,
@@ -218,6 +218,12 @@ if(isset($_POST['create_spk'])){
     );
   
     if($query){
+      if(count($dbfoto) > 0){
+        for($index = 0; $index < count($dbfoto); $index++){
+          $query = "INSERT INTO contoh_desain (foto_contoh,code_order) VALUES('$dbfoto[$index]','$spk')";
+          $result = mysqli_query($db->conn, $query);
+        }
+      }
       if($total_pembayaran != ""){
         $transaksi = $db->insertDetailTr($id,$spk,$order_date,$total_pembayaran);
         if($transaksi){
@@ -850,7 +856,20 @@ if(isset($_POST['create_spk'])){
                       <div class="row g-3">
                         <label for="" class="col-sm-2 col-form-label">Upload Contoh Desain</label>
                         <div class="col-sm-10">
-                          <input type="file" name="contoh_desain" id="" class="form-control">
+                          <div class="row">
+                            <?php  
+                            $no = 0;
+                            $fotocontoh = $db->selectTable("contoh_desain","code_order",$rowedit['coder_order']);
+                            while($rowcontoh=mysqli_fetch_assoc($fotocontoh)){
+                            ?>
+                            <div class="col col-sm-3">
+                              <span><a href="<?= $rowcontoh['foto_contoh'] ?>">Contoh <?= ++$no ?></a></span>
+                              <label for="foto<?= $rowcontoh['id_contoh'] ?>" style="cursor: pointer;">
+                              </label>
+                              <input hidden type="file" name="foto<?= $rowcontoh['id_contoh'] ?>" id="foto<?= $rowcontoh['id_contoh'] ?>" class="form-control" multiple>
+                            </div>
+                            <?php } ?>
+                          </div>
                         </div>
                         <label for="" class="col-sm-2 col-form-label">Deskripsi Desain</label>
                         <div class="col-sm-10">
@@ -899,7 +918,7 @@ if(isset($_POST['create_spk'])){
                       <div class="row g-3">
                         <label for="" class="col-sm-2 col-form-label">Upload Contoh Desain</label>
                         <div class="col-sm-10">
-                          <input type="file" name="contoh_desain" id="" class="form-control">
+                          <input type="file" name="contoh_desain[]" id="" class="form-control" multiple>
                         </div>
                         <label for="" class="col-sm-2 col-form-label">Deskripsi Desain</label>
                         <div class="col-sm-10">

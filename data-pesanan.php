@@ -35,7 +35,7 @@ if(mysqli_num_rows($check) != 0 && $order != ""){
         while($rowcth=mysqli_fetch_assoc($cth)){
           unlink($rowcth['foto_contoh']);
         }
-        $query = "DELETE FROM contoh_desain WHERE code_order='$order'";
+        $query = "DELETE FROM contoh_desain WHERE code_order='$order' AND id_owner='$id'";
         $result = mysqli_query($db->conn, $query);
         $_SESSION['alert'] = "1";
         header('Location: data-pesanan');

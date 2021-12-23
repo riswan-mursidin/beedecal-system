@@ -59,7 +59,23 @@
                         </li>
                       </ul>
                     </li>
-                    <li><a href="proses-cetak.html">Proses Cetak</a></li>
+                    <li>
+                      <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <span>Proses Cetak</span>
+                      </a>
+                      <ul class="sub-menu" aria-expanded="false">
+                        <li>
+                          <a href="siap-cetak">
+                            <span>Siap Cetak</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a href="sedang-dicetak">
+                            <span>Sedang Dicetak</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
                     <li><a href="proses-finishing.html">Proses Finishing</a></li>
                     <li>
                       <a href="proses-pemasangan.html">Proses Pemasangan</a>
@@ -238,6 +254,44 @@
                         <li>
                           <a href="proses-desain">
                             Sedang Didesain
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+            <!-- Sidebar -->
+          </div>
+        </div>
+      <?php }elseif($role == "Produksi"){ ?>
+        <div class="vertical-menu">
+          <div data-simplebar class="h-100">
+            <!--- Sidemenu -->
+            <div id="sidebar-menu">
+              <!-- Left Menu Start -->
+              <ul class="metismenu list-unstyled" id="side-menu">
+                <!-- Produksi -->
+                <li>
+                  <a href="javascript: void(0);" class="has-arrow waves-effect">
+                    <i class="ri-dashboard-fill"></i>
+                    <span>Produksi</span>
+                  </a>
+                  <ul class="sub-menu" aria-expanded="false">
+                    <li>
+                      <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <span>Proses Cetak</span>
+                      </a>
+                      <ul class="sub-menu" aria-expanded="false">
+                        <li>
+                          <a href="siap-cetak">
+                            <span>Siap Cetak</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a href="sedang-dicetak">
+                            <span>Sedang Dicetak</span>
                           </a>
                         </li>
                       </ul>

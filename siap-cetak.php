@@ -18,27 +18,29 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-if(isset($_POST['aksi_upload'])){
-  $nameproduk = $_POST['namefile'];
-  $id_order = $_POST['id_order'];
+if(isset($_POST['aksi_cetak'])){
+  $id_percetakan = $_POST['percetakan'];
+  $id_bahan = $_POST['bahan'];
+  $lebar = $_POST['lebar'];
+  $panjang = $_POST['panjang'];
+  $id_orderr = $_POST['id_order'];
 
-  $order = $db->selectTable("data_pemesanan","id_order",$id_order);
-  $roworder = mysqli_fetch_assoc($order);
-  if($roworder['hasil_desain_order'] != ""){
-    unlink($roworder['hasil_desain_order']);
-  }
+  $order = $db->selectTable("data_pemesanan","id_order",$id_orderr);
+  $roworderr = mysqli_fetch_assoc($order);
+  $spk = $roworderr['code_order'];
+  
+  $next = 'Proses Cetak';
 
-  $foto_path = $_FILES['hasil_desain']['tmp_name'];
-  $foto_name = basename($_FILES['hasil_desain']['name']);
-  $folder = "assets/images/hasil_desain";
-  $save_file = $db->saveFoto2($folder, $foto_name, $foto_path, $nameproduk);
-  $dbfoto = $save_file;
-
-  $query = "UPDATE data_pemesanan SET hasil_desain_order='$dbfoto' WHERE id_order='$id_order'";
-  $result = mysqli_query($db->conn, $query);
+  $updateecetak = "UPDATE data_pemesanan SET status_order='$next' WHERE id_order='$id_orderr'";
+  $result = mysqli_query($db->conn,$updateecetak);
   if($result){
-    $alert = "1";
+    $insetcetak = "INSERT INTO data_cetakan (code_order,id_percetakan,id_bahan,lebar_bahan,panjang_bahan) VALUES('$spk','$id_percetakan','$id_bahan','$lebar','$panjang')";
+    $resultcetak = mysqli_query($db->conn, $insetcetak);
+    if($resultcetak){
+      $alert = "1";
+    }
   }
+
 }
 
 function showProduk($id_produk){
@@ -111,22 +113,6 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
   return $result;
 }
 
-function showStatus($status,$admin){
-  if($status == "Proses Desain"){
-    if($admin == "Tidak Disetujui"){
-      return '<span class="badge bg-danger">'.$admin.'</span>';
-    }else{
-      return '<span class="badge bg-danger">'.$status.'</span>';
-    }
-  }else{
-    if($admin == "Belum Disetujui"){
-      return '<span class="badge bg-warning">'.$admin.'</span>';
-    }else{
-      return '<span class="badge bg-success">'.$admin.'</span>';
-    }
-  }
-}
-
 function showDesigner($id){
   global $db;
   $query = $db->selectTable("user_galeri","id_user",$id,"level_user","Desainer");
@@ -141,7 +127,7 @@ function showDesigner($id){
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | AREA DESIGNER</title>
+    <title>STIKER | AREA PRODUKSI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -211,6 +197,7 @@ function showDesigner($id){
             setInterval(showTime, 500);         
     </script>
   </head>
+
   <body data-sidebar="dark">
     <!-- <body data-layout="horizontal" data-topbar="dark"> -->
 
@@ -241,7 +228,7 @@ function showDesigner($id){
                     justify-content-between
                   "
                 >
-                  <h4 class="mb-sm-0">Siap Didesain</h4>
+                  <h4 class="mb-sm-0">Siap Dicetak</h4>
 
                   <div class="page-title-right">
                   <ol class="breadcrumb m-0">
@@ -264,31 +251,27 @@ function showDesigner($id){
                         <tr>
                           <th>ID</th>
                           <th>Pelanggan</th>
+                          <th>Designer</th>
                           <th>Tanggal Pesan</th>
-                          <th>Keterangan Desain</th>
-                          <th>Jenis Desain</th>
-                          <th>Contoh Desain</th>
-                          <th>Hasil Desain</th>
-                          <?= $role == "Admin" || $role == "Owner" ? "<th>Designer</th>" : '' ?>
+                          <th>Desain</th>
                           <th>Status</th>
-                          <?= $role == "Desainer" || $role == "Admin" || $role == "Owner" ? "<th>Aksi</th>" : '' ?>
+                          <?= $role == "Produksi" ? '<th>Aksi</th>' : '' ?>
                         </tr>
                       </thead>
                       <tbody>
                         <?php  
-                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"id_designer",$row['id_user']);
-                        if($role == "Admin" || $role == "Owner"){
-                          $order = $db->selectTable("data_pemesanan","id_owner",$id);
-                        }
+                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Siap Cetak");
                         while($roworder=mysqli_fetch_assoc($order)){
-                          if($roworder['status_order'] == "Proses Desain" || $roworder['status_order'] == "Selesai Didesain"){
                         ?>
                         <tr>
+
                           <td>
                             <?= $roworder['code_order'] ?><br>
                             <?= $roworder['jenis_produk_order'] == 'Custom' ? $db->nameFormater(showProduk($roworder['produk_order'])) : '' ?><br>
                             <?= $roworder['model_stiker_order'] ?><br>
+                            <?= $roworder['laminating_order'] ?>
                           </td>
+                          
                           <td>
                             <?php 
                               $status = $roworder['jenis_produk_order'] == 'Custom' ? '<span class="badge bg-light">Custom</span>' : 'No Custom';
@@ -297,76 +280,32 @@ function showDesigner($id){
                             ?>
                             <?php
                               echo $roworder['keterangan_order'];
+                              // echo 'Kab/Kota: '.$customer['kab'].'<br>';
+                              // echo 'Kec: '.$customer['kec'].'<br>';
+                              // echo 'Kode Pos: '.$customer['kodepos'].'<br>';
                             ?>
+                          </td>
+                          <td>
+                            <?= showDesigner($roworder['id_designer']) ?>
                           </td>
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
-                          <td><?= $roworder['desk_desain_order'] ?></td>
-                          <td><?= $roworder['kategori_produk_order'] ?></td>
+                          
                           <td>
-                            <?php  
-                              $no = 0; $spasi = 1;
-                              $fotocontoh = $db->selectTable("contoh_desain","code_order",$roworder['code_order'],"id_owner",$id);
-                              while($rowcontoh=mysqli_fetch_assoc($fotocontoh)){
-                                $br = $spasi == 2 ? '<br>' : '';
-                                $spasi = $spasi == 2 ? 1 : $spasi+1;
-                            ?>
-                            <a target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View" href="<?= $rowcontoh['foto_contoh'] ?>">
-                              Contoh <?= ++$no; ?>
-                            </a><?= $br ?>
-                            <?php } ?>
+                            <a target="_blank" href="<?= $roworder['hasil_desain_order'] ?>">View Desain</a>
                           </td>
+
+                          <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>
+                          <?php if($role == "Produksi"){ ?>
                           <td>
-                            <span id="viewsdesain">
-                              <?= $roworder['hasil_desain_order'] == "" ? "Tidak Ada Desain" : '<a target="_blank" href="'.$roworder['hasil_desain_order'].'">View Desain</a>' ?>
-                              </span>
-                          </td>
-                          <?php  
-                          if($role == "Admin" || $role == "Owner"){
-                          ?>
-                          <td>
-                            <?= showDesigner($roworder['id_designer']); ?>
-                          </td>
-                          <?php } ?>
-                          <td>
-                            <?= showStatus($roworder['status_order'],$roworder['admin_konfirm']) ?>
-                          </td>
-                          <?php if($role == "Desainer"){ ?>
-                          <td>
-                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                              <?php if($roworder['admin_konfirm'] != 'Belum Disetujui'){ ?>
-                              <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#upload_hasil_desain<?= $roworder['id_order'] ?>" data-bs-placement="top" title="Upload Desain" class="btn btn-danger btn-sm">
-                                <i class="ri-pencil-line"></i>
-                              </button>
-                              <?php }
-                              if($roworder['status_order'] != "Selesai Didesain"){
-                                if($roworder['hasil_desain_order'] == ""){
-                              ?>
-                              <a href="" class="btn btn-warning btn-sm disabled" aria-disabled="true"><i class="mdi mdi-check"></i></a>
-                              <?php }else{?>
-                              <a href="action/get-orderdesain.php?id_order=<?= $roworder['id_order'] ?>&user=<?= $roworder['id_designer'] ?>&param=selesai" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Selesai"><i class="mdi mdi-check"></i></a>
-                              <?php }}
-                                  $param = $roworder['status_order'] != "Selesai Didesain" ? 'batal' : 'batal selesai'; ?>
-                              <a href="action/get-orderdesain.php?id_order=<?= $roworder['id_order'] ?>&user=<?= $roworder['id_designer'] ?>&param=<?= $param ?>" id="batal" data-bs-toggle="tooltip" data-bs-placement="top" title="Batal" class="btn btn-danger btn-sm"><i class="ri-close-fill"></i></a>
-                            </div>
-                          </td>
-                          <?php }elseif($role == "Admin" || $role == "Owner"){ ?>
-                          <td>
-                            <?php  
-                            if($roworder['admin_konfirm'] == "Belum Disetujui"){
-                            ?>
-                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                              <a href="action/confirm-desain.php?param=terima&id=<?= $roworder['id_order'] ?>" class="btn btn-success btn-sm" id="terimadesain" data-bs-toggle="tooltip" data-bs-placement="top" title="Setujui">
-                                <i class="mdi mdi-check"></i>
-                              </a>
-                              <a href="action/confirm-desain.php?param=tolak&id=<?= $roworder['id_order'] ?>" class="btn btn-danger btn-sm" id="tolakdesain" data-bs-toggle="tooltip" data-bs-placement="top" title="Tolak">
-                                <i class="ri-close-fill"></i>
-                              </a>
-                            </div>
-                            <?php } ?>
+                          <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                            <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#proses_cetakan<?= $roworder['id_order'] ?>"  data-bs-placement="top" title="Cetak">
+                              <i class="ri-printer-line"></i>
+                            </button>
+                          </div>
                           </td>
                           <?php } ?>
                         </tr>
-                        <?php }else{continue;}} ?>
+                        <?php } ?>
                       </tbody>
                     </table>
                   </div>
@@ -378,35 +317,68 @@ function showDesigner($id){
           <!-- container-fluid -->
         </div>
         <!-- End Page-content -->
-
-        <!-- Modal upload hasil desan -->
         <!-- Modal -->
         <?php  
-        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Proses Desain","id_designer",$row['id_user']);
+        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Siap Cetak");
         while($roworder=mysqli_fetch_assoc($order)){
+          $spkdb = $roworder['code_order']
         ?>
-        <div class="modal fade" id="upload_hasil_desain<?= $roworder['id_order'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="proses_cetakan<?= $roworder['id_order'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered">
-            <form action="" method="post" class="modal-content" enctype="multipart/form-data">
+            <form action="" method="post" class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Upload Hasil Desain</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Cetak Orderan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                <input type="hidden" name="namefile" value="<?= $roworder['jenis_produk_order'] == 'Custom' ? showProduk($roworder['produk_order']) : '' ?>">
-                <input type="hidden" name="id_order" value="<?= $roworder['id_order'] ?>">
-                <input type="file" name="hasil_desain" id="" class="form-control" required>
+                <div action="" method="post" class="row g-3">
+                  <input type="hidden" name="id_order" value="<?= $roworder['id_order'] ?>">
+                  <div class="col-sm-12">
+                    <select name="percetakan" class="form-select">
+                      <?php  
+                      $queryper = $db->selectTable("data_percetakan","id_owner",$id);
+                      while($rowper=mysqli_fetch_assoc($queryper)){
+                      ?>
+                      <option value="<?= $rowper['id_percetakan'] ?>"><?= $rowper['nama_percetakan'] ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                  <label for="bahan" class="col-sm-2 col-form-label">Bahan</label>
+                  <div class="col-sm-10">
+                    <select name="bahan" id="bahan" class="form-select">
+                      <?php  
+                        $chooce = $db->selectTable("bahan_stiker","id_owner",$id);
+                        while($rowchooce = mysqli_fetch_assoc($chooce)){
+                      ?>
+                      <option value="<?= $rowchooce['id_bahan'] ?>"><?= $db->formatJenis("",$rowchooce['id_bahan'],null,$id) ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                  <label for="lebar" class="col-sm-2 col-form-label">Lebar</label>
+                  <div class="col-sm-10">
+                    <div class="input-group">
+                      <input type="number" name="lebar" id="lebar" class="form-control">
+                      <span class="input-group-text">CM</span>
+                    </div>
+                  </div>
+                  <label for="panjang" class="col-sm-2 col-form-label">Panjang</label>
+                  <div class="col-sm-10">
+                    <div class="input-group">
+                      <input type="number" name="panjang" id="panjang" class="form-control">
+                      <span class="input-group-text">CM</span>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" name="aksi_upload" class="btn btn-primary">Upload Desain</button>
+                <button type="submit" name="aksi_cetak" class="btn btn-primary">Cetak</button>
               </div>
             </form>
           </div>
         </div>
         <?php } ?>
         <!-- End Modal upload hasil desan -->
-
         <!-- Footer -->
         <footer class="footer">
           <div class="container-fluid">
@@ -536,12 +508,6 @@ function showDesigner($id){
           text:"Data tidak Terhapus!",
           icon:"error",
         })
-      }else if(flash == "3"){
-        Swal.fire({
-          title:"Gagal!",
-          text:"Data tidak Berubah!",
-          icon:"error",
-        })
       }else if(flash == "5"){
         Swal.fire({
           title:"Berbahaya",
@@ -558,49 +524,11 @@ function showDesigner($id){
       }
     </script>
     <script>
-      $(document).on('click', '#batal', function(e){
+      $(document).on('click', '#delete', function(e){
         e.preventDefault();
         var link = $(this).attr('href');
         Swal.fire({
-          title:"Batal Desain!",
-          text:"Apakah Anda yakin?",
-          icon:"warning",
-          showCancelButton: true,
-          confirmButtonColor: '#00a65a',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Ya'
-        }).then((result) => {
-          if(result.isConfirmed){
-            window.location = link;
-          }
-        });
-      });
-    </script>
-    <script>
-      $(document).on('click', '#terimadesain', function(e){
-        e.preventDefault();
-        var link = $(this).attr('href');
-        Swal.fire({
-          title:"Setujui Desain!",
-          text:"Apakah Anda yakin?",
-          icon:"success",
-          showCancelButton: true,
-          confirmButtonColor: '#00a65a',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Ya'
-        }).then((result) => {
-          if(result.isConfirmed){
-            window.location = link;
-          }
-        });
-      });
-    </script>
-    <script>
-      $(document).on('click', '#tolakdesain', function(e){
-        e.preventDefault();
-        var link = $(this).attr('href');
-        Swal.fire({
-          title:"Tolak Desain!",
+          title:"Hapus Data!",
           text:"Apakah Anda yakin?",
           icon:"warning",
           showCancelButton: true,

@@ -95,6 +95,7 @@ if(isset($_POST['create_spk'])){
       array_push($dbfoto,$save_file);
     }
   }
+  
   $desk_desain = $desain_status == "Ya" ? $_POST['desk_desain'] : '';
 
   // detail pasang
@@ -143,6 +144,20 @@ if(isset($_POST['create_spk'])){
   }
 
   if($edit != ""){
+    $fotocontoh = $db->selectTable("contoh_desain","code_order",$rowedit['coder_order'],"id_owner",$id);
+    while($rowcontoh=mysqli_fetch_assoc($fotocontoh)){
+      if($_FILES['foto'.$rowcontoh['id_contoh']]['name'] != ""){
+        $foto_path = $_FILES['foto'.$rowcontoh['id_contoh']]['tmp_name'];
+        $foto_name = basename($_FILES['foto'.$rowcontoh['id_contoh']]['name']);
+        $folder = "assets/images/contoh_desain";
+        $save_file = $db->saveFoto2($folder, $foto_name, $foto_path);
+        unlink($rowcontoh['foto_contoh']);
+        $queryupdatee = "UPDATE contoh_Desain SET foto_contoh='$save_file' WHERE id_contoh='".$rowcontoh['id_contoh']."'";
+        $result = mysqli_query($db->conn, $queryupdatee);
+      }else{continue;}
+    }
+
+
     $query = $db->updateOrder(
         $id,
         $edit,
@@ -177,6 +192,12 @@ if(isset($_POST['create_spk'])){
         $sisabayar
     );
     if($query){
+      if(count($dbfoto) > 0){
+        for($index = 0; $index < count($dbfoto); $index++){
+          $query = "INSERT INTO contoh_desain (foto_contoh,code_order,id_owner) VALUES('$dbfoto[$index]','$spk','$id')";
+          $result = mysqli_query($db->conn, $query);
+        }
+      }
       $_SESSION['alert'] = "1";
       header('Location:data-pesanan.php');
     }
@@ -220,7 +241,7 @@ if(isset($_POST['create_spk'])){
     if($query){
       if(count($dbfoto) > 0){
         for($index = 0; $index < count($dbfoto); $index++){
-          $query = "INSERT INTO contoh_desain (foto_contoh,code_order) VALUES('$dbfoto[$index]','$spk')";
+          $query = "INSERT INTO contoh_desain (foto_contoh,code_order,id_owner) VALUES('$dbfoto[$index]','$spk','$id')";
           $result = mysqli_query($db->conn, $query);
         }
       }
@@ -654,7 +675,7 @@ if(isset($_POST['create_spk'])){
     </script>
   </head>
 
-  <body data-sidebar="dark">
+  <body data-sidebar="dark" >
     <!-- <body data-layout="horizontal" data-topbar="dark"> -->
 
     <!-- Begin page -->
@@ -854,21 +875,29 @@ if(isset($_POST['create_spk'])){
                     <div class="card-body">
                       <div class="card-title">Detail Desain</div>
                       <div class="row g-3">
-                        <label for="" class="col-sm-2 col-form-label">Upload Contoh Desain</label>
+                        <label for="" class="col-sm-2 col-form-label">
+                          Upload Contoh Desain 
+                        </label>
                         <div class="col-sm-10">
                           <div class="row">
+                            
                             <?php  
                             $no = 0;
-                            $fotocontoh = $db->selectTable("contoh_desain","code_order",$rowedit['coder_order']);
+                            $fotocontoh = $db->selectTable("contoh_desain","code_order",$rowedit['coder_order'],"id_owner",$id);
                             while($rowcontoh=mysqli_fetch_assoc($fotocontoh)){
                             ?>
                             <div class="col col-sm-3">
-                              <span><a href="<?= $rowcontoh['foto_contoh'] ?>">Contoh <?= ++$no ?></a></span>
-                              <label for="foto<?= $rowcontoh['id_contoh'] ?>" style="cursor: pointer;">
+                              <span><a target="_blank" href="<?= $rowcontoh['foto_contoh'] ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="View">Contoh <?= ++$no ?></a></span>
+                              <label for="foto<?= $rowcontoh['id_contoh'] ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" style="cursor: pointer;">
+                                <i class="mdi mdi-camera-outline
+"></i>
                               </label>
                               <input hidden type="file" name="foto<?= $rowcontoh['id_contoh'] ?>" id="foto<?= $rowcontoh['id_contoh'] ?>" class="form-control" multiple>
                             </div>
                             <?php } ?>
+                            <div class="col-sm-12 mt-2">
+                              <input type="file" name="contoh_desain[]" id="" class="form-control" multiple>
+                            </div>
                           </div>
                         </div>
                         <label for="" class="col-sm-2 col-form-label">Deskripsi Desain</label>
@@ -1373,6 +1402,11 @@ if(isset($_POST['create_spk'])){
           });
       });
     </script>
+    <!-- <script>
+      $(document).ready(function() {
+        window.print();
+      });
+    </script> -->
 
     <!-- JAVASCRIPT -->
     <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>

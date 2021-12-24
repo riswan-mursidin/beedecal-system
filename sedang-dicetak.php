@@ -161,7 +161,7 @@ function showCetakan($id_order, $owner){
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | AREA DESIGNER</title>
+    <title>STIKER | AREA PRODUKSI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -261,7 +261,7 @@ function showCetakan($id_order, $owner){
                     justify-content-between
                   "
                 >
-                  <h4 class="mb-sm-0">Siap Didesain</h4>
+                  <h4 class="mb-sm-0">Sedang Dcetak</h4>
 
                   <div class="page-title-right">
                   <ol class="breadcrumb m-0">

@@ -140,7 +140,7 @@ if(isset($_POST['create_spk'])){
   }elseif($pemasangan_status == "Ya"){
     $status_order = "Siap Dipasang";
   }else{
-    $status_order = "Selesai";
+    $status_order = "Selesai Dicetak";
   }
 
   if($edit != ""){

@@ -76,7 +76,23 @@
                         </li>
                       </ul>
                     </li>
-                    <li><a href="proses-finishing.html">Proses Finishing</a></li>
+                    <li>
+                      <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <span>Proses Finishing</span>
+                      </a>
+                      <ul class="sub-menu" aria-expanded="false">
+                        <li>
+                          <a href="menunggu-finishing">
+                            <span>Menunggu Finishing</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a href="proses-finishing">
+                            <span>Finishing Berjalan</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
                     <li>
                       <a href="proses-pemasangan.html">Proses Pemasangan</a>
                     </li>
@@ -296,6 +312,23 @@
                         </li>
                       </ul>
                     </li>
+                    <li>
+                      <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <span>Proses Finishing</span>
+                      </a>
+                      <ul class="sub-menu" aria-expanded="false">
+                        <li>
+                          <a href="menunggu-finishing">
+                            <span>Menunggu Finishing</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a href="proses-finishing">
+                            <span>Finishing Berjalan</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
                   </ul>
                 </li>
               </ul>
@@ -303,4 +336,42 @@
             <!-- Sidebar -->
           </div>
         </div>
-      <?php } ?>
+        <?php }elseif($role == "Pemasang"){ ?>
+          <div class="vertical-menu">
+          <div data-simplebar class="h-100">
+            <!--- Sidemenu -->
+            <div id="sidebar-menu">
+              <!-- Left Menu Start -->
+              <ul class="metismenu list-unstyled" id="side-menu">
+                <!-- Produksi -->
+                <li>
+                  <a href="javascript: void(0);" class="has-arrow waves-effect">
+                    <i class="ri-dashboard-fill"></i>
+                    <span>Produksi</span>
+                  </a>
+                  <ul class="sub-menu" aria-expanded="false">
+                    <li>
+                      <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <span>Proses Pemasangan</span>
+                      </a>
+                      <ul class="sub-menu" aria-expanded="false">
+                        <li>
+                          <a href="siap-dipasang">
+                            <span>Siap Dipasang</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a href="proses-pasang">
+                            <span>Sedang Dipasang</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+            <!-- Sidebar -->
+          </div>
+        </div>
+        <?php } ?>

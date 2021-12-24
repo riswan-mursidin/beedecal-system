@@ -40,7 +40,7 @@ function updateOrder($id,$proses){
     }elseif($proses[2] == "Ya"){
         $next = "Siap Dipasang";
     }else{
-        $next = "Selesai";
+        $next = "Selesai Dicetak";
     }
     global $conn;
     $query = "UPDATE data_pemesanan SET status_order='$next' WHERE id_order='$id'";

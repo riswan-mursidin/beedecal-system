@@ -306,7 +306,7 @@ if(isset($_POST['submit_pegawai'])){
                           <select required name="jabatan" id="role" class="form-select">
                               <option value="">Pilih</option>
                               <?php  
-                              $a = array("Admin","Desainer","Produksi");
+                              $a = array("Admin","Desainer","Produksi","Pemasang","Logistik");
                               $value = $edit != "" ? $rowedit['level_user'] : $_POST['jabatan'];
                               foreach($a as $as){
                                 $select = $value == $as ? 'selected="selected"' : "";

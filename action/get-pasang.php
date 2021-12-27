@@ -10,7 +10,7 @@ $conn = $db->conn;
 
 $id_order = $_GET['id'];
 $param = $_GET['param'];
-$pemasang = $_GET['pemasang'];
+$pemasang = $_GET['pemasang']."-Karyawan";
 
 
 if($id_order == "" || $param == "" || $pemasang == ""){
@@ -50,11 +50,11 @@ if($param == "get"){
 }elseif($param == "batal" || $param == "selesai"){
     if($finishing){
         $_SESSION['alert'] = "1";
-        header('Location: ../proses-finishing');
+        header('Location: ../proses-pasang');
         exit();
     }else{
         $_SESSION['alert'] = "3";
-        header('Location: ../proses-finishing');
+        header('Location: ../proses-pasang');
         exit();
     }
 }
@@ -66,7 +66,7 @@ function pemasanganAction($id,$param=null,$pemasang){
         $result = mysqli_query($conn, $query);
         return $result;
     }elseif($param == "batal"){
-        $query = "UPDATE data_pemesanan SET status_order='Menunggu Finishing'  WHERE id_order='$id'";
+        $query = "UPDATE data_pemesanan SET status_order='Siap Dipasang', pemasang_order=''  WHERE id_order='$id'";
         $result = mysqli_query($conn, $query);
         return $result;
     }elseif($param == "selesai"){

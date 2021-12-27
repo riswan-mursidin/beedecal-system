@@ -35,7 +35,7 @@ if($update){
 
 function updateOrder($id,$proses){
     $next = '';
-    if($proses[1] == "Ya"){
+    if($proses[1] != ""){
         $next = "Menunggu Finishing";
     }elseif($proses[2] == "Ya"){
         $next = "Siap Dipasang";

@@ -94,7 +94,21 @@
                       </ul>
                     </li>
                     <li>
-                      <a href="proses-pemasangan.html">Proses Pemasangan</a>
+                      <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <span>Proses Pemasangan</span>
+                      </a>
+                      <ul class="sub-menu" aria-expanded="false">
+                        <li>
+                          <a href="siap-dipasang">
+                            <span>Siap Dipasang</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a href="proses-pasang">
+                            <span>Sedang Dipasang</span>
+                          </a>
+                        </li>
+                      </ul>
                     </li>
                   </ul>
                 </li>
@@ -105,8 +119,8 @@
                     <span>Logistik</span>
                   </a>
                   <ul class="sub-menu" aria-expanded="false">
-                    <li><a href="ambil-ditoko.html">Ambil ditoko</a></li>
-                    <li><a href="pengiriman.html">Pengiriman</a></li>
+                    <li><a href="ambil-ditoko">Ambil ditoko</a></li>
+                    <li><a href="pengiriman">Pengiriman</a></li>
                   </ul>
                 </li>
                 <li class="menu-title">Laporan</li>
@@ -117,7 +131,7 @@
                     <span>Laporan Order</span>
                   </a>
                   <ul class="sub-menu" aria-expanded="false">
-                    <li><a href="order-hari-ini.html">Order Hari ini</a></li>
+                    <li><a href="order-hari-ini">Order Hari ini</a></li>
                     <li><a href="order-selesai">Order Selesai</a></li>
                     <li><a href="data-grafik">Data Grafik</a></li>
                   </ul>
@@ -129,8 +143,8 @@
                     <span>Laporan Bahan</span>
                   </a>
                   <ul class="sub-menu" aria-expanded="false">
-                    <li><a href="order-hari-ini.html">Bahan Produksi</a></li>
-                    <li><a href="order-selesai">Gagal Produksi</a></li>
+                    <li><a href="#">Bahan Produksi</a></li>
+                    <li><a href="#">Gagal Produksi</a></li>
                   </ul>
                 </li>
                 <li class="menu-title">Pemasangan</li>

@@ -61,7 +61,7 @@ if($param == "batal" || $param == "selesai" || $param == "batal selesai"){
 function getDesain($id, $user, $param=null){
     global $conn;
     if($param == "batal"){
-        $query = "UPDATE data_pemesanan SET status_order='Menunggu Designer', id_designer='' WHERE id_order='$id'";
+        $query = "UPDATE data_pemesanan SET status_order='Menunggu Designer', id_designer='', admin_konfirm='' WHERE id_order='$id'";
         $result = mysqli_query($conn, $query);
         return $result;
     }elseif($param == "batal selesai"){

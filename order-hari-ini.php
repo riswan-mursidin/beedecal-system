@@ -18,29 +18,33 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-if(isset($_POST['aksi_cetak'])){
-  $id_percetakan = $_POST['percetakan'];
-  $id_bahan = $_POST['bahan'];
-  $lebar = $_POST['lebar'];
-  $panjang = $_POST['panjang'];
-  $id_orderr = $_POST['id_order'];
+// $role = $row['level_user'];
+// if($role == "Desainer"){
+//   $alert = "5";
+//   $link = "menunggu_designer";
+//   // header('Location: menunggu_designer');
+// }
 
-  $order = $db->selectTable("data_pemesanan","id_order",$id_orderr);
-  $roworderr = mysqli_fetch_assoc($order);
-  $spk = $roworderr['code_order'];
-  
-  $next = 'Proses Cetak';
-
-  $updateecetak = "UPDATE data_pemesanan SET status_order='$next' WHERE id_order='$id_orderr'";
-  $result = mysqli_query($db->conn,$updateecetak);
-  if($result){
-    $insetcetak = "INSERT INTO data_cetakan (code_order,id_percetakan,id_bahan,lebar_bahan,panjang_bahan,id_owner) VALUES('$spk','$id_percetakan','$id_bahan','$lebar','$panjang',$id)";
-    $resultcetak = mysqli_query($db->conn, $insetcetak);
-    if($resultcetak){
-      $alert = "1";
+// pelanggan
+$order = $_GET['order'];
+$check = $db->selectTable("data_pemesanan","code_order",$order);
+if(mysqli_num_rows($check) != 0 && $order != ""){
+    $delete = $db->deleteTable("data_pemesanan",$order,"code_order");
+    if($delete){
+        $cth = $db->selectTable("contoh_desain","code_order",$order);
+        while($rowcth=mysqli_fetch_assoc($cth)){
+          unlink($rowcth['foto_contoh']);
+        }
+        $query = "DELETE FROM contoh_desain WHERE code_order='$order' AND id_owner='$id'";
+        $result = mysqli_query($db->conn, $query);
+        $_SESSION['alert'] = "1";
+        header('Location: data-pesanan');
+        exit();
+    }else{
+        $_SESSION['alert'] = "2";
+        header('Location: data-pesanan');
+        exit();
     }
-  }
-
 }
 
 function showProduk($id_produk){
@@ -48,6 +52,12 @@ function showProduk($id_produk){
   $querydb = $db->selectTable("type_galeri","id_type",$id_produk);
   $rowdb=mysqli_fetch_assoc($querydb);
   $result = $rowdb['name_type'];
+  return $result;
+}
+
+function resultDiskon($harga,$disk){
+  $diskon = $harga * ($disk/100);
+  $result = $harga - $diskon;
   return $result;
 }
 
@@ -113,21 +123,21 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
   return $result;
 }
 
-function showDesigner($id){
-  global $db;
-  $query = $db->selectTable("user_galeri","id_user",$id,"level_user","Desainer");
-  if(mysqli_num_rows($query) > 0){
-    $row = mysqli_fetch_assoc($query);
-    return $db->nameFormater($row['fullname_user']);
+function statusBadge($txt){
+  if($txt == "Belum Lunas"){
+    $result = '<h5><span class="badge bg-danger">Belum Lunas</span></h5>';
+    return $result;
+  }else{
+    $result = '<h5><span class="badge bg-success">Lunas</span></h5>';
+    return $result;
   }
 }
-
 ?> 
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | AREA PRODUKSI</title>
+    <title>STIKER | PEMESANAN</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -228,7 +238,7 @@ function showDesigner($id){
                     justify-content-between
                   "
                 >
-                  <h4 class="mb-sm-0">Siap Dicetak</h4>
+                  <h4 class="mb-sm-0">Pemesanan Hari ini</h4>
 
                   <div class="page-title-right">
                   <ol class="breadcrumb m-0">
@@ -251,27 +261,24 @@ function showDesigner($id){
                         <tr>
                           <th>ID</th>
                           <th>Pelanggan</th>
-                          <th>Designer</th>
+                          <th>Pembayaran</th>
+                          <th>Produksi</th>
                           <th>Tanggal Pesan</th>
-                          <th>Desain</th>
                           <th>Status</th>
-                          <?= $role == "Produksi" ? '<th>Aksi</th>' : '' ?>
                         </tr>
                       </thead>
                       <tbody>
                         <?php  
-                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Siap Cetak");
+                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"tgl_order",date("Y-m-d"));
                         while($roworder=mysqli_fetch_assoc($order)){
                         ?>
                         <tr>
-
                           <td>
                             <?= $roworder['code_order'] ?><br>
                             <?= $roworder['jenis_produk_order'] == 'Custom' ? $db->nameFormater(showProduk($roworder['produk_order'])) : '' ?><br>
                             <?= $roworder['model_stiker_order'] ?><br>
                             <?= $roworder['laminating_order'] ?>
                           </td>
-                          
                           <td>
                             <?php 
                               $status = $roworder['jenis_produk_order'] == 'Custom' ? '<span class="badge bg-light">Custom</span>' : 'No Custom';
@@ -279,31 +286,27 @@ function showDesigner($id){
                               echo "<b>".$db->nameFormater($customer['name'])."</b>"." ".$status."<br>"; 
                             ?>
                             <?php
-                              echo $roworder['keterangan_order'];
-                              // echo 'Kab/Kota: '.$customer['kab'].'<br>';
-                              // echo 'Kec: '.$customer['kec'].'<br>';
-                              // echo 'Kode Pos: '.$customer['kodepos'].'<br>';
+                              echo 'Prov: '.$customer['prov'].'<br>';
+                              echo 'Kab/Kota: '.$customer['kab'].'<br>';
+                              echo 'Kec: '.$customer['kec'].'<br>';
+                              echo 'Kode Pos: '.$customer['kodepos'].'<br>';
                             ?>
                           </td>
                           <td>
-                            <?= showDesigner($roworder['id_designer']) ?>
+                            <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format($roworder['harga_produk_order'],2,",",".").'" class="badge bg-secondary">disk '.$roworder['diskon_order'].'%</span>' : '' ?><br>
+                            Harga Produk: Rp.<?= number_format(resultDiskon($roworder['harga_produk_order'],$roworder['diskon_order']),2,",",".") ?><br>
+                            Harga Pasang: <?= $roworder['status_pasang_order'] == "Ya" ? ' Rp.'.number_format($roworder['harga_pasang_order'],2,",",".") : 'Tidak Dipasang' ?><br>
+                            Harga Pengiriman: <?= $roworder['status_Pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".") : '-,-' ?>
+                            <?= statusBadge($roworder['status_pay_order']) ?>
+                          </td>
+                          <td>
+                            Desain: <b><?= $roworder['status_desain_order'] ?></b><br>
+                            Cetak: <b><?= $roworder['status_cetak_order'] ?></b><br>
+                            Laminating: <b><?= $roworder['laminating_order'] ?></b><br>
+                            Pasang: <b><?= $roworder['status_pasang_order'] ?></b><br>
                           </td>
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
-                          
-                          <td>
-                            <a target="_blank" href="<?= $roworder['hasil_desain_order'] ?>">View Desain</a>
-                          </td>
-
                           <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>
-                          <?php if($role == "Produksi"){ ?>
-                          <td>
-                          <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                            <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#proses_cetakan<?= $roworder['id_order'] ?>"  data-bs-placement="top" title="Cetak">
-                              <i class="ri-printer-line"></i>
-                            </button>
-                          </div>
-                          </td>
-                          <?php } ?>
                         </tr>
                         <?php } ?>
                       </tbody>
@@ -317,77 +320,7 @@ function showDesigner($id){
           <!-- container-fluid -->
         </div>
         <!-- End Page-content -->
-        <!-- Modal -->
-        <?php  
-        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Siap Cetak");
-        while($roworder=mysqli_fetch_assoc($order)){
-          $spkdb = $roworder['code_order']
-        ?>
-        <div class="modal fade" id="proses_cetakan<?= $roworder['id_order'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <form action="" method="post" class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Cetak Orderan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <div class="row g-3">
-                  <input type="hidden" name="id_order" value="<?= $roworder['id_order'] ?>">
-                  <div class="col-sm-12">
-                    <label class="form-label">Link Google Drive</label>
-                      <div class="input-group">
-                        <input type="text" id="link" value="<?= $roworder['link_google_drive'] ?>" class="form-control" disabled readonly>
-                        <button type="button" class="btn btn-outline-secondary" onclick="copylink()">
-                          <i class="ri-clipboard-line"></i>
-                        </button>
-                      </div>
-                  </div>
-                  <div class="col-sm-12">
-                    <select name="percetakan" class="form-select">
-                      <?php  
-                      $queryper = $db->selectTable("data_percetakan","id_owner",$id);
-                      while($rowper=mysqli_fetch_assoc($queryper)){
-                      ?>
-                      <option value="<?= $rowper['id_percetakan'] ?>"><?= $rowper['nama_percetakan'] ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                  <label for="bahan" class="col-sm-2 col-form-label">Bahan</label>
-                  <div class="col-sm-10">
-                    <select name="bahan" id="bahan" class="form-select">
-                      <?php  
-                        $chooce = $db->selectTable("bahan_stiker","id_owner",$id);
-                        while($rowchooce = mysqli_fetch_assoc($chooce)){
-                      ?>
-                      <option value="<?= $rowchooce['id_bahan'] ?>"><?= $db->formatJenis("",$rowchooce['id_bahan'],null,$id) ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                  <label for="lebar" class="col-sm-2 col-form-label">Lebar</label>
-                  <div class="col-sm-10">
-                    <div class="input-group">
-                      <input type="number" name="lebar" id="lebar" class="form-control">
-                      <span class="input-group-text">CM</span>
-                    </div>
-                  </div>
-                  <label for="panjang" class="col-sm-2 col-form-label">Panjang</label>
-                  <div class="col-sm-10">
-                    <div class="input-group">
-                      <input type="number" name="panjang" id="panjang" class="form-control">
-                      <span class="input-group-text">CM</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" name="aksi_cetak" class="btn btn-primary">Cetak</button>
-              </div>
-            </form>
-          </div>
-        </div>
-        <?php } ?>
-        <!-- End Modal upload hasil desan -->
+
         <!-- Footer -->
         <footer class="footer">
           <div class="container-fluid">
@@ -502,26 +435,6 @@ function showDesigner($id){
     <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
     
     <script src="assets/js/app.js"></script>
-    <script>
-      function copylink() {
-        /* Get the text field */
-        var copyText = document.getElementById("link");
-
-        /* Select the text field */
-        copyText.select();
-        copyText.setSelectionRange(0, 99999); /* For mobile devices */
-
-        /* Copy the text inside the text field */
-        navigator.clipboard.writeText(copyText.value);
-        
-          Swal.fire({
-            title:"Berhasil!",
-            text:"Copy Link "+copyText.value,
-            icon:"success",
-          })
-      }
-    </script>
-
 
     <script>
       var flash = $('#flash').data('flash');
@@ -558,25 +471,6 @@ function showDesigner($id){
         var link = $(this).attr('href');
         Swal.fire({
           title:"Hapus Data!",
-          text:"Apakah Anda yakin?",
-          icon:"warning",
-          showCancelButton: true,
-          confirmButtonColor: '#00a65a',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Ya'
-        }).then((result) => {
-          if(result.isConfirmed){
-            window.location = link;
-          }
-        });
-      });
-    </script>
-    <script>
-      $(document).on('click', '#ambilorder', function(e){
-        e.preventDefault();
-        var link = $(this).attr('href');
-        Swal.fire({
-          title:"Ambil Orderan!",
           text:"Apakah Anda yakin?",
           icon:"warning",
           showCancelButton: true,

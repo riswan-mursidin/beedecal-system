@@ -38,7 +38,7 @@ function updateOrder($id,$param,$proses){
     $next = '';
     if($proses[0] == "Ya"){
         $next = "Siap Cetak";
-    }elseif($proses[1] == "Ya"){
+    }elseif($proses[1] != ""){
         $next = "Menunggu Finishing";
     }elseif($proses[2] == "Ya"){
         $next = "Siap Dipasang";
@@ -47,7 +47,7 @@ function updateOrder($id,$param,$proses){
     }
     global $conn;
     if($param == "terima"){
-        $query = "UPDATE data_pemesanan SET status_order='$next', admin_konfirm='Disetujui' WHERE id_order='$id'";
+        $query = "UPDATE data_pemesanan SET admin_konfirm='Disetujui' WHERE id_order='$id'";
         $result = mysqli_query($conn, $query);
         return $result;
     }else{

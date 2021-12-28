@@ -16,7 +16,7 @@ $usernamelogin = $row['username_user']
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | DASHBOARD</title>
+    <title>STIKER | DATA GRAFIK</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -123,7 +123,11 @@ $usernamelogin = $row['username_user']
               <div class="col-12">
                 <div class="card">
                   <div class="card-body">
-                    <div id="line_chart_dashed" class="apex-charts" dir="ltr"></div>
+                    <div class="row">
+                      <div class="col-12">
+                        <div id="column_chart_datalabel" class="apex-charts" dir="ltr"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -233,315 +237,253 @@ $usernamelogin = $row['username_user']
     
     ?>
     <script>
-      const formatRupiah = (money) => {
-        return new Intl.NumberFormat('id-ID',
-          { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }
-        ).format(money);
-      }
-      $("#line_chart_dashed").length&&(options={
-        chart:{
-            height:380,
-            type:"line",
-            zoom:{
-                enabled:!1
-            },toolbar:{
-                show:!1
-            }
-        },
-        colors:["#11c46e","#0db4d6","#fb4d53"],
-        dataLabels:{
-            enabled:!1
-        },
-        stroke:{
-            width:[3,4,3],
-            curve:"straight",
-            dashArray:[0,8,5]},
+          const rupiah = (number)=>{
+            return new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR"
+            }).format(number);
+          }
+          $("#column_chart_datalabel").length&&(options={
+            chart:{
+                height:350,
+                type:"bar",
+                toolbar:{show:!1}
+            },
+            plotOptions:{
+                bar:{
+                    dataLabels:{position:"top"}
+                }
+            },
+            dataLabels:{
+                enabled:!0,formatter:function(e){
+                    return rupiah(e);
+                },
+                offsetY:-21,
+                style:{
+                    fontSize:"12px",
+                    colors:["#304758"]
+                }
+            },
             series:[
                 {
-                    name:"Total Pendapatan Rp.",
+                    name:"Penjualan",
                     data:[
-                      parseInt(<?php
-                      $month = 01; $year = date("Y");
-                      $query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-                      $result = mysqli_query($db->conn, $query);
-                      if(mysqli_num_rows($result) != 0){
-                        $count = 0;
-                        while($rowcount=mysqli_fetch_assoc($result)){
-                          $count += $rowcount['harga_produk_order'];
+                      <?php
+                      $year = date("Y"); $month = 1;
+                      $count = 0;
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $result_omset = mysqli_query($db->conn, $omset_query);
+                      if(mysqli_num_rows($result_omset) >0){
+                        while($rowomset = mysqli_fetch_assoc($result_omset)){
+                          $count += $rowomset['harga_produk_order'];
                         }
-                        echo $count;
                       }
-                      ?>),
-                      parseInt(<?php
-                      $month = 2; $year = date("Y");
-                      $query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-                      $result = mysqli_query($db->conn, $query);
-                      if(mysqli_num_rows($result) != 0){
-                        $count = 0;
-                        while($rowcount=mysqli_fetch_assoc($result)){
-                          $count += $rowcount['harga_produk_order'];
+                      echo $count
+                      ?>,
+                      <?php
+                      $year = date("Y"); $month = 2;
+                      $count = 0;
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $result_omset = mysqli_query($db->conn, $omset_query);
+                      if(mysqli_num_rows($result_omset) >0){
+                        while($rowomset = mysqli_fetch_assoc($result_omset)){
+                          $count += $rowomset['harga_produk_order'];
                         }
-                        echo $count;
                       }
-                      ?>),
-                      parseInt(<?php
-                      $month = 3; $year = date("Y");
-                      $query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-                      $result = mysqli_query($db->conn, $query);
-                      if(mysqli_num_rows($result) != 0){
-                        $count = 0;
-                        while($rowcount=mysqli_fetch_assoc($result)){
-                          $count += $rowcount['harga_produk_order'];
+                      echo $count
+                      ?>,
+                      <?php
+                      $year = date("Y"); $month = 3;
+                      $count = 0;
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $result_omset = mysqli_query($db->conn, $omset_query);
+                      if(mysqli_num_rows($result_omset) >0){
+                        while($rowomset = mysqli_fetch_assoc($result_omset)){
+                          $count += $rowomset['harga_produk_order'];
                         }
-                        echo $count;
                       }
-                      ?>),
-                      parseInt(<?php
-                      $month = 4; $year = date("Y");
-                      $query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-                      $result = mysqli_query($db->conn, $query);
-                      if(mysqli_num_rows($result) != 0){
-                        $count = 0;
-                        while($rowcount=mysqli_fetch_assoc($result)){
-                          $count += $rowcount['harga_produk_order'];
+                      echo $count
+                      ?>,
+                      <?php
+                      $year = date("Y"); $month = 4;
+                      $count = 0;
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $result_omset = mysqli_query($db->conn, $omset_query);
+                      if(mysqli_num_rows($result_omset) >0){
+                        while($rowomset = mysqli_fetch_assoc($result_omset)){
+                          $count += $rowomset['harga_produk_order'];
                         }
-                        echo $count;
                       }
-                      ?>),
-                      parseInt(<?php
-                      $month = 5; $year = date("Y");
-                      $query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-                      $result = mysqli_query($db->conn, $query);
-                      if(mysqli_num_rows($result) != 0){
-                        $count = 0;
-                        while($rowcount=mysqli_fetch_assoc($result)){
-                          $count += $rowcount['harga_produk_order'];
+                      echo $count
+                      ?>,
+                      <?php
+                      $year = date("Y"); $month = 5;
+                      $count = 0;
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $result_omset = mysqli_query($db->conn, $omset_query);
+                      if(mysqli_num_rows($result_omset) >0){
+                        while($rowomset = mysqli_fetch_assoc($result_omset)){
+                          $count += $rowomset['harga_produk_order'];
                         }
-                        echo $count;
                       }
-                      ?>),
-                      parseInt(<?php
-                      $month = 6; $year = date("Y");
-                      $query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-                      $result = mysqli_query($db->conn, $query);
-                      if(mysqli_num_rows($result) != 0){
-                        $count = 0;
-                        while($rowcount=mysqli_fetch_assoc($result)){
-                          $count += $rowcount['harga_produk_order'];
+                      echo $count
+                      ?>,
+                      <?php
+                      $year = date("Y"); $month = 6;
+                      $count = 0;
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $result_omset = mysqli_query($db->conn, $omset_query);
+                      if(mysqli_num_rows($result_omset) >0){
+                        while($rowomset = mysqli_fetch_assoc($result_omset)){
+                          $count += $rowomset['harga_produk_order'];
                         }
-                        echo $count;
                       }
-                      ?>),
-                      parseInt(<?php
-                      $month = 7; $year = date("Y");
-                      $query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-                      $result = mysqli_query($db->conn, $query);
-                      if(mysqli_num_rows($result) != 0){
-                        $count = 0;
-                        while($rowcount=mysqli_fetch_assoc($result)){
-                          $count += $rowcount['harga_produk_order'];
+                      echo $count
+                      ?>,
+                      <?php
+                      $year = date("Y"); $month = 7;
+                      $count = 0;
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $result_omset = mysqli_query($db->conn, $omset_query);
+                      if(mysqli_num_rows($result_omset) >0){
+                        while($rowomset = mysqli_fetch_assoc($result_omset)){
+                          $count += $rowomset['harga_produk_order'];
                         }
-                        echo $count;
                       }
-                      ?>),
-                      parseInt(<?php
-                      $month = 8; $year = date("Y");
-                      $query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-                      $result = mysqli_query($db->conn, $query);
-                      if(mysqli_num_rows($result) != 0){
-                        $count = 0;
-                        while($rowcount=mysqli_fetch_assoc($result)){
-                          $count += $rowcount['harga_produk_order'];
+                      echo $count
+                      ?>,
+                      <?php
+                      $year = date("Y"); $month = 8;
+                      $count = 0;
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $result_omset = mysqli_query($db->conn, $omset_query);
+                      if(mysqli_num_rows($result_omset) >0){
+                        while($rowomset = mysqli_fetch_assoc($result_omset)){
+                          $count += $rowomset['harga_produk_order'];
                         }
-                        echo $count;
                       }
-                      ?>),
-                      parseInt(<?php
-                      $month = 9; $year = date("Y");
-                      $query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-                      $result = mysqli_query($db->conn, $query);
-                      if(mysqli_num_rows($result) != 0){
-                        $count = 0;
-                        while($rowcount=mysqli_fetch_assoc($result)){
-                          $count += $rowcount['harga_produk_order'];
+                      echo $count
+                      ?>,
+                      <?php
+                      $year = date("Y"); $month = 9;
+                      $count = 0;
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $result_omset = mysqli_query($db->conn, $omset_query);
+                      if(mysqli_num_rows($result_omset) >0){
+                        while($rowomset = mysqli_fetch_assoc($result_omset)){
+                          $count += $rowomset['harga_produk_order'];
                         }
-                        echo $count;
                       }
-                      ?>),
-                      parseInt(<?php
-                      $month = 10; $year = date("Y");
-                      $query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-                      $result = mysqli_query($db->conn, $query);
-                      if(mysqli_num_rows($result) != 0){
-                        $count = 0;
-                        while($rowcount=mysqli_fetch_assoc($result)){
-                          $count += $rowcount['harga_produk_order'];
+                      echo $count
+                      ?>,
+                      <?php
+                      $year = date("Y"); $month = 10;
+                      $count = 0;
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $result_omset = mysqli_query($db->conn, $omset_query);
+                      if(mysqli_num_rows($result_omset) >0){
+                        while($rowomset = mysqli_fetch_assoc($result_omset)){
+                          $count += $rowomset['harga_produk_order'];
                         }
-                        echo $count;
                       }
-                      ?>),
-                      parseInt(<?php
-                      $month = 11; $year = date("Y");
-                      $query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-                      $result = mysqli_query($db->conn, $query);
-                      if(mysqli_num_rows($result) != 0){
-                        $count = 0;
-                        while($rowcount=mysqli_fetch_assoc($result)){
-                          $count += $rowcount['harga_produk_order'];
+                      echo $count
+                      ?>,
+                      <?php
+                      $year = date("Y"); $month = 11;
+                      $count = 0;
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $result_omset = mysqli_query($db->conn, $omset_query);
+                      if(mysqli_num_rows($result_omset) >0){
+                        while($rowomset = mysqli_fetch_assoc($result_omset)){
+                          $count += $rowomset['harga_produk_order'];
                         }
-                        echo $count;
                       }
-                      ?>),
-                      parseInt(<?php
-                      $month = 12; $year = date("Y");
-                      $query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-                      $result = mysqli_query($db->conn, $query);
-                      if(mysqli_num_rows($result) != 0){
-                        $count = 0;
-                        while($rowcount=mysqli_fetch_assoc($result)){
-                          $count += $rowcount['harga_produk_order'];
+                      echo $count
+                      ?>,
+                      <?php
+                      $year = date("Y"); $month = 12;
+                      $count = 0;
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $result_omset = mysqli_query($db->conn, $omset_query);
+                      if(mysqli_num_rows($result_omset) >0){
+                        while($rowomset = mysqli_fetch_assoc($result_omset)){
+                          $count += $rowomset['harga_produk_order'];
                         }
-                        echo $count;
                       }
-                      ?>)
+                      echo $count
+                      ?>
                     ]
                 }
             ],
-        title:{
-            text:"Pendapatan Tahun <?= date("Y") ?>",
-            align:"left"
-        },
-        markers:{
-            size:0,
-            hover:{
-                sizeOffset:6
+            colors:["#0db4d6"],
+            grid:{
+                borderColor:"#f1f1f1"
+            },
+            xaxis:{
+                categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+                position:"top",
+                labels:{
+                    offsetY:-18
+                },
+                axisBorder:{
+                    show:!1
+                },
+                axisTicks:{
+                    show:!1
+                },
+                crosshairs:{
+                    fill:{
+                        type:"gradient",
+                        gradient:{
+                            colorFrom:"#D8E3F0",
+                            colorTo:"#BED1E6",
+                            stops:[0,100],
+                            opacityFrom:.4,
+                            opacityTo:.5
+                        }
+                    }
+                },
+                tooltip:{
+                    enabled:!0,offsetY:-35
+                }
+            },
+            fill:{
+                gradient:{
+                    shade:"light",
+                    type:"horizontal",
+                    shadeIntensity:.25,
+                    gradientToColors:void 0,
+                    inverseColors:!0,
+                    opacityFrom:1,
+                    opacityTo:1,
+                    stops:[50,0,100,100]
+                }
+            },
+            yaxis:{
+                axisBorder:{
+                    show:!1
+                },
+                axisTicks:{
+                    show:!1
+                },
+                labels:{
+                    show:!1,
+                    formatter:function(e){
+                        return rupiah(e)
+                    }
+                }
+            },
+            title:{
+                text:"OMSET TAHUN 2021",
+                floating:!0,
+                offsetY:320,
+                align:"center",
+                style:{
+                    color:"#444"
+                }
             }
-        },
-        xaxis:{
-            categories:[
-              "<?php
-              $month = 01; $year = date("Y");
-              $query = "SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-              $result = mysqli_query($db->conn, $query);
-              if(mysqli_num_rows($result) != 0){
-                echo "Jan";
-              }
-              ?>",
-              "<?php
-              $month = 2; $year = date("Y");
-              $query = "SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-              $result = mysqli_query($db->conn, $query);
-              if(mysqli_num_rows($result) != 0){
-                echo "Feb";
-              }
-              ?>",
-              "<?php
-              $month = 3; $year = date("Y");
-              $query = "SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-              $result = mysqli_query($db->conn, $query);
-              if(mysqli_num_rows($result) != 0){
-                echo "Mar";
-              }
-              ?>",
-              "<?php
-              $month = 4; $year = date("Y");
-              $query = "SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-              $result = mysqli_query($db->conn, $query);
-              if(mysqli_num_rows($result) != 0){
-                echo "Apr";
-              }
-              ?>",
-              "<?php
-              $month = 5; $year = date("Y");
-              $query = "SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-              $result = mysqli_query($db->conn, $query);
-              if(mysqli_num_rows($result) != 0){
-                echo "Mei";
-              }
-              ?>",
-              "<?php
-              $month = 6; $year = date("Y");
-              $query = "SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-              $result = mysqli_query($db->conn, $query);
-              if(mysqli_num_rows($result) != 0){
-                echo "Jun";
-              }
-              ?>",
-              "<?php
-              $month = 7; $year = date("Y");
-              $query = "SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-              $result = mysqli_query($db->conn, $query);
-              if(mysqli_num_rows($result) != 0){
-                echo "Jul";
-              }
-              ?>",
-              "<?php
-              $month = 8; $year = date("Y");
-              $query = "SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-              $result = mysqli_query($db->conn, $query);
-              if(mysqli_num_rows($result) != 0){
-                echo "Agu";
-              }
-              ?>",
-              "<?php
-              $month = 9; $year = date("Y");
-              $query = "SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-              $result = mysqli_query($db->conn, $query);
-              if(mysqli_num_rows($result) != 0){
-                echo "Sep";
-              }
-              ?>",
-              "<?php
-              $month = 10; $year = date("Y");
-              $query = "SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-              $result = mysqli_query($db->conn, $query);
-              if(mysqli_num_rows($result) != 0){
-                echo "Okt";
-              }
-              ?>",
-              "<?php
-              $month = 11; $year = date("Y");
-              $query = "SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-              $result = mysqli_query($db->conn, $query);
-              if(mysqli_num_rows($result) != 0){
-                echo "Nov";
-              }
-              ?>",
-              "<?php
-              $month = 12; $year = date("Y");
-              $query = "SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' And year(tgl_order)='$year'";
-              $result = mysqli_query($db->conn, $query);
-              if(mysqli_num_rows($result) != 0){
-                echo "Des";
-              }
-              ?>"
-            ]
-        },tooltip:{
-            y:[{
-                title:{
-                    formatter:function(e){
-                        return " "+e
-                    }
-                }
-            },
-            {
-                title:{
-                    formatter:function(e){
-                        return e+" per session"
-                    }
-                }
-            },
-            {
-                title:{
-                    formatter:function(e){
-                        return e
-                    }
-                }
-            }]
-        },grid:{
-            borderColor:"#f1f1f1"
-        }
-    },(chart=new ApexCharts(document.querySelector("#line_chart_dashed"),options)).render())
+          },
+          (chart=new ApexCharts(document.querySelector("#column_chart_datalabel"),options)).render())
     </script>
 
     <script src="assets/js/app.js"></script>

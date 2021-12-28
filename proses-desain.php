@@ -41,6 +41,31 @@ if(isset($_POST['aksi_upload'])){
   }
 }
 
+if(isset($_POST['aksi_input_link'])){
+  $id_order = $_POST['id_order'];
+  $link = $_POST['link_file'];
+
+  $check = $db->selectTable("data_pemesanan","id_order",$id_order,"status_order","Selesai Didesain");
+  $row = mysqli_fetch_assoc($check);
+
+  $next = '';
+  if($row['status_cetak_order'] == "Ya"){
+      $next = "Siap Cetak";
+  }elseif($row["laminating_order"] != ""){
+      $next = "Menunggu Finishing";
+  }elseif($row["status_pasang_order"] == "Ya"){
+      $next = "Siap Dipasang";
+  }else{
+      $next = "Selesai";
+  }
+
+  $query = "UPDATE data_pemesanan SET link_google_drive='$link', status_order='$next' WHERE id_order='$id_order'";
+  $result = mysqli_query($db->conn, $query);
+  if($result){
+    $alert = "1";
+  }
+}
+
 function showProduk($id_produk){
   global $db;
   $querydb = $db->selectTable("type_galeri","id_type",$id_produk);
@@ -334,10 +359,16 @@ function showDesigner($id){
                           <td>
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                               <?php if($roworder['admin_konfirm'] != 'Belum Disetujui'){ ?>
-                              <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#upload_hasil_desain<?= $roworder['id_order'] ?>" data-bs-placement="top" title="Upload Desain" class="btn btn-danger btn-sm">
-                                <i class="ri-pencil-line"></i>
-                              </button>
+                                <?php if($roworder['admin_konfirm'] == 'Disetujui'){ ?>
+                                  <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#input_link<?= $roworder['id_order'] ?>" data-bs-placement="top" title="Masukkan Link" class="btn btn-danger btn-sm">
+                                    <i class="ri-attachment-2"></i>
+                                  </button>
+                                <?php }else{ ?>
+                                  <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#upload_hasil_desain<?= $roworder['id_order'] ?>" data-bs-placement="top" title="Upload Desain" class="btn btn-danger btn-sm">
+                                    <i class="ri-pencil-line"></i>
+                                </button>
                               <?php }
+                              }
                               if($roworder['status_order'] != "Selesai Didesain"){
                                 if($roworder['hasil_desain_order'] == ""){
                               ?>
@@ -406,6 +437,29 @@ function showDesigner($id){
               <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
                 <button type="submit" name="aksi_upload" class="btn btn-primary">Upload Desain</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <?php } 
+        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Selesai Didesain","admin_konfirm","Disetujui","id_designer",$row['id_user']);
+        while($roworder=mysqli_fetch_assoc($order)){
+        ?>
+        
+        <div class="modal fade" id="input_link<?= $roworder['id_order'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <form action="" method="post" class="modal-content" enctype="multipart/form-data">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Link Google Drive</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" name="id_order" value="<?= $roworder['id_order'] ?>">
+                <input type="text" name="link_file" id="" class="form-control" required>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" name="aksi_input_link" class="btn btn-primary">Selesai</button>
               </div>
             </form>
           </div>

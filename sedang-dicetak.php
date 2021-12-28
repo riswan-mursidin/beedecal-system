@@ -152,8 +152,26 @@ function showCetakan($id_order, $owner){
   $lebar = $rowdata['lebar_bahan'];
   $panjang = $rowdata['panjang_bahan'];
 
-  $result['percetakan'] = showPercetakan($id_cetakan,$owner);
-  return $result;
+  $result_bahan = $id_bahan;
+  $result_lebar = $lebar;
+  $result_panjang = $panjang;
+  $result_percetakan = showPercetakan($id_cetakan,$owner);
+  $result_id = $rowdata['id_cetakan'];
+  return array($result_bahan,$result_lebar,$result_panjang,$result_percetakan,$result_id);
+}
+
+if(isset($_POST['edit_cetak'])){
+  $percetakan = $_POST['percetakan'];
+  $panjang = $_POST['panjang'];
+  $lebar = $_POST['lebar'];
+  $bahan = $_POST['bahan'];
+  $id_cetakan = $_POST['id_cetakan'];
+
+  $query = "UPDATE data_cetakan SET id_percetakan='$percetakan', id_bahan='$bahan', lebar_bahan='$lebar', panjang_bahan='$panjang' WHERE id_cetakan='$id_cetakan'" ;
+  $result = mysqli_query($db->conn, $query);
+  if($result){
+    $alert = "1";
+  }
 }
 
 ?> 
@@ -330,13 +348,16 @@ function showCetakan($id_order, $owner){
 
                           <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>
                           <td>
-                            <?= showCetakan($roworder['code_order'],$id)['percetakan'] ?>
+                            <?= showCetakan($roworder['code_order'],$id)[3] ?>
                           </td>
                           <?php if($role == "Produksi"){ ?>
                           <td>
                           <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                             <a href="action/selesai-dicetak?id=<?=$roworder['id_order'] ?>" id="selesaicetak" class="btn btn-outline-success btn-sm" data-bs-placement="top" title="Selesai Cetak">
                               <i class="ri-printer-line"></i>
+                            </a>
+                            <a href="#detail<?=$roworder['id_order'] ?>" data-bs-toggle="modal" class="btn btn-outline-warning btn-sm" data-bs-placement="top" title="Detail Cetak">
+                              <i class="mdi mdi-eye"></i>
                             </a>
                           </div>
                           </td>
@@ -358,24 +379,72 @@ function showCetakan($id_order, $owner){
         <!-- Modal upload hasil desan -->
         <!-- Modal -->
         <?php  
-        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Proses Desain","id_designer",$row['id_user']);
+        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Proses Cetak");
         while($roworder=mysqli_fetch_assoc($order)){
+          $cetak = showCetakan($roworder['code_order'],$id);
         ?>
-        <div class="modal fade" id="upload_hasil_desain<?= $roworder['id_order'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="detail<?= $roworder['id_order'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered">
-            <form action="" method="post" class="modal-content" enctype="multipart/form-data">
+            <form method="post" action="" class="modal-content" enctype="multipart/form-data">
+              <input type="hidden" value="<?= $cetak[4] ?>" name="id_cetakan">
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Upload Hasil Desain</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Detail Cetakan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                <input type="hidden" name="namefile" value="<?= $roworder['jenis_produk_order'] == 'Custom' ? showProduk($roworder['produk_order']) : '' ?>">
-                <input type="hidden" name="id_order" value="<?= $roworder['id_order'] ?>">
-                <input type="file" name="hasil_desain" id="" class="form-control" required>
+                <div class="row g-3">
+                  <input type="hidden" name="id_order" value="<?= $roworder['id_order'] ?>">
+                  <div class="col-sm-12">
+                    <label class="form-label">Link Google Drive</label>
+                      <div class="input-group">
+                        <input type="text" id="link" value="<?= $roworder['link_google_drive'] ?>" class="form-control" disabled readonly>
+                        <button type="button" class="btn btn-outline-secondary" onclick="copylink()">
+                          <i class="ri-clipboard-line"></i>
+                        </button>
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                    <select name="percetakan" class="form-select">
+                      <?php 
+                      $queryper = $db->selectTable("data_percetakan","id_owner",$id);
+                      while($rowper=mysqli_fetch_assoc($queryper)){
+                        $select = $rowper['nama_percetakan'] == $cetak[3] ? 'selected="selected"' : '';
+                      ?>
+                      <option value="<?= $rowper['id_percetakan'] ?>" <?= $select ?>><?= $rowper['nama_percetakan'] ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                  <label for="bahan" class="col-sm-2 col-form-label">Bahan</label>
+                  <div class="col-sm-10">
+                    <select name="bahan" id="bahan" class="form-select">
+                      <?php 
+                        $chooce = $db->selectTable("bahan_stiker","id_owner",$id);
+                        while($rowchooce = mysqli_fetch_assoc($chooce)){
+                          $select = $rowchooce['id_bahan'] == $cetak[0] ? 'selected="selected"' : '';
+                      ?>
+                      <option value="<?= $rowchooce['id_bahan'] ?>" <?= $select ?>><?= $db->formatJenis("",$rowchooce['id_bahan'],null,$id) ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                  <label for="lebar" class="col-sm-2 col-form-label">Lebar</label>
+                  <div class="col-sm-10">
+                    <div class="input-group">
+                      <input type="number" name="lebar" value="<?= $cetak[1] ?>" id="lebar" class="form-control">
+                      <span class="input-group-text">CM</span>
+                    </div>
+                  </div>
+                  <label for="panjang" class="col-sm-2 col-form-label">Panjang</label>
+                  <div class="col-sm-10">
+                    <div class="input-group">
+                      <input type="number" name="panjang" value="<?= $cetak[2] ?>" id="panjang" class="form-control">
+                      <span class="input-group-text">CM</span>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" name="aksi_upload" class="btn btn-primary">Upload Desain</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                <button type="submit" name="edit_cetak" class="btn btn-primary">Submit</button>
               </div>
             </form>
           </div>
@@ -497,6 +566,26 @@ function showCetakan($id_order, $owner){
     <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
     
     <script src="assets/js/app.js"></script>
+    
+    <script>
+      function copylink() {
+        /* Get the text field */
+        var copyText = document.getElementById("link");
+
+        /* Select the text field */
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+        /* Copy the text inside the text field */
+        navigator.clipboard.writeText(copyText.value);
+        
+          Swal.fire({
+            title:"Berhasil!",
+            text:"Copy Link "+copyText.value,
+            icon:"success",
+          })
+      }
+    </script>
 
     <script>
       var flash = $('#flash').data('flash');

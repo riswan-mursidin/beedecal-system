@@ -1,18 +1,18 @@
 <?php  
 
-$p = $_GET['jenisp'];
-$pr = $_GET['jenispr'];
+$kategori = $_GET['jenisp'];
+$jenis = $_GET['jenispr'];
 $owner = $_GET['id'];
 
 require_once "action/DbClass.php";
 
 $db = new ConfigClass;
 
-if($pr == "Custom"){
-    if($p == "Other"){
+if($jenis == "Custom"){
+    if($kategori == "Other"){
 
     }else{
-        $views = $db->selectTable("merek_galeri","id_owner",$owner,"jenis_merek",$p);
+        $views = $db->selectTable("merek_galeri","id_owner",$owner,"jenis_merek",$kategori);
         echo '<option value="" hidden>PILIH TYPE</option>';
         if(mysqli_num_rows($views)>0){
             while($row=mysqli_fetch_assoc($views)){
@@ -29,6 +29,7 @@ if($pr == "Custom"){
     }
 }else{
     echo '<option value="" hidden>PILIH PRODUK</option>';
+    
 }
 
 ?>

@@ -378,16 +378,16 @@
         }
 
         // Insert to table store_galeri
-        public function InsertStore($value1,$value2,$value3,$value4,$value5,$value6){
+        public function InsertStore($value1,$value2,$value3,$value4,$value5,$value6,$value7,$value8,$value9,$value10){
             $connect = $this->conn;
-            $query = "INSERT INTO store_galeri (name_store,owner_store,address_store,email_store,telpn_store,id_owner) VALUES('$value1','$value2','$value5','$value3','$value4','$value6')";
+            $query = "INSERT INTO store_galeri (name_store,owner_store,address_store,email_store,telpn_store,id_owner,prov_id,kab_id,kec_id,kode_pos) VALUES('$value1','$value2','$value5','$value3','$value4','$value6','$value7','$value8','$value9','$value10')";
             return mysqli_query($connect, $query);
         }
 
         // update to table storw_galeri
-        public function updateStore($value1,$value2,$value3,$value4,$value5,$value6){
+        public function updateStore($value1,$value2,$value3,$value4,$value5,$value6,$value7,$value8,$value9,$value10){
             $connect = $this->conn;
-            $query = "UPDATE store_galeri SET name_store='$value1', owner_store='$value2', address_store='$value5', email_store='$value3', telpn_store='$value4' WHERE id_owner='$value6'";
+            $query = "UPDATE store_galeri SET name_store='$value1', owner_store='$value2', address_store='$value5', email_store='$value3', telpn_store='$value4', prov_id='$value7', kab_id='$value8', kec_id='$value9', kode_pos='$value10' WHERE id_owner='$value6'";
             return mysqli_query($connect, $query);
         }
 

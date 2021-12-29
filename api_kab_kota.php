@@ -12,7 +12,7 @@ $kab_kota = $db->dataIndonesia("kab_kota",$id_prov);
 if ($kab_kota == "error") {
     echo "cURL Error #:";
 } else {
-    echo '<option value="">--PILIH KAB/KOTA--</option>';
+    echo '<option value="" hidden>KABUPATEN/KOTA</option>';
 
     foreach ($kab_kota as $key => $kab){
         echo '<option value="'.$kab["city_id"].'">'.$kab["city_name"].'</option>';

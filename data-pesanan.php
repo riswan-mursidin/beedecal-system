@@ -318,7 +318,7 @@ function statusBadge($txt){
                           <td>
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                               <a href="tambah-orderan.php?order=<?= $roworder['code_order'] ?>" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="ri-pencil-line"></i></a>
-                              <a href="<?= $roworder[''] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Details"><i class="ri-eye-line"></i></a>
+                              <a target="_blank" href="print_note?spk=<?= $roworder['code_order'] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Note"><i class="ri-printer-line"></i></a>
                               <a href="data-pesanan.php?order=<?= $roworder['code_order'] ?>" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" id="delete"><i class="ri-delete-bin-line"></i></a>
                             </div>
                           </td>

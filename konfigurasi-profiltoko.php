@@ -10,13 +10,30 @@ $db = new ConfigClass();
 
 $userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
 $row = mysqli_fetch_assoc($userselect);
-$usernamelogin = $row['username_user'];
+$usernamelogin = $row['username_user']; $role = $row['level_user'];
 $namatoko = $row['toko_user'];
 $pemilik = $usernamelogin;
 $alamat = "";
 $email = "";
 $telp = "";
+$prov_show = "";
+$kab_show = "";
+$kec_show = "";
+$kode_show = "";
 $id = "";
+
+
+  if($role == "Desainer"){
+    header('Location: menunggu_designer');
+    exit();
+  }elseif($role == "Produksi"){
+    header('Location: siap-cetak');
+    exit();
+  }elseif($role == "Pemasang"){
+    header('Location: siap-dipasang');
+    exit();
+  }
+
 
 // jika yang login buka owner ambil data owner dari id owner
 if($row['id_owner'] == "0"){
@@ -35,16 +52,20 @@ if(isset($_POST['submit_toko'])){
   $emailpost = $_POST['emailtoko'];
   $nopost = $db->formatNumber($_POST['notoko']);
   $alamatpost = $_POST['alamat'];
+  $prov = $_POST['prov'];
+  $kab = $_POST['kab'];
+  $kec = $_POST['kec'];
+  $kode_pos = $_POST['kode_pos'];
   $checktoko = $db->selectTable("store_galeri","id_owner",$id);
   if(mysqli_num_rows($checktoko) > 0){
-    $update = $db->updateStore($namatokopost,$pemiliktokopost,$emailpost,$nopost,$alamatpost,$id);
+    $update = $db->updateStore($namatokopost,$pemiliktokopost,$emailpost,$nopost,$alamatpost,$id,$prov,$kab,$kec,$kode_pos);
     if($update){
       $alert = "1";
     }else{
       $alert = "2";
     }
   }else{
-    $insert = $db->InsertStore($namatokopost,$pemiliktokopost,$emailpost,$nopost,$alamatpost,$id);
+    $insert = $db->InsertStore($namatokopost,$pemiliktokopost,$emailpost,$nopost,$alamatpost,$id,$prov,$kab,$kec,$kode_pos);
     if($insert){
       $alert = "1";
     }else{
@@ -63,6 +84,10 @@ if(mysqli_num_rows($checktoko) > 0){
   $alamat = $rowtoko['address_store'];
   $email = $rowtoko['email_store'];
   $telp = $rowtoko['telpn_store'];
+  $prov_show = $rowtoko['prov_id'];
+  $kab_show = $rowtoko['kab_id'];
+  $kec_show = $rowtoko['kec_id'];
+  $kode_show = $rowtoko['kode_pos'];
 }
 
 ?>
@@ -99,6 +124,35 @@ if(mysqli_num_rows($checktoko) > 0){
 
     <!-- Sweet Alert-->
     <link href="assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Kab -->
+    <script>
+      function viewKab(str) {
+        $.ajax({
+          type:'post',
+          url:'api_kab_kota.php?prov_id='+str,
+          success:function(hasil_kab){
+            $("select[name=kab]").html(hasil_kab);
+          }
+        })
+      }
+    </script>
+    <!-- end Kab -->
+
+    <!-- Kec -->
+    <script>
+      function viewkec(str) {
+        $.ajax({
+          type:'post',
+          url:'api_kecamatan.php?city_id='+str,
+          success:function(hasil_kec){
+            $("select[name=kec]").html(hasil_kec);
+          }
+        })
+      }
+    </script>
+    <!-- end Kec -->
+
     <script type="text/javascript">
             function showTime() {
                 var a_p = "";
@@ -203,7 +257,7 @@ if(mysqli_num_rows($checktoko) > 0){
                       <div class="row mb-3">
                           <label for="email" class="col-md-2 col-form-label">Email</label>
                           <div class="col-md-10">
-                            <input class="form-control" type="email" name="emailtoko" value="<?= $email ?>" id="email" >
+                            <input class="form-control" type="email" name="emailtoko" value="<?= $email ?>" id="email" required>
                           </div>
                       </div>
                       <div class="row mb-2">
@@ -211,14 +265,61 @@ if(mysqli_num_rows($checktoko) > 0){
                           <div class="col-md-10">
                             <div class="input-group mb-3">
                               <span class="input-group-text" id="no">+62</span>
-                              <input type="number" class="form-control" name="notoko" value="<?= $telp ?>" aria-describedby="no">
+                              <input type="number" class="form-control" name="notoko" value="<?= $telp ?>" aria-describedby="no" required>
                             </div>
                           </div>
                       </div>
                       <div class="row mb-3">
                           <label for="alamat" class="col-md-2 col-form-label">Alamat</label>
                           <div class="col-md-10">
-                            <textarea class="form-control" name="alamat" id="alamat" rows="3"><?= $alamat ?></textarea>
+                            <div class="row">
+                              <div class="col-sm-3">
+                                <select name="prov" id="" class="form-select" onchange="viewKab(this.value)" required>
+                                  <option value="" hidden>PROVINSI</option>
+                                  <?php  
+                                    $provs = $db->dataIndonesia("prov",null);
+                                    foreach($provs as $prov){
+                                      $select = $prov['province_id'] == $prov_show ? 'selected="selected"' : '';
+                                      echo '<option value="'.$prov['province_id'].'" '.$select.'>'.$prov['province'].'</option>';
+                                    }
+                                  ?>
+                                </select>
+                              </div>
+                              <div class="col-sm-3">
+                                <select name="kab" id="kab" class="form-select" onchange="viewkec(this.value)" required>
+                                  <option value="" hidden>KABUPATEN/KOTA</option>
+                                  <?php  
+                                  if($prov_show != ""){
+                                    $kab_kota = $db->dataIndonesia("kab_kota",$prov_show);
+                                    foreach ($kab_kota as $key => $kab){
+                                      $select = $kab['city_id'] == $kab_show ? 'selected="selected"' : '';
+                                      echo '<option value="'.$kab["city_id"].'" '.$select.'>'.$kab["city_name"].'</option>';
+                                    }
+                                  }
+                                  ?>
+                                </select>
+                              </div>
+                              <div class="col-sm-3">
+                                <select name="kec" id="" class="form-select" required>
+                                  <option value="" hidden>KECEMATAN</option>
+                                  <?php  
+                                  if($kab_show != ""){
+                                    $kecamatan = $db->dataIndonesia("kec",$kab_show);
+                                    foreach ($kecamatan as $key => $kec){
+                                      $select = $kec["subdistrict_id"] == $kec_show ? 'selected="selected"' : '';
+                                      echo '<option value="'.$kec["subdistrict_id"].'" '.$select.'>'.$kec["subdistrict_name"].'</option>';
+                                    }
+                                  }
+                                  ?>
+                                </select>
+                              </div>
+                              <div class="col-sm-3">
+                                <input type="number" value="<?= $kode_show ?>" name="kode_pos" id="" class="form-control" placeholder="KODE POS">
+                              </div>
+                              <div class="col-sm-12 mt-3">
+                                <textarea class="form-control" name="alamat" id="alamat" rows="3" required><?= $alamat ?></textarea>
+                              </div>
+                            </div>
                           </div>
                       </div>
                       <button class="btn btn-primary" type="submit" name="submit_toko">Submit</button>

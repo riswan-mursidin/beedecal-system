@@ -169,19 +169,18 @@ if(isset($_POST['auth-login'])){
               </div>
             </div>
             <div class="mt-5 text-center">
-              <p class="text-white-50">
+              <!-- <p class="text-white-50">
                 Don't have an account ?
                 <a href="auth-register" class="fw-medium text-primary">
                   Register
                 </a>
-              </p>
+              </p> -->
               <p class="text-white-50">
                 ©
                 <script>
                   document.write(new Date().getFullYear());
                 </script>
-                BEEDECAL. Crafted with
-                <i class="mdi mdi-heart text-danger"></i> by GALERIIDE
+                BEEDECAL
               </p>
             </div>
           </div>

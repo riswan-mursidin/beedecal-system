@@ -10,7 +10,64 @@ $db = new ConfigClass();
 
 $userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
 $row = mysqli_fetch_assoc($userselect);
-$usernamelogin = $row['username_user']
+$usernamelogin = $row['username_user'];
+$id = $row['id_owner'];
+// jika yang login buka owner ambil data owner dari id owner
+if($row['id_owner'] == "0"){
+  $id = $row['id_user'];
+}
+
+
+// penjualan hari ini
+$total_ordee = 0; $total_by = 0;
+$ordertoday = $db->selectTable("data_pemesanan","id_owner",$id,"tgl_order",date("Y-m-d"));
+while($roworder=mysqli_fetch_assoc($ordertoday)){
+  $potongan =  $roworder['harga_produk_order'] * ($roworder['diskon_order'] / 100);
+  $total_ordee += $roworder['harga_produk_order'] - $potongan;
+  $code_spk = $roworder['code_order'];
+  
+  $detailby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$code_spk);
+  while($rowtr=mysqli_fetch_assoc($detailby)){
+    $total_ordee += $rowtr['harga_ketbiaya'];
+  }
+}
+// penjualan bulan ini
+$total_ordeer_bulan_ini = 0; $pemasangan_bln = 0;
+$date = date("m");
+$queribulan = "SELECT * FROM data_pemesanan WHERE month(tgl_order)='$date' AND id_owner='$id'";
+$orderbulan = mysqli_query($db->conn, $queribulan);
+while($roworder_bulan=mysqli_fetch_assoc($orderbulan)){
+  $pemasangan_bln += $roworder_bulan['harga_pasang_order'] + $roworder_bulan['biaya_tambah_pemasangan_order'];
+  $potongan =  $roworder_bulan['harga_produk_order'] * ($roworder_bulan['diskon_order'] / 100);
+  $total_ordeer_bulan_ini += $roworder_bulan['harga_produk_order'] - $potongan;
+  $code_spk = $roworder_bulan['code_order'];
+
+  $detailby_bulan = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$code_spk);
+  while($rowtr_bulan=mysqli_fetch_assoc($detailby_bulan)){
+    $total_ordeer_bulan_ini += $rowtr_bulan['harga_ketbiaya'];
+  }
+}
+$rata_rata = $total_ordeer_bulan_ini / intval(date("d"));
+$rata_rata_pasang = $pemasangan_bln / intval(date("d"));
+
+$kalender = CAL_GREGORIAN;
+$bulan = $date;
+$tahun = date("Y");
+$hari = cal_days_in_month($kalender,$bulan,$tahun);
+
+$target = $rata_rata * $hari;
+$target_pasang = $rata_rata_pasang * $hari;
+
+// pemasukan hari ini
+$countincome_d = 0;
+$incometoday = $db->selectTable("detail_transaksi","id_owner",$id,"tgl_transaksi",date("Y-m-d"));
+while($rowincometoday=mysqli_fetch_assoc($incometoday)){
+  $countincome_d += $rowincometoday['jumlah_transaksi'];
+}
+
+// pemasangan bulan ini
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -119,6 +176,119 @@ $usernamelogin = $row['username_user']
               </div>
             </div>
             <!-- end page title -->
+
+            <!-- contant -->
+            <div class="row">
+              <div class="col col-md-3 md-3">
+                <div class="card">
+                  <div class="card-body">
+                      <div class="d-flex text-muted">
+                          <div class="flex-shrink-0  me-3 align-self-center">
+                              <div class="avatar-sm">
+                                  <div class="avatar-title bg-light rounded-circle text-primary font-size-20">
+                                      <i class="mdi mdi-cart-outline"></i>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="flex-grow-1 overflow-hidden">
+                              <p class="mb-1">Pesanan Hari ini</p>
+                              <h5 class="mb-3">Rp.<?= number_format($total_ordee,0,".",",") ?></h5>
+                              <p class="text-truncate mb-0">
+                                <span class="text-success me-2">
+                                  <?= number_format($rata_rata) ?>
+                                  <i class="ri-arrow-right-up-line align-bottom ms-1"></i>
+                                </span> 
+                                Rata - rata
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- end card-body -->
+                </div>
+              </div>
+              <div class="col col-md-3 md-3">
+                <div class="card">
+                  <div class="card-body">
+                      <div class="d-flex text-muted">
+                          <div class="flex-shrink-0  me-3 align-self-center">
+                              <div class="avatar-sm">
+                                  <div class="avatar-title bg-light rounded-circle text-primary font-size-20">
+                                      <i class="ri-calendar-todo-fill"></i>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="flex-grow-1 overflow-hidden">
+                              <p class="mb-1">Pesanan Bulan ini</p>
+                              <h5 class="mb-3">Rp.<?= number_format($total_ordeer_bulan_ini) ?></h5>
+                              <p class="text-truncate mb-0">
+                                <span class="text-success me-2">
+                                  0 - <?= number_format($target) ?>
+                                  <i class="ri-arrow-right-up-line align-bottom ms-1"></i>
+                                </span> 
+                                Prediksi Penjualan
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- end card-body -->
+                </div>
+              </div>
+              <div class="col col-md-3 md-3">
+                <div class="card">
+                  <div class="card-body">
+                      <div class="d-flex text-muted">
+                          <div class="flex-shrink-0  me-3 align-self-center">
+                              <div class="avatar-sm">
+                                  <div class="avatar-title bg-light rounded-circle text-primary font-size-20">
+                                      <i class="ri-money-euro-box-line"></i>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="flex-grow-1 overflow-hidden">
+                              <p class="mb-1">Pemasukan Bulan ini</p>
+                              <h5 class="mb-3">Rp.<?= number_format($countincome_d) ?></h5>
+                              <p class="text-truncate mb-0">
+                                <span class="text-success me-2">
+                                  Jumlah uang yang masuk Hari ini
+                                </span> 
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- end card-body -->
+                </div>
+              </div>
+              <div class="col col-md-3 md-3">
+                <div class="card">
+                  <div class="card-body">
+                      <div class="d-flex text-muted">
+                          <div class="flex-shrink-0  me-3 align-self-center">
+                              <div class="avatar-sm">
+                                  <div class="avatar-title bg-light rounded-circle text-primary font-size-20">
+                                      <i class="ri-list-settings-fill"></i>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="flex-grow-1 overflow-hidden">
+                              <p class="mb-1">Pemasangan Bulan ini</p>
+                              <h5 class="mb-3">Rp.<?= number_format($pemasangan_bln) ?></h5>
+                              <p class="text-truncate mb-0">
+                                <span class="text-success me-2">
+                                  0 - <?= number_format($target_pasang) ?>
+                                  <i class="ri-arrow-right-up-line align-bottom ms-1"></i>
+                                </span> 
+                                Prediksi Pemasangan
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- end card-body -->
+                </div>
+              </div>
+              
+            </div>
+            <!-- end contant -->
+
           </div>
           <!-- container-fluid -->
         </div>

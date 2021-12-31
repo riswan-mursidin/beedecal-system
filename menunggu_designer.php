@@ -18,6 +18,16 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
+if($row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
+  if($row['level_user'] == "Produksi"){
+    header('Location: siap-cetak');
+    exit();
+  }elseif($row['level_user'] == "Pemasang"){
+    header('Location: siap-dipasang');
+    exit();
+  }
+}
+
 function showProduk($id_produk){
   global $db;
   $querydb = $db->selectTable("type_galeri","id_type",$id_produk);

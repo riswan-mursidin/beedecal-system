@@ -73,7 +73,7 @@ function getDesain($id, $user, $param=null){
         $result = mysqli_query($conn, $query);
         return $result;
     }else{
-        $query = "UPDATE data_pemesanan SET status_order='Proses Desain', id_designer='$user' WHERE id_order='$id'";
+        $query = "UPDATE data_pemesanan SET status_order='Proses Desain', id_designer='$user', produksi_status='Ya' WHERE id_order='$id'";
         $result = mysqli_query($conn, $query);
         return $result;
     }

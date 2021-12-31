@@ -18,6 +18,16 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
+if($row['level_user'] == "Desainer" || $row['level_user'] == "Pemasang"){
+  if($row['level_user'] == "Desainer"){
+    header('Location: menunggu_designer');
+    exit();
+  }elseif($row['level_user'] == "Pemasang"){
+    header('Location: siap-dipasang');
+    exit();
+  }
+}
+
 function showProduk($id_produk){
   global $db;
   $querydb = $db->selectTable("type_galeri","id_type",$id_produk);
@@ -273,7 +283,7 @@ function showDesigner($id){
                           <?php if($role == "Produksi"){ ?>
                           <td>
                           <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                            <a id="finishing" href="action/get-finishing.php?param=selesai&id=<?= $roworder['id_order'] ?>" class="btn btn-outline-success btn-sm"  data-bs-placement="top" title="Finishing">
+                            <a id="finishing" href="action/get-finishing.php?param=selesai&id=<?= $roworder['id_order'] ?>" class="btn btn-success btn-sm"  data-bs-placement="top" title="Finishing">
                               <i class=" ri-check-line"></i>
                             </a>
                           </div>
@@ -281,7 +291,7 @@ function showDesigner($id){
                           <?php }elseif($role == "Owner" || "Admin"){ ?>
                           <td>
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                              <a id="batal" href="action/get-finishing.php?param=batal&id=<?= $roworder['id_order'] ?>" class="btn btn-outline-danger btn-sm"  data-bs-placement="top" title="Batal Finishing">
+                              <a id="batal" href="action/get-finishing.php?param=batal&id=<?= $roworder['id_order'] ?>" class="btn btn-danger btn-sm"  data-bs-placement="top" title="Batal Finishing">
                                 <i class="ri-close-line"></i>
                               </a>
                             </div>

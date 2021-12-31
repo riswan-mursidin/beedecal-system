@@ -18,12 +18,18 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-// $role = $row['level_user'];
-// if($role == "Desainer"){
-//   $alert = "5";
-//   $link = "menunggu_designer";
-//   // header('Location: menunggu_designer');
-// }
+if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
+  if($row['level_user'] == "Desainer"){
+    header('Location: menunggu_designer');
+    exit();
+  }elseif($row['level_user'] == "Produksi"){
+    header('Location: siap-cetak');
+    exit();
+  }else{
+    header('Location: siap-dipasang');
+    exit();
+  }
+}
 
 // pelanggan
 $order = $_GET['order'];

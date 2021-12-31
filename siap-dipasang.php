@@ -18,6 +18,47 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
+if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi"){
+  if($row['level_user'] == "Desainer"){
+    header('Location: menunggu_designer');
+    exit();
+  }elseif($row['level_user'] == "Produksi"){
+    header('Location: siap-cetak');
+    exit();
+  }
+}
+
+if(isset($_POST['aksi_edit_pemasangan'])){
+  $i = $_POST['id_edit'];
+  $harga_pasang = $_POST['harga_pasang'];
+  $kategori_pemasang = $_POST['kategori_pemasang'];
+  $biaya_tambah = $_POST['biaya_tambah'];
+
+  $query = "UPDATE data_pemesanan SET biaya_tambah_pemasangan_order='$biaya_tambah', kategori_pemasang_order='$kategori_pemasang', harga_pasang_order='$harga_pasang' WHERE id_order='$i'";
+  $result = mysqli_query($db->conn, $query);
+  if($result){
+    $alert = '1';
+  }
+}
+
+if(isset($_POST['id_ordeerr'])){
+  $id_ord = $_POST['id_ordeerr'];
+  $query = "UPDATE data_pemesanan SET admin_konfirm='Disetujui', produksi_status='Ya' WHERE id_order='$id_ord'";
+  $result = mysqli_query($db->conn, $query);
+  if($result){
+    $alert = '1';
+  }
+}
+
+if(isset($_POST['id_cancel'])){
+  $id_ord = $_POST['id_cancel'];
+  $query = "UPDATE data_pemesanan SET admin_konfirm='Belum Disetujui' WHERE id_order='$id_ord'";
+  $result = mysqli_query($db->conn, $query);
+  if($result){
+    $alert = '1';
+  }
+}
+
 function showProduk($id_produk){
   global $db;
   $querydb = $db->selectTable("type_galeri","id_type",$id_produk);
@@ -228,10 +269,11 @@ function showDesigner($id){
                           <th>Pelanggan</th>
                           <th>Designer</th>
                           <th>Tanggal Pesan</th>
-                          <th>Fee</th>
+                          <th>Harga Pasang</th>
+                          <th>Biaya Tambahan</th>
                           <th>Desain</th>
                           <th>Status</th>
-                          <?= $role == "Pemasang" ? '<th>Aksi</th>' : '' ?>
+                          <th>Aksi</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -266,19 +308,41 @@ function showDesigner($id){
                           </td>
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
                           <td>Rp.<?= number_format($roworder['harga_pasang_order'],2,",",".") ?></td>
+                          <td>Rp.<?= number_format($roworder['biaya_tambah_pemasangan_order'],2,",",".") ?></td>
                           <td>
                             <a target="_blank" href="<?= $roworder['hasil_desain_order'] ?>">View Desain</a>
                           </td>
 
-                          <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>
+                          <td><?= $roworder['admin_konfirm'] == "Disetujui" ? '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' : '<h5><span class="badge bg-danger">Belum Disetujui</span></h5>' ?></td>
                           <?php if($role == "Pemasang"){ ?>
                           <td>
+                            <?php if($roworder['admin_konfirm'] == "Disetujui"){ ?>
                           <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                            <a id="pasang" href="action/get-pasang.php?param=get&id=<?= $roworder['id_order'] ?>&pemasang=<?= $_SESSION['login_stiker_id'] ?>" class="btn btn-outline-success btn-sm"  data-bs-placement="top" title="Pasang">
+                            <a id="pasang" href="action/get-pasang.php?param=get&id=<?= $roworder['id_order'] ?>&pemasang=<?= $_SESSION['login_stiker_id'] ?>" class="btn btn-success btn-sm"  data-bs-placement="top" title="Pasang">
                               <i class=" ri-install-line"></i>
                             </a>
                           </div>
+                          <?php } ?>
                           </td>
+                          <?php }elseif($role == "Admin" || $role == "Owner"){ ?>
+                            <td>
+                              <form action="" method="post" class="btn-group" role="group" aria-label="Basic mixed styles example">
+                                <?php if($roworder['admin_konfirm'] == "Belum Disetujui"){ ?>
+                                  <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editpemasangan<?= $roworder['id_order'] ?>" data-bs-placement="top" title="Edit">
+                                    <i class="ri-pencil-line"></i>
+                                  </button>  
+                                <input type="hidden" name="id_ordeerr" value="<?= $roworder['id_order'] ?>">
+                                <button type="submit" id="confirm" class="btn btn-success btn-sm" data-bs-placement="top" title="Konfirmasi">
+                                  <i class="ri-check-line"></i>
+                                </button>
+                                <?php }else{ ?>
+                                  <input type="hidden" name="id_cancel" value="<?= $roworder['id_order'] ?>">
+                                  <button type="submit" id="batal" class="btn btn-danger btn-sm" data-bs-placement="top" title="Konfirmasi">
+                                    <i class="ri-close-line"></i>
+                                  </button>
+                                <?php } ?>
+                              </form>
+                            </td>
                           <?php } ?>
                         </tr>
                         <?php } ?>
@@ -293,6 +357,57 @@ function showDesigner($id){
           <!-- container-fluid -->
         </div>
         <!-- End Page-content -->
+
+        <!-- modal edit pemasangan -->
+        <?php  
+        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Siap Dipasang");
+        while($roworder=mysqli_fetch_assoc($order)){
+        ?>
+        <div class="modal fade" id="editpemasangan<?= $roworder['id_order'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <form action="" method="post" class="modal-content" enctype="multipart/form-data">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Pemasangan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="" class="form-label">Harga Pasang</label>
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">Rp.</span>
+                    <input required type="number" name="harga_pasang" id="" class="form-control" value="<?= $roworder['harga_pasang_order'] ?>">
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="" class="form-label">Kategori Pemasang</label>
+                  <select required name="kategori_pemasang" id="" class="form-select">
+                    <?php  
+                    $options = array("Freelance & Karyawan","Karyawan","Freelance");
+                    foreach($options as $ops){
+                      $select = $ops == $roworder['kategori_pemasang_order'] ? 'selected="selected"' : '';
+                    ?>
+                    <option value="<?= $ops ?>" <?= $select ?>><?= $ops ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="" class="form-label">Biaya Tambahan</label>
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">Rp.</span>
+                    <input required type="number" value="<?= $roworder['biaya_tambah_pemasangan_order'] ?>" name="biaya_tambah" id="" class="form-control">
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                <input type="hidden" name="id_edit" value="<?= $roworder['id_order'] ?>">
+                <button type="submit" name="aksi_edit_pemasangan" class="btn btn-primary">Simpan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <?php } ?>
+        <!-- end modal edit pemasangan -->
         
         <!-- Footer -->
         <footer class="footer">
@@ -409,6 +524,44 @@ function showDesigner($id){
     
     <script src="assets/js/app.js"></script>
 
+    <script>
+      $(document).on('click', '#confirm', function(e){
+        e.preventDefault();
+        var form = $(this).parents('form');
+        Swal.fire({
+          title:"Konfirmasi Pemasangan!",
+          text:"Apakah Anda yakin?",
+          icon:"success",
+          showCancelButton: true,
+          confirmButtonColor: '#00a65a',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Ya'
+        }).then((result) => {
+          if(result.isConfirmed){
+            form.submit();
+          }
+        });
+      });
+    </script>
+    <script>
+      $(document).on('click', '#batal', function(e){
+        e.preventDefault();
+        var form = $(this).parents('form');
+        Swal.fire({
+          title:"Batal Konfirmasi!",
+          text:"Apakah Anda yakin?",
+          icon:"warning",
+          showCancelButton: true,
+          confirmButtonColor: '#00a65a',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Ya'
+        }).then((result) => {
+          if(result.isConfirmed){
+            form.submit();
+          }
+        });
+      });
+    </script>
     <script>
       var flash = $('#flash').data('flash');
       if(flash == "1"){

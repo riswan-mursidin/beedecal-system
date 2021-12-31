@@ -18,12 +18,18 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-// $role = $row['level_user'];
-// if($role == "Desainer"){
-//   $alert = "5";
-//   $link = "menunggu_designer";
-//   // header('Location: menunggu_designer');
-// }
+if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
+  if($row['level_user'] == "Desainer"){
+    header('Location: menunggu_designer');
+    exit();
+  }elseif($row['level_user'] == "Produksi"){
+    header('Location: siap-cetak');
+    exit();
+  }else{
+    header('Location: siap-dipasang');
+    exit();
+  }
+}
 
 if(isset($_POST['input_resi'])){
   $resi = $_POST['resi'];
@@ -311,7 +317,7 @@ function showCetakan($id_order, $owner){
                       </thead>
                       <tbody>
                         <?php  
-                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_Pengiriman_order","Ya");
+                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_pengiriman_order","Ya");
                         while($roworder=mysqli_fetch_assoc($order)){
                           if($roworder['status_order'] == "Selesai Finishing" || $roworder['status_order'] == "Selesai Dicetak"){
                         ?>
@@ -370,6 +376,7 @@ function showCetakan($id_order, $owner){
                               <a id="doneorder" href="action/get-done-order?id=<?= $roworder['id_order'] ?>" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Selesai">
                                 <i class="ri-check-line"></i>
                               </a>
+                              <a target="_blank" href="print_note?spk=<?= $roworder['code_order'] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Note"><i class="ri-printer-line"></i></a>
                               <!-- <a href="<?= $roworder[''] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Details"><i class="ri-eye-line"></i></a>
                               <a href="data-pesanan.php?order=" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" id="delete"><i class="ri-delete-bin-line"></i></a> -->
                             </div>

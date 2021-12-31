@@ -18,6 +18,16 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
+if($row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
+  if($row['level_user'] == "Produksi"){
+    header('Location: siap-cetak');
+    exit();
+  }elseif($row['level_user'] == "Pemasang"){
+    header('Location: siap-dipasang');
+    exit();
+  }
+}
+
 if(isset($_POST['aksi_upload'])){
   $nameproduk = $_POST['namefile'];
   $id_order = $_POST['id_order'];
@@ -62,7 +72,9 @@ if(isset($_POST['aksi_input_link'])){
   $query = "UPDATE data_pemesanan SET link_google_drive='$link', status_order='$next' WHERE id_order='$id_order'";
   $result = mysqli_query($db->conn, $query);
   if($result){
-    $alert = "1";
+    $_SESSION['alert'] = "1";
+    header('Location: proses-desain');
+    exit();
   }
 }
 
@@ -317,7 +329,7 @@ function showDesigner($id){
                           <td>
                             <?php 
                               $status = $roworder['jenis_produk_order'] == 'Custom' ? '<span class="badge bg-light">Custom</span>' : 'No Custom';
-                              $customer = showCustomer($roworder['id_customer'],$roworder['status_Pengiriman_order'],$roworder['id_order']);
+                              $customer = showCustomer($roworder['id_customer'],$roworder['status_pengiriman_order'],$roworder['id_order']);
                               echo "<b>".$db->nameFormater($customer['name'])."</b>"." ".$status."<br>"; 
                             ?>
                             <?php

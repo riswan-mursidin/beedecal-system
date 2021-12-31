@@ -24,8 +24,21 @@ if(isset($_POST['auth-login'])){
     }else{
       $_SESSION['login_stiker_admin'] = true;
       $_SESSION['login_stiker_id'] = $row['id_user'];
-      header('Location: index');
-      exit();
+      if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
+        if($row['level_user'] == "Desainer"){
+          header('Location: menunggu_designer');
+          exit();
+        }elseif($row['level_user'] == "Produksi"){
+          header('Location: siap-cetak');
+          exit();
+        }else{
+          header('Location: siap-dipasang');
+          exit();
+        }
+      }else{
+          header('Location: index');
+          exit();
+      }
     }
   }
 }

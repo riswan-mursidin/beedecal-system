@@ -18,6 +18,16 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
+if($row['level_user'] == "Desainer" || $row['level_user'] == "Pemasang"){
+  if($row['level_user'] == "Desainer"){
+    header('Location: menunggu_designer');
+    exit();
+  }elseif($row['level_user'] == "Pemasang"){
+    header('Location: siap-dipasang');
+    exit();
+  }
+}
+
 if(isset($_POST['aksi_upload'])){
   $nameproduk = $_POST['namefile'];
   $id_order = $_POST['id_order'];
@@ -353,10 +363,10 @@ if(isset($_POST['edit_cetak'])){
                           <?php if($role == "Produksi"){ ?>
                           <td>
                           <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                            <a href="action/selesai-dicetak?id=<?=$roworder['id_order'] ?>" id="selesaicetak" class="btn btn-outline-success btn-sm" data-bs-placement="top" title="Selesai Cetak">
+                            <a href="action/selesai-dicetak?id=<?=$roworder['id_order'] ?>" id="selesaicetak" class="btn btn-success btn-sm" data-bs-placement="top" title="Selesai Cetak">
                               <i class="ri-printer-line"></i>
                             </a>
-                            <a href="#detail<?=$roworder['id_order'] ?>" data-bs-toggle="modal" class="btn btn-outline-warning btn-sm" data-bs-placement="top" title="Detail Cetak">
+                            <a href="#detail<?=$roworder['id_order'] ?>" data-bs-toggle="modal" class="btn btn-warning btn-sm" data-bs-placement="top" title="Detail Cetak">
                               <i class="mdi mdi-eye"></i>
                             </a>
                           </div>

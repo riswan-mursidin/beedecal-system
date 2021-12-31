@@ -18,12 +18,37 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-// $role = $row['level_user'];
-// if($role == "Desainer"){
-//   $alert = "5";
-//   $link = "menunggu_designer";
-//   // header('Location: menunggu_designer');
-// }
+if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
+  if($row['level_user'] == "Desainer"){
+    header('Location: menunggu_designer');
+    exit();
+  }elseif($row['level_user'] == "Produksi"){
+    header('Location: siap-cetak');
+    exit();
+  }else{
+    header('Location: siap-dipasang');
+    exit();
+  }
+}
+
+if(isset($_POST['aksi_tr'])){
+  $date = date("Y-m-d");
+  $id_edit = $_POST['id'];
+  $code_spk = $_POST['code'];
+  $sisa = $_POST['sisa'];
+  $pembayaran = $_POST['pembayaran'];
+  $status_pay = $sisa > 0 ? "Belum Lunas" : "Lunas";
+
+  $query_r = "UPDATE data_pemesanan SET status_pay_order='$status_pay', sisa_pembayaran_order='$sisa' WHERE id_order='$id_edit'";
+  $result_r = mysqli_query($db->conn, $query_r);
+  if($result_r){
+    $query_t = "INSERT INTO detail_transaksi (code_order,tgl_transaksi,jumlah_transaksi,id_owner) VALUES('$code_spk','$date','$pembayaran','$id')";
+    $result_t = mysqli_query($db->conn, $query_t);
+    if($result_t){
+      $alert = "1";
+    }
+  }
+}
 
 if(isset($_POST['input_resi'])){
   $resi = $_POST['resi'];
@@ -210,7 +235,12 @@ function showCetakan($id_order, $owner){
     <link href="assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
 
     <!-- Responsive datatable examples -->
-    <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />     
+    <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />    
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+    
+    
 
     <script type="text/javascript">
             function showTime() {
@@ -288,6 +318,116 @@ function showCetakan($id_order, $owner){
                 </div>
               </div>
             </div>
+            <?php  
+              $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_pengiriman_order","Tidak");
+              while($roworder=mysqli_fetch_assoc($order)){
+                if($roworder['status_order'] == "Selesai Finishing" || $roworder['status_order'] == "Selesai Dicetak" || $roworder['status_order'] == "Selesai Dipasang" || $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang"){
+                  $codee = $roworder['code_order']
+            ?>
+              <!-- Modal -->
+              <div class="modal fade" id="detailsby<?= $roworder['id_order'] ?>" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Biaya Tambahan</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Keterangan</th>
+                            <th>Biaya</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <?php  
+                          $byytam = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$codee);
+                          while($rowbyy=mysqli_fetch_assoc($byytam)){
+                          ?>
+                          <tr>
+                            <td><?= $rowbyy['keterangan_biaya'] ?></td>
+                            <td><?= $rowbyy['harga_ketbiaya'] ?></td>
+                          </tr>
+                          <?php } ?>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal fade" id="pelunasan<?= $roworder['id_order'] ?>" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <form action="" method="post" class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Pelunasan Pembayaran</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label for="" class="form-label">Sisa Pembayaran</label>
+                        <div class="input-group">
+                          <span class="input-group-text">Rp.</span>
+                          <input type="number" class="form-control" id="sisa" step="0.01" value="<?= $roworder['sisa_pembayaran_order'] ?>" readonly name="sisa">
+                        </div>
+                      </div>
+                      <script>
+                        function hitungSisa(pem){
+                          var sisa = "<?= $roworder['sisa_pembayaran_order'] ?>";
+                          if(pem != ""){
+                            var hasil = parseFloat(sisa) - parseFloat(pem);
+                            document.getElementById("sisa").value = parseFloat(hasil);
+                          }else{
+                            document.getElementById("sisa").value = parseFloat(sisa);
+                          }
+                        }
+                      </script>
+                      <div class="mb-3">
+                        <label class="form-label">Pembayaran</label>
+                        <div class="input-group">
+                          <span class="input-group-text">Rp.</span>
+                          <input type="number" name="pembayaran" onkeyup="hitungSisa(this.value)" class="form-control">
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <h6>Jejak Transaksi</h6>
+                        <hr>
+                      </div>
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Tanggal</th>
+                            <th>Nominal</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <?php  
+                          $tr = $db->selectTable("detail_transaksi","id_owner",$id,"code_order",$codee);
+                          while($rowtr=mysqli_fetch_assoc($tr)){
+                          ?>
+                          <tr>
+                            <td><?= $rowtr['tgl_transaksi'] ?></td>
+                            <td>Rp.<?= number_format($rowtr['jumlah_transaksi'],2,",",".") ?></td>
+                          </tr>
+                          <?php } ?>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="modal-footer">
+                      <input type="hidden" name="id" value="<?= $roworder['id_order'] ?>">
+                      <input type="hidden" name="code" value="<?= $roworder['code_order'] ?>">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="submit" name="aksi_tr" class="btn btn-primary">Simpan</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            <?php }} ?>
             <!-- page card -->
             <div class="row">
               <div class="col-12">
@@ -302,6 +442,7 @@ function showCetakan($id_order, $owner){
                           <th>Desain</th>
                           <th>Percetakan</th>
                           <th>Pembayaran</th>
+                          <th>Biaya Tambahan</th>
                           <th>Produksi</th>
                           <th>Tanggal Pesan</th>
                           <th>Status</th>
@@ -310,7 +451,7 @@ function showCetakan($id_order, $owner){
                       </thead>
                       <tbody>
                         <?php  
-                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_Pengiriman_order","Tidak");
+                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_pengiriman_order","Tidak");
                         while($roworder=mysqli_fetch_assoc($order)){
                           if($roworder['status_order'] == "Selesai Finishing" || $roworder['status_order'] == "Selesai Dicetak" || $roworder['status_order'] == "Selesai Dipasang" || $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang"){
                         ?>
@@ -347,6 +488,12 @@ function showCetakan($id_order, $owner){
                             <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format($roworder['harga_produk_order'],2,",",".").'" class="badge bg-secondary">disk '.$roworder['diskon_order'].'%</span>' : '' ?><br>
                             Harga Produk: Rp.<?= number_format(resultDiskon($roworder['harga_produk_order'],$roworder['diskon_order']),2,",",".") ?><br>
                             Harga Pasang: <?= $roworder['status_pasang_order'] == "Ya" ? ' Rp.'.number_format($roworder['harga_pasang_order'],2,",",".") : 'Tidak Dipasang' ?><br>
+                            <?= statusBadge($roworder['status_pay_order']) ?>
+                          </td>
+                          <td>
+                          <a data-bs-toggle="modal" href="#detailsby<?= $roworder['id_order'] ?>">
+                            Details
+                          </a>
                           </td>
                           <td>
                             Desain: <b><?= $roworder['status_desain_order'] ?></b><br>
@@ -357,11 +504,21 @@ function showCetakan($id_order, $owner){
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
                           <td><?= '<h5><span class="badge bg-success">'.$roworder['status_order'].'</span></h5>' ?></td>
                           <td>
-                            <?php $id = $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang" ? "warnig_status" : "doneorder" ?>
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                              <a id="<?= $id ?>" href="action/get-done-order?id=<?= $roworder['id_order'] ?>&param=Ya" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Selesai">
-                                <i class="ri-check-line"></i>
+                            <?php  
+                            if($roworder['status_pay_order'] == "Belum Lunas"){
+                            ?>
+                              <a data-bs-toggle="modal" href="#pelunasan<?= $roworder['id_order'] ?>" class="btn btn-info btn-sm">
+                                <i class="ri-currency-line"></i>
                               </a>
+                            <?php }else{ ?>
+                              <?php $id = $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang" ? "warnig_status" : "doneorder" ?>
+                              
+                                <a id="<?= $id ?>" href="action/get-done-order?id=<?= $roworder['id_order'] ?>&param=Ya" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Selesai">
+                                  <i class="ri-check-line"></i>
+                                </a>
+                            <?php } ?>
+                              <a target="_blank" href="print_note?spk=<?= $roworder['code_order'] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Note"><i class="ri-printer-line"></i></a>
                             </div>
                           </td>
                         </tr>
@@ -378,6 +535,9 @@ function showCetakan($id_order, $owner){
         </div>
         <!-- End Page-content -->
 
+        
+        
+        
         <!-- Footer -->
         <footer class="footer">
           <div class="container-fluid">

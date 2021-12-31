@@ -10,7 +10,26 @@ $db = new ConfigClass();
 
 $userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
 $row = mysqli_fetch_assoc($userselect);
-$usernamelogin = $row['username_user']
+$usernamelogin = $row['username_user'];
+
+$id = $row['id_owner'];
+// jika yang login buka owner ambil data owner dari id owner
+if($row['id_owner'] == "0"){
+  $id = $row['id_user'];
+}
+
+if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
+  if($row['level_user'] == "Desainer"){
+    header('Location: menunggu_designer');
+    exit();
+  }elseif($row['level_user'] == "Produksi"){
+    header('Location: siap-cetak');
+    exit();
+  }else{
+    header('Location: siap-dipasang');
+    exit();
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -271,7 +290,7 @@ $usernamelogin = $row['username_user']
                       <?php
                       $year = date("Y"); $month = 1;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
@@ -283,7 +302,7 @@ $usernamelogin = $row['username_user']
                       <?php
                       $year = date("Y"); $month = 2;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
@@ -295,7 +314,7 @@ $usernamelogin = $row['username_user']
                       <?php
                       $year = date("Y"); $month = 3;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
@@ -307,7 +326,7 @@ $usernamelogin = $row['username_user']
                       <?php
                       $year = date("Y"); $month = 4;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
@@ -319,7 +338,7 @@ $usernamelogin = $row['username_user']
                       <?php
                       $year = date("Y"); $month = 5;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
@@ -331,7 +350,7 @@ $usernamelogin = $row['username_user']
                       <?php
                       $year = date("Y"); $month = 6;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
@@ -343,7 +362,7 @@ $usernamelogin = $row['username_user']
                       <?php
                       $year = date("Y"); $month = 7;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
@@ -355,7 +374,7 @@ $usernamelogin = $row['username_user']
                       <?php
                       $year = date("Y"); $month = 8;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
@@ -367,7 +386,7 @@ $usernamelogin = $row['username_user']
                       <?php
                       $year = date("Y"); $month = 9;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
@@ -379,7 +398,7 @@ $usernamelogin = $row['username_user']
                       <?php
                       $year = date("Y"); $month = 10;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
@@ -391,7 +410,7 @@ $usernamelogin = $row['username_user']
                       <?php
                       $year = date("Y"); $month = 11;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
@@ -403,7 +422,7 @@ $usernamelogin = $row['username_user']
                       <?php
                       $year = date("Y"); $month = 12;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year'";
+                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){

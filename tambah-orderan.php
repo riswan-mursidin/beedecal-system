@@ -23,6 +23,19 @@ $rowstore = mysqli_fetch_assoc($store);
 $asal = $rowstore['kab_id'];
 $alert = $_SESSION['alert'];
 
+if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
+  if($row['level_user'] == "Desainer"){
+    header('Location: menunggu_designer');
+    exit();
+  }elseif($row['level_user'] == "Produksi"){
+    header('Location: siap-cetak');
+    exit();
+  }else{
+    header('Location: siap-dipasang');
+    exit();
+  }
+}
+
 $edit = $_GET['order'];
 
 // $readonly = $edit != "" ? "readonly" : "";
@@ -37,26 +50,7 @@ if($edit != ""){
   }
 }
 
-$tr = $db->selectTable("detail_transaksi","code_order",$edit,"id_owner",$id); 
-while($rowtr=mysqli_fetch_assoc($tr)){
-  if(isset($_POST['tr_id'.$rowtr['id']])){
-    $fee = $_POST['fee'.$rowtr['id']];
-    $sisa = "";
-    if($fee < $rowtr['jumlah_transaksi']){  
-      $updatefee = $rowtr['jumlah_transaksi'] - $fee;
-      $sisa = $rowedit['sisa_pembayaran_order'] + $updatefee;
-    }else{
-      $updatefee = $fee - $rowtr['jumlah_transaksi'];
-      $sisa = $rowedit['sisa_pembayaran_order'] - $updatefee;
-    }
-    $updatetr = $db->updateDetailTr($rowtr['id'],$fee,$sisa,$rowedit['code_order']);
-    if($updatetr){
-      $alert = "1";
-      $editselect = $db->selectTable("data_pemesanan","code_order",$edit,"id_owner",$id);
-      $rowedit = mysqli_fetch_assoc($editselect);
-    }
-  }
-}
+
 
 $jum_trans = 0;
 if($edit != ""){
@@ -69,6 +63,9 @@ if($edit != ""){
 if(isset($_POST['create_spk'])){
   // create spk
   $spk = $db->createSpk($id);
+
+  $user = $_SESSION['login_stiker_id'];
+  
   
   // informasi Pemesanan
   $kategori_produk = $_POST['kategori_produk'];
@@ -105,6 +102,7 @@ if(isset($_POST['create_spk'])){
   $customer_id = $_POST['pelanggan'];
   $keterangan = $_POST['keterangan'];
   $diskon = $_POST['diskon'];
+  $sumber = $_POST['sumber'];
   $order_date = date("Y-m-d");
   $status_pengiriman = $pemasangan_status == "Ya" ? "Tidak" : $_POST['pengiriman'];
 
@@ -180,7 +178,7 @@ if(isset($_POST['create_spk'])){
         $kategori_pemasang,
         $harga_pasang,
         $keterangan,
-        $diskon,
+        $diskon,  
         $status_pengiriman,
         $kurir,
         $prov_desti,
@@ -192,7 +190,8 @@ if(isset($_POST['create_spk'])){
         $cost,
         $name_paket,
         $etd,
-        $sisabayar
+        $sisabayar,
+        $sumber
     );
     if($query){
       if(count($dbfoto) > 0){
@@ -202,16 +201,46 @@ if(isset($_POST['create_spk'])){
         }
       }
 
+      $tr = $db->selectTable("detail_transaksi","code_order",$edit,"id_owner",$id); 
+      while($rowtr=mysqli_fetch_assoc($tr)){
+        if(isset($_POST['fee'.$rowtr['id']])){
+          $fee = $_POST['fee'.$rowtr['id']];
+          $sisa = "";
+          if($fee < $rowtr['jumlah_transaksi']){  
+            $updatefee = $rowtr['jumlah_transaksi'] - $fee;
+            $sisa = $rowedit['sisa_pembayaran_order'] + $updatefee;
+          }else{
+            $updatefee = $fee - $rowtr['jumlah_transaksi'];
+            $sisa = $rowedit['sisa_pembayaran_order'] - $updatefee;
+          }
+          $updatetr = $db->updateDetailTr($rowtr['id'],$fee,$sisa,$rowedit['code_order']);
+          if($updatetr){
+            $editselect = $db->selectTable("data_pemesanan","code_order",$edit,"id_owner",$id);
+            $rowedit = mysqli_fetch_assoc($editselect);
+          }
+        }
+      }
+
+      $biayaa = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$edit);
+      if(mysqli_num_rows($biayaa) > 0){
+        while($rowby=mysqli_fetch_assoc($biayaa)){
+          $keterangan = $_POST['ket_biaya_tambhahan'.$rowby['id']];
+          $biaya = $_POST['biaya_tambahan'.$rowby['id']];
+          $query = "UPDATE biaya_tambahan_order SET keterangan_biaya='$keterangan', harga_ketbiaya='$biaya' WHERE id='".$rowby['id']."'";
+          $result = mysqli_query($db->conn, $query);
+        }
+      }
+
       if(count($ket_biaya_tambahan) > 0){
         foreach($ket_biaya_tambahan as $index => $ket){
           $keterangan = $ket;
           $biaya = $biaya_tambahan[$index];
-          $query = "INSERT INTO biaya_tambahan_order (keterangan_biaya,harga_ketbiaya,id_owner,code_order) VALUES('$keterangan','$biaya','$id','$spk')";
+          $query = "INSERT INTO biaya_tambahan_order (keterangan_biaya,harga_ketbiaya,id_owner,code_order) VALUES('$keterangan','$biaya','$id','$edit')";
           $result = mysqli_query($db->conn, $query);
         }
-        $_SESSION['alert'] = "1";
-        header('Location:data-pesanan.php');
       }
+      $_SESSION['alert'] = "1";
+      header('Location:data-pesanan.php');
     }
   }else{
     $query = $db->insertOrder(
@@ -247,7 +276,8 @@ if(isset($_POST['create_spk'])){
         $name_paket,
         $etd,
         $sisabayar,
-        $total_pembayaran
+        $sumber,
+        $user
     );
   
     if($query){
@@ -408,21 +438,134 @@ if(isset($_POST['create_spk'])){
 
     <!-- show pembayaran -->
     <script>
+      function showfeeby(str){
+        var fee = document.getElementById("harga").value;
+        var diskon = document.getElementById("diskon").value;
+        var debit = document.getElementById("debit").value;
+        var tamby = document.getElementsByName("biaya_tambahan[]");
+        var count = 0;
+        if(fee != ""){
+          if(diskon != ""){
+            var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
+            if(debit != ""){
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+  
+                
+              }
+              document.getElementById("fee").value = hasil + parseFloat(count) - parseFloat(debit);
+            }else{
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = hasil + parseFloat(count);
+            }
+          }else{
+            if(debit != ''){
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = parseFloat(fee) + parseFloat(count) - parseFloat(debit);
+            }else{
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = parseFloat(fee) + parseFloat(count);
+            }
+          }
+        }else{
+            if(debit != ''){
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = parseFloat(count) - parseFloat(debit);
+            }else{
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = parseFloat(count);
+            }
+        }
+      }
+    </script>
+    <script>
       function showFee(fee){
         var diskon = document.getElementById("diskon").value;
         var debit = document.getElementById("debit").value;
+        var tamby = document.getElementsByName("biaya_tambahan[]");
+        var count = 0
         if(diskon != ""){
           var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
           if(debit != ""){
-            document.getElementById("fee").value = hasil - parseFloat(debit);
+            
+              for(var i = 0; i < tamby.length; i++){
+                if(tamby[i].value == ""){
+                  count += 0;
+                }else{
+                  count += parseFloat(tamby[i].value);
+                }
+              
+            }
+            document.getElementById("fee").value = hasil + parseFloat(count) - parseFloat(debit);
           }else{
-            document.getElementById("fee").value = hasil;
+            
+              for(var i = 0; i < tamby.length; i++){
+                if(tamby[i].value == ""){
+                  count += 0;
+                }else{
+                  count += parseFloat(tamby[i].value);
+                }
+              
+            }
+            document.getElementById("fee").value = hasil + parseFloat(count);
           }
         }else{
           if(debit != ''){
-            document.getElementById("fee").value = parseFloat(fee) - parseFloat(debit);
+            
+              for(var i = 0; i < tamby.length; i++){
+                if(tamby[i].value == ""){
+                  count += 0;
+                }else{
+                  count += parseFloat(tamby[i].value);
+                }
+              
+            }
+            document.getElementById("fee").value = parseFloat(fee) + parseFloat(count) - parseFloat(debit);
           }else{
-            document.getElementById("fee").value = parseFloat(fee);
+            
+              for(var i = 0; i < tamby.length; i++){
+                if(tamby[i].value == ""){
+                  count += 0;
+                }else{
+                  count += parseFloat(tamby[i].value);
+                }
+              
+            }
+            document.getElementById("fee").value = parseFloat(fee) + parseFloat(count);
           }
         }
       }
@@ -432,40 +575,148 @@ if(isset($_POST['create_spk'])){
       function showFee3(diskon){
         var fee = document.getElementById("harga").value;
         var debit = document.getElementById("debit").value;
-        if(diskon != ""){
-          var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
-          if(debit != ""){
-            document.getElementById("fee").value = hasil - parseFloat(debit);
+        var tamby = document.getElementsByName("biaya_tambahan[]");
+        var count = 0;
+        if(fee != ""){
+          if(diskon != ""){
+            var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
+            if(debit != ""){
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+  
+                
+              }
+              document.getElementById("fee").value = hasil + parseFloat(count) - parseFloat(debit);
+            }else{
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = hasil + parseFloat(count);
+            }
           }else{
-            document.getElementById("fee").value = hasil;
+            if(debit != ''){
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = parseFloat(fee) + parseFloat(count) - parseFloat(debit);
+            }else{
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = parseFloat(fee) + parseFloat(count);
+            }
           }
         }else{
-          if(debit != ''){
-            document.getElementById("fee").value = parseFloat(fee) - parseFloat(debit);
-          }else{
-            document.getElementById("fee").value = parseFloat(fee);
-          }
+            if(debit != ''){
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = parseFloat(count) - parseFloat(debit);
+            }else{
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = parseFloat(count);
+            }
         }
       }
     </script>
 
     <script>
-      function sisaDari(str){
-        var diskon = document.getElementById("diskon").value;
+      function sisaDari(debit){
         var fee = document.getElementById("harga").value;
-        if(diskon != ""){
-          var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
-          if(str != ""){
-            document.getElementById("fee").value = hasil - parseFloat(str);
+        var diskon = document.getElementById("diskon").value;
+        var tamby = document.getElementsByName("biaya_tambahan[]");
+        var count = 0;
+        if(fee != ""){
+          if(diskon != ""){
+            var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
+            if(debit != ""){
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+  
+                
+              }
+              document.getElementById("fee").value = hasil + parseFloat(count) - parseFloat(debit);
+            }else{
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = hasil + parseFloat(count);
+            }
           }else{
-            document.getElementById("fee").value = hasil;
+            if(debit != ''){
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = parseFloat(fee) + parseFloat(count) - parseFloat(debit);
+            }else{
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = parseFloat(fee) + parseFloat(count);
+            }
           }
         }else{
-          if(str != ""){
-            document.getElementById("fee").value = parseFloat(fee) - parseFloat(str);
-          }else{
-            document.getElementById("fee").value = parseFloat(fee);
-          }
+            if(debit != ''){
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = parseFloat(count) - parseFloat(debit);
+            }else{
+                for(var i = 0; i < tamby.length; i++){
+                  if(tamby[i].value == ""){
+                    count += 0;
+                  }else{
+                    count += parseFloat(tamby[i].value);
+                  }
+              }
+              document.getElementById("fee").value = parseFloat(count);
+            }
         }
       }
     </script>
@@ -539,13 +790,13 @@ if(isset($_POST['create_spk'])){
         var pengirimandetail = document.getElementById("detailpengiriman");
         if(str == "Ya"){
           pengiriman.disabled = true;
+          pengiriman.value = "Tidak";
           pengiriman.style.cursor = "not-allowed";
           pengirimandetail.style.display = "none";
           detailPasang.style.display = "block";
         }else{
           pengiriman.disabled = false;
           pengiriman.style.cursor = "";
-          pengirimandetail.style.display = "";
           detailPasang.style.display = "none";
         }
       }
@@ -759,7 +1010,17 @@ if(isset($_POST['create_spk'])){
                         </div>
                         <div class="col-md-3">
                           <label for="laminating" class="form-label">Laminating</label>
-                          <input type="text" name="laminating" id="laminating" class="form-control" value="<?= $edit != "" ? $rowedit['laminating_order'] : '' ?>" placeholder="input jika ada">
+                          <select name="laminating" id="" class="form-select">
+                            <option value="" >Tidak</option>
+                            <?php  
+                            $v = $edit != "" ? $rowedit['laminating_order'] : '' ; 
+                            $laminatt = $db->selectTable("bahan_laminating","id_owner",$id);
+                            while($rowminat=mysqli_fetch_assoc($laminatt)){
+                              $select = $rowminat['nama_laminating'] == $v ? 'selected="selected"' : '' ;
+                            ?>
+                            <option value="<?= $rowminat['nama_laminating'] ?>" <?= $select ?>><?= $rowminat['nama_laminating'] ?></option>
+                            <?php } ?>
+                          </select>
                         </div>
                         <div class="col-md-3">
                           <label for="pemasangan_status" class="form-label">Pemasangan</label>
@@ -794,7 +1055,7 @@ if(isset($_POST['create_spk'])){
                             
                             <?php  
                             $no = 0;
-                            $fotocontoh = $db->selectTable("contoh_desain","code_order",$rowedit['coder_order'],"id_owner",$id);
+                            $fotocontoh = $db->selectTable("contoh_desain","code_order",$rowedit['code_order'],"id_owner",$id);
                             while($rowcontoh=mysqli_fetch_assoc($fotocontoh)){
                             ?>
                             <div class="col col-sm-3">
@@ -920,6 +1181,20 @@ if(isset($_POST['create_spk'])){
                             <span class="input-group-text">%</span>
                           </div>
                         </div>
+                        <label for="" class="col-sm-2 col-form-label">Sumber</label>
+                        <div class="col-sm-10">
+                          <select name="sumber" id="" class="form-select" required>
+                            <option value="" hidden>PILIH SUMBER</option>
+                            <?php
+                            $v = $edit != "" ? $rowedit['id_sumber'] : '' ;
+                            $sumber = $db->selectTable("sumber_pemesanan","id_owner",$id);
+                            while($rowsumber=mysqli_fetch_assoc($sumber)){
+                              $select = $v == $rowsumber['id_sumber'] ? 'selected="selected"' : '';
+                            ?>
+                            <option value="<?= $rowsumber['id_sumber'] ?>" <?= $select ?>><?= $rowsumber['name_sumber'] ?></option>
+                            <?php } ?>
+                          </select>
+                        </div>
                         <label for="" class="col-sm-2 col-form-label">Tanggal Pemesanan</label>
                         <div class="col-sm-10">
                           <div class="input-group">
@@ -998,7 +1273,7 @@ if(isset($_POST['create_spk'])){
                             </select>
                           </div>
                           <div class="col-sm-3">
-                            <select name="kabkota" id="kabkota" class="form-select" onchange="viewkec(this.value)" required>
+                            <select name="kabkota" id="kabkota" class="form-select" onchange="viewkec(this.value)" >
                               <option value="" hidden>KABUPATEN/KOTA</option>
                               <?php
                               $kab_kota = $db->dataIndonesia("kab_kota",$rowedit['prov_send_order']);
@@ -1010,7 +1285,7 @@ if(isset($_POST['create_spk'])){
                             </select>
                           </div>
                           <div class="col-sm-3">
-                            <select name="kec" id="kec" class="form-select" required>
+                            <select name="kec" id="kec" class="form-select" >
                               <option value="" hidden>KECAMATAN</option>
                               <?php  
                               $kecamatan = $db->dataIndonesia("kec",$rowedit['kab_send_order']);
@@ -1132,7 +1407,30 @@ if(isset($_POST['create_spk'])){
                     <div class="card-body">
                       <div class="card-title">Biaya Tambahan <button type="button" id="addbiaya" class="btn btn-outline-primary btn-sm">+</button></div>
                       <div id="field">
-                        
+                        <?php  
+                        if($edit != ""){
+                          $biayaa = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$edit);
+                          if(mysqli_num_rows($biayaa) > 0){
+                            while($rowby=mysqli_fetch_assoc($biayaa)){
+                        ?>
+                            <div class="row mt-3">
+                              <div class="col-md-5">
+                                <input type="text" name="ket_biaya_tambhahan<?= $rowby['id'] ?>" value="<?= $rowby['keterangan_biaya'] ?>" class="form-control" placeholder="Keterangan">
+                              </div>
+                              <div class="col-md-6">
+                                <input type="number" name="biaya_tambahan<?= $rowby['id'] ?>" value="<?= $rowby['harga_ketbiaya'] ?>" class="form-control" placeholder="Harga">
+                              </div>
+                              <div class="col-md-1">
+                                <a id="hpsbiaya" href="action/hapusbiaya?page=<?= $rowby['id'] ?>&spk=<?= $edit; ?>" class="btn btn-danger">
+                                  <i class="mdi mdi-delete-outline"></i>
+                                </a>
+                              </div>
+                            </div>
+                        <?php
+                            } 
+                          }
+                        } 
+                        ?>
                       </div>
                     </div>
 
@@ -1180,7 +1478,6 @@ if(isset($_POST['create_spk'])){
                                   </td>
                                   <td>
                                     <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                      <button type="submit" style="display: none;" name="tr_id<?= $rowtr['id'] ?>" id="savetr<?= $rowtr['id'] ?>" class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Simpan"><i class="ri-save-line"></i></button>
                                       <button id="editt<?= $rowtr['id'] ?>" class="btn btn-primary" type="button" onclick="editr(<?= $rowtr['id'] ?>)" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="ri-pencil-line"></i></button>
                                       <button style="display: none;" id="batall<?= $rowtr['id'] ?>" class="btn btn-danger" type="button" onclick="bataltr(<?= $rowtr['id'] ?>)" data-bs-toggle="tooltip" data-bs-placement="top" title="Batal"><i class="mdi mdi-close-thick"></i></button>
                                     </div>
@@ -1214,6 +1511,7 @@ if(isset($_POST['create_spk'])){
                 </div>
               </div>
             </form>
+            <input type="hidden" id="jumby">
             <!-- end card order -->
           </div>
           <!-- container-fluid -->
@@ -1305,37 +1603,97 @@ if(isset($_POST['create_spk'])){
 
     <!-- Right bar overlay-->
     <div class="rightbar-overlay"></div>
+    <script>
+      $(document).ready(function(){
+        var str = document.getElementById("pemasangan_status").value;
+        var pengiriman = document.getElementById("pengiriman_statuss");
+        var pengirimandetail = document.getElementById("detailpengiriman");
+        if(str == "Ya"){
+          pengiriman.disabled = true;
+          pengiriman.style.cursor = "not-allowed";
+          pengirimandetail.style.display = "none";
+        }else{
+          pengiriman.disabled = false;
+          pengiriman.style.cursor = "";
+        }
+      })
+    </script>
 
     <script type="text/javascript">
       $(document).ready(function(){
           var maxField = 10; //Input fields increment limitation
           var addButton = $('#addbiaya'); //Add button selector
           var wrapper = $('#field'); //Input field wrapper
-          var fieldHTML = '<div class="row mt-3">\
-                          <div class="col-md-5">\
-                            <input type="text" name="ket_biaya_tambhahan[]" class="form-control" placeholder="Keterangan">\
-                          </div>\
-                          <div class="col-md-6">\
-                            <input type="number" name="biaya_tambahan[]" class="form-control" placeholder="Harga">\
-                          </div>\
-                          <button id="remove_button" class="col-md-1 btn btn-danger"><i class="mdi mdi-delete-outline"></i></button>\
-                        </div>'; //New input field html 
+          // var fieldHTML = 
           var x = 1; //Initial field counter is 1
-          
+          var j = 0;
           //Once add button is clicked
           $(addButton).click(function(){
               //Check maximum number of input fields
               if(x < maxField){ 
+                  j++;
                   x++; //Increment field counter
-                  $(wrapper).append(fieldHTML); //Add field html
+                  $(wrapper).append('<div class="row mt-3 hapus">\
+                          <div class="col col-md-5">\
+                            <input type="text" name="ket_biaya_tambhahan[]" class="form-control" placeholder="Keterangan">\
+                          </div>\
+                          <div class="col col-md-6">\
+                            <input type="number" id="biaya'+j+'" onkeyup="showfeeby(this.value)" name="biaya_tambahan[]" class="form-control" placeholder="Harga">\
+                          </div>\
+                          <div class="col col-md-1">\
+                            <button id="remove_button" class="btn btn-danger"><i class="mdi mdi-delete-outline"></i></button>\
+                          </div>\
+                        </div>'); //Add field html
               }
-          });
+              // document.getElementById("jumby").value = j;
+            });
+
+
           
           //Once remove button is clicked
           $(wrapper).on('click', '#remove_button', function(e){
               e.preventDefault();
-              $(this).parent('div').remove(); //Remove field html
+              $(this).closest('.hapus').remove(); //Remove field html
               x--; //Decrement field counter
+              var fee = document.getElementById("harga").value;
+              var diskon = document.getElementById("diskon").value;
+              var debit = document.getElementById("debit").value;
+              var tamby = document.getElementsByName("biaya_tambahan[]");
+              var count = 0
+              if(diskon != ""){
+                var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
+                if(debit != ""){
+                  
+                    for(var i = 0; i < tamby.length; i++){
+                      count += parseFloat(tamby[i].value);
+                    
+                  }
+                  document.getElementById("fee").value = hasil + parseFloat(count) - parseFloat(debit);
+                }else{
+                  
+                    for(var i = 0; i < tamby.length; i++){
+                      count += parseFloat(tamby[i].value);
+                    
+                  }
+                  document.getElementById("fee").value = hasil + parseFloat(count);
+                }
+              }else{
+                if(debit != ''){
+                  
+                    for(var i = 0; i < tamby.length; i++){
+                      count += parseFloat(tamby[i].value);
+                    
+                  }
+                  document.getElementById("fee").value = parseFloat(fee) + parseFloat(count) - parseFloat(debit);
+                }else{
+                  
+                    for(var i = 0; i < tamby.length; i++){
+                      count += parseFloat(tamby[i].value);
+                    
+                  }
+                  document.getElementById("fee").value = parseFloat(fee) + parseFloat(count);
+                }
+              }
           });
       });
       </script>
@@ -1368,7 +1726,6 @@ if(isset($_POST['create_spk'])){
     <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
     <script>
       function bataltr(str){
-        document.getElementById("savetr"+str).style.display = "none";
         document.getElementById("view2"+str).style.display = "";
         document.getElementById("view"+str).style.display = "none";
         document.getElementById("editt"+str).style.display = "";
@@ -1377,7 +1734,6 @@ if(isset($_POST['create_spk'])){
     </script>
     <script>
       function editr(str){
-        document.getElementById("savetr"+str).style.display = "";
         document.getElementById("view2"+str).style.display = "none";
         document.getElementById("view"+str).style.display = "";
         document.getElementById("editt"+str).style.display = "none";
@@ -1401,6 +1757,25 @@ if(isset($_POST['create_spk'])){
           icon:"error",
         })
       }
+    </script>
+    <script>
+      $(document).on('click', '#hpsbiaya', function(e){
+        e.preventDefault();
+        var link = $(this).attr('href');
+        Swal.fire({
+          title:"Hapus Biaya!",
+          text:"Apakah Anda yakin?",
+          icon:"warning",
+          showCancelButton: true,
+          confirmButtonColor: '#00a65a',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Ya'
+        }).then((result) => {
+          if(result.isConfirmed){
+            window.location = link;
+          }
+        });
+      });
     </script>
   </body>
 </html>

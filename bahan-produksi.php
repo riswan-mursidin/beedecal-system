@@ -18,108 +18,26 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi"){
+if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
   if($row['level_user'] == "Desainer"){
     header('Location: menunggu_designer');
     exit();
   }elseif($row['level_user'] == "Produksi"){
     header('Location: siap-cetak');
     exit();
-  }
-}
-
-function showProduk($id_produk){
-  global $db;
-  $querydb = $db->selectTable("type_galeri","id_type",$id_produk);
-  $rowdb=mysqli_fetch_assoc($querydb);
-  $result = $rowdb['name_type'];
-  return $result;
-}
-
-function showCustomer($id_customer, $pengiriman, $id_order=null){
-  global $db;
-  // name customer
-  $querydb = $db->selectTable("customer_stiker","id_customer",$id_customer);
-  $rowdb=mysqli_fetch_assoc($querydb);
-
-  // alamat customer
-  $nameprov = "";
-  $namekabkot = "";
-  $namekec = "";
-  $kodepos = "";
-  if($pengiriman == "Ya"){
-    $order = $db->selectTable("data_pemesanan","id_order",$id_order);
-    $roworder=mysqli_fetch_assoc($order);
-    $kodepos = $roworder['kode_pos_send_order'];
-    $provs = $db->dataIndonesia("prov",null);
-    foreach($provs as $prov){
-      if($prov['province_id'] == $roworder['prov_send_order']){
-        $nameprov = $prov['province'];
-      }
-    }
-    $kabkot = $db->dataIndonesia("kab_kota",$roworder['prov_send_order']);
-    foreach($kabkot as $kab){
-      if($kab['city_id'] == $roworder['kab_send_order']){
-        $namekabkot = $kab['city_name'];
-      }
-    }
-    $kecs = $db->dataIndonesia("kec",$roworder['kab_send_order']);
-    foreach($kecs as $kec){
-      if($kec['subdistrict_id'] == $roworder['kec_send_order']){
-        $namekec = $kec['subdistrict_name'];
-      }
-    }
   }else{
-    $kodepos = $rowdb['kode_pos_customer'];
-    $provs = $db->dataIndonesia("prov",null);
-    foreach($provs as $prov){
-      if($prov['province_id'] == $rowdb['prov_customer']){
-        $nameprov = $prov['province'];
-      }
-    }
-    $kabkot = $db->dataIndonesia("kab_kota",$rowdb['prov_customer']);
-    foreach($kabkot as $kab){
-      if($kab['city_id'] == $rowdb['kota_kab_customer']){
-        $namekabkot = $kab['city_name'];
-      }
-    }
-    $kecs = $db->dataIndonesia("kec",$rowdb['kota_kab_customer']);
-    foreach($kecs as $kec){
-      if($kec['subdistrict_id'] == $rowdb['kec_customer']){
-        $namekec = $kec['subdistrict_name'];
-      }
-    }
-  }
-  $result['name'] = $rowdb['name_customer'];
-  $result['prov'] = $nameprov;
-  $result['kab'] = $namekabkot;
-  $result['kec'] = $namekec;
-  $result['kodepos'] = $kodepos;
-  return $result;
-}
-
-function showDesigner($id){
-  global $db;
-  $query = $db->selectTable("user_galeri","id_user",$id,"level_user","Desainer");
-  if(mysqli_num_rows($query) > 0){
-    $row = mysqli_fetch_assoc($query);
-    return $db->nameFormater($row['fullname_user']);
+    header('Location: siap-dipasang');
+    exit();
   }
 }
 
-function showPemasang($id){
-  global $db;
-  $query = $db->selectTable("user_galeri","id_user",$id,"level_user","Pemasang");
-  $row = mysqli_fetch_assoc($query);
-  return $db->nameFormater($row['fullname_user']);
-}
 
 ?> 
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | AREA PEMASANG</title>
+    <title>STIKER | BAHAN PRODUKSI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -212,8 +130,16 @@ function showPemasang($id){
             <!-- start page title -->
             <div class="row">
               <div class="col-12">
-                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                  <h4 class="mb-sm-0">Proses Pemasangan</h4>
+                <div
+                  class="
+                    page-title-box
+                    d-sm-flex
+                    align-items-center
+                    justify-content-between
+                  "
+                >
+                  <h4 class="mb-sm-0">Data Bahan Produksi</h4>
+
                   <div class="page-title-right">
                   <ol class="breadcrumb m-0">
                       <li class="breadcrumb-item">
@@ -225,6 +151,7 @@ function showPemasang($id){
               </div>
             </div>
             <!-- end page title -->
+          
             <!-- page card -->
             <div class="row">
               <div class="col-12">
@@ -233,81 +160,26 @@ function showPemasang($id){
                     <table id="datatable" class="table table-bordered table-hover dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                       <thead>
                         <tr>
-                          <th>ID</th>
-                          <th>Pelanggan</th>
-                          <th>Designer</th>
-                          <th>Tanggal Pesan</th>
-                          <th>Tanggal Pemasangan</th>
-                          <th>Harga Pemasangan</th>
-                          <th>Biaya Tambahan</th>
-                          <th>Desain</th>
-                          <?= $role == "Owner" || $role == "Admin" ? '<th>Pemasang</th>' : '' ?>
-                          <th>Status</th>
-                          <th>Aksi</th>
+                          <th scope="col">ID</th>
+                          <th scope="col">Bahan Baku</th>
+                          <th scope="col">Lebar (CM)</th>
+                          <th scope="col">Panjang (CM)</th>
+                          <th scope="col">Luas (CM)</th>
+                          <th scope="col">Meter</th>
                         </tr>
                       </thead>
                       <tbody>
                         <?php  
-
-                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Proses Pemasangan");
-                        while($roworder=mysqli_fetch_assoc($order)){
+                        $bahancetakan = $db->selectTable("data_cetakan","id_owner",$id);
+                        while($rowcetak=mysqli_fetch_assoc($bahancetakan)){
                         ?>
                         <tr>
-
-                          <td>
-                            <?= $roworder['code_order'] ?><br>
-                            <?= $roworder['jenis_produk_order'] == 'Custom' ? $db->nameFormater(showProduk($roworder['produk_order'])) : '' ?><br>
-                            <?= $roworder['model_stiker_order'] ?><br>
-                            <?= $roworder['laminating_order'] ?>
-                          </td>
-                          
-                          <td>
-                            <?php 
-                              $status = $roworder['jenis_produk_order'] == 'Custom' ? '<span class="badge bg-light">Custom</span>' : 'No Custom';
-                              $customer = showCustomer($roworder['id_customer'],$roworder['status_Pengiriman_order'],$roworder['id_order']);
-                              echo "<b>".$db->nameFormater($customer['name'])."</b>"." ".$status."<br>"; 
-                            ?>
-                            <?php
-                              echo $roworder['keterangan_order'];
-                              // echo 'Kab/Kota: '.$customer['kab'].'<br>';
-                              // echo 'Kec: '.$customer['kec'].'<br>';
-                              // echo 'Kode Pos: '.$customer['kodepos'].'<br>';
-                            ?>
-                          </td>
-                          <td>
-                            <?= showDesigner($roworder['id_designer']) ?>
-                          </td>
-                          <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
-                          <td><?= $db->dateFormatter($roworder['tgl_pasang_order']); ?></td>
-                          <td>Rp.<?= number_format($roworder['harga_pasang_order'],2,",",".") ?></td>
-                          <td>Rp.<?= number_format($roworder['biaya_tambah_pemasangan_order'],2,",",".") ?></td>
-                          <td>
-                            <a target="_blank" href="<?= $roworder['hasil_desain_order'] ?>">View Desain</a>
-                          </td>
-                          <?php if($role == "Owner" || $role == "Admin"){ ?>
-                          <td>
-                            <?= showPemasang(explode("-",$roworder['pemasang_order'])[0]) ?>
-                            <span class="badge bg-light"><?= end(explode("-",$roworder['pemasang_order'])) ?></span>
-                          </td>
-                          <?php } ?>
-                          <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>
-                          <?php if($role == "Pemasang"){ ?>
-                          <td>
-                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                              <a id="pasang" href="action/get-pasang.php?param=selesai&id=<?= $roworder['id_order'] ?>&pemasang=<?= $_SESSION['login_stiker_id'] ?>" class="btn btn-outline-success btn-sm"  data-bs-placement="top" title="Selesai Pasang">
-                                <i class="ri-check-line"></i>
-                              </a>
-                            </div>
-                          </td>
-                          <?php }elseif($role == "Owner" || $role == "Admin"){ ?>
-                          <td>
-                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                              <a id="pasang" href="action/get-pasang.php?param=batal&id=<?= $roworder['id_order'] ?>&pemasang=<?= explode("-",$roworder['pemasang_order'])[0] ?>" class="btn btn-outline-danger btn-sm"  data-bs-placement="top" title="Batal Pasang">
-                                <i class="ri-close-line"></i>
-                              </a>
-                            </div>
-                          </td>
-                          <?php } ?>
+                          <td><?= $rowcetak['code_order'] ?></td>
+                          <td><?= $db->formatJenis("",$rowcetak['id_bahan'],null,$id) ?></td>
+                          <td><?= $rowcetak['lebar_bahan'] ?></td>
+                          <td><?= $rowcetak['panjang_bahan'] ?></td>
+                          <td><?= $hasill = $rowcetak['panjang_bahan'] * $rowcetak['lebar_bahan']  ?></td>
+                          <td><?= $hasill / 100 ?></td>
                         </tr>
                         <?php } ?>
                       </tbody>
@@ -321,7 +193,7 @@ function showPemasang($id){
           <!-- container-fluid -->
         </div>
         <!-- End Page-content -->
-        
+
         <!-- Footer -->
         <footer class="footer">
           <div class="container-fluid">
@@ -436,80 +308,6 @@ function showPemasang($id){
     <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
     
     <script src="assets/js/app.js"></script>
-
-    <script>
-      var flash = $('#flash').data('flash');
-      if(flash == "1"){
-        Swal.fire({
-          title:"Berhasil!",
-          text:"Data Tersimpan!",
-          icon:"success",
-        })
-      }else if(flash == "2"){
-        Swal.fire({
-          title:"Gagal!",
-          text:"Data tidak Terhapus!",
-          icon:"error",
-        })
-      }else if(flash == "3"){
-        Swal.fire({
-          title:"Gagal!",
-          text:"Data tidak Tersimpan!",
-          icon:"error",
-        })
-      }else if(flash == "5"){
-        Swal.fire({
-          title:"Berbahaya",
-          text:"Ini bukan Area Anda",
-          icon:"question",
-          confirmButtonColor:"#5664d2"
-        }).then((result) => {
-          if(result.isConfirmed){
-            window.location = '<?= $link ?>';
-          }else{
-            window.location = '<?= $link ?>';
-          }
-        })
-      }
-    </script>
-    <script>
-      $(document).on('click', '#delete', function(e){
-        e.preventDefault();
-        var link = $(this).attr('href');
-        Swal.fire({
-          title:"Hapus Data!",
-          text:"Apakah Anda yakin?",
-          icon:"warning",
-          showCancelButton: true,
-          confirmButtonColor: '#00a65a',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Ya'
-        }).then((result) => {
-          if(result.isConfirmed){
-            window.location = link;
-          }
-        });
-      });
-    </script>
-    <script>
-      $(document).on('click', '#pasang', function(e){
-        e.preventDefault();
-        var link = $(this).attr('href');
-        Swal.fire({
-          title:"Selesai Memasang!",
-          text:"Apakah Anda yakin?",
-          icon:"warning",
-          showCancelButton: true,
-          confirmButtonColor: '#00a65a',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Ya'
-        }).then((result) => {
-          if(result.isConfirmed){
-            window.location = link;
-          }
-        });
-      });
-    </script>
   </body>
 </html>
 <?php mysqli_close($db->conn) ?>

@@ -18,12 +18,12 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-// $role = $row['level_user'];
-// if($role == "Desainer"){
-//   $alert = "5";
-//   $link = "menunggu_designer";
-//   // header('Location: menunggu_designer');
-// }
+$role = $row['level_user'];
+if($role == "Desainer"){
+  $alert = "5";
+  $link = "menunggu_designer";
+  // header('Location: menunggu_designer');
+}
 
 // pelanggan
 $order = $_GET['order'];

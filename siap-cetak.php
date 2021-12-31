@@ -18,6 +18,16 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
+if($row['level_user'] == "Desainer" || $row['level_user'] == "Pemasang"){
+  if($row['level_user'] == "Desainer"){
+    header('Location: menunggu_designer');
+    exit();
+  }elseif($row['level_user'] == "Pemasang"){
+    header('Location: siap-dipasang');
+    exit();
+  }
+}
+
 if(isset($_POST['aksi_cetak'])){
   $id_percetakan = $_POST['percetakan'];
   $id_bahan = $_POST['bahan'];
@@ -31,7 +41,7 @@ if(isset($_POST['aksi_cetak'])){
   
   $next = 'Proses Cetak';
 
-  $updateecetak = "UPDATE data_pemesanan SET status_order='$next' WHERE id_order='$id_orderr'";
+  $updateecetak = "UPDATE data_pemesanan SET status_order='$next', produksi_status='Ya' WHERE id_order='$id_orderr'";
   $result = mysqli_query($db->conn,$updateecetak);
   if($result){
     $insetcetak = "INSERT INTO data_cetakan (code_order,id_percetakan,id_bahan,lebar_bahan,panjang_bahan,id_owner) VALUES('$spk','$id_percetakan','$id_bahan','$lebar','$panjang',$id)";
@@ -298,7 +308,7 @@ function showDesigner($id){
                           <?php if($role == "Produksi"){ ?>
                           <td>
                           <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                            <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#proses_cetakan<?= $roworder['id_order'] ?>"  data-bs-placement="top" title="Cetak">
+                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#proses_cetakan<?= $roworder['id_order'] ?>"  data-bs-placement="top" title="Cetak">
                               <i class="ri-printer-line"></i>
                             </button>
                           </div>

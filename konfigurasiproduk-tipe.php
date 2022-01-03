@@ -61,7 +61,7 @@ if(isset($_POST['add_tipe'])){
 
 
     $type_foto = $_FILES['foto_type']['name'];
-    $dbfoto = "";
+    $dbfoto = "empty";
     if($type_foto != ""){
       $type_path_foto = $_FILES['foto_type']['tmp_name'];
       $type_foto = $_FILES['foto_type']['name'];
@@ -99,6 +99,10 @@ if(isset($_POST['add_tipe'])){
     }else{
       if($type_foto == ""){
         $dbfoto = $oldfoto;
+      }else{
+        if(file_exists($oldfoto)){
+          unlink($oldfoto);
+        }
       }
       $update = $db->updateType($type,$fulldash,$fullbody,$lite,$merk,$dbfoto,$edit);
       if($update){

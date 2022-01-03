@@ -550,7 +550,7 @@
             string $value6,
             string $param
         ){
-            $query = "UPDATE type_galeri SET name_type='$value1', fullbodydash_harga_type='$value2', fullbody_harga_type='$value3', lite_harga_type='$value4', id_merek='$value5' WHERE id_type='$param'";
+            $query = "UPDATE type_galeri SET name_type='$value1', fullbodydash_harga_type='$value2', fullbody_harga_type='$value3', lite_harga_type='$value4', id_merek='$value5', foto_type='^value6' WHERE id_type='$param'";
             $result = mysqli_query($this->conn, $query);
             return $result;
         }

@@ -404,21 +404,19 @@ if(isset($_POST['add_tipe'])){
                             </thead>
                             <tbody>
                               <?php  
-                             
                               $viewtipe = $db->selectTable("type_galeri","id_owner",$id);
                               while($rowtipe = mysqli_fetch_assoc($viewtipe)){
                               ?>
                               <tr>
-                             
                                 <?php 
                                 $m = showMerk($rowtipe['id_merek']);
                                 foreach($m as $rowmerk){
                                 ?>
                                 <td><?= $db->nameFormater($rowtipe['name_type']) ?></td>
                                 <td>
-                                  <?= $rowtipe['fullbodydash_harga_type'] != "" || $rowtipe['fullbodydash_harga_type'] != 0 ? "Fullbody Dash : Rp.". number_format($rowtipe['fullbodydash_harga_type'],0,",",".")."<br>" : "" ?>
-                                  <?= $rowtipe['fullbody_harga_type'] != "" || $rowtipe['fullbody_harga_type'] != 0 ? "Fullbody : Rp.". number_format($rowtipe['fullbody_harga_type'],0,",",".")."<br>" : "" ?>
-                                  <?= $rowtipe['lite_harga_type'] != "" || $rowtipe['lite_harga_type'] != 0 ? "Lite : Rp.". number_format($rowtipe['lite_harga_type'],0,",",".")."<br>" : "" ?>
+                                  <?= $rowtipe['fullbodydash_harga_type'] != "" && $rowtipe['fullbodydash_harga_type'] != 0 ? "Fullbody Dash : Rp.". number_format($rowtipe['fullbodydash_harga_type'],0,",",".")."<br>" : "" ?>
+                                  <?= $rowtipe['fullbody_harga_type'] != "" && $rowtipe['fullbody_harga_type'] != 0 ? "Fullbody : Rp.". number_format($rowtipe['fullbody_harga_type'],0,",",".")."<br>" : "" ?>
+                                  <?= $rowtipe['lite_harga_type'] != "" && $rowtipe['lite_harga_type'] != 0 ? "Lite : Rp.". number_format($rowtipe['lite_harga_type'],0,",",".")."<br>" : "" ?>
                                 </td>
                                 <td><?= $db->nameFormater($rowmerk['jenis_merek']) ?></td>
                                 <td><?= $db->nameFormater($rowmerk['name_merek']) ?></td>

@@ -43,7 +43,7 @@ if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
 
 $edit = $_GET['edit'];
 
-$editselect = $db->selectTable("type_galeri","id_owner",$edit);
+$editselect = $db->selectTable("type_galeri","id_type",$edit);
 $rowselect = mysqli_fetch_assoc($editselect);
 if($edit != ""){
   if(mysqli_num_rows($editselect) == 0){
@@ -58,6 +58,13 @@ if(isset($_POST['add_tipe'])){
     $fullbody = $_POST['fullbody'];
     $fulldash = $_POST['fullbodydash'];
     $lite = $_POST['lite'];
+
+
+    // $type_foto = $_FILES['foto_type']['name'];
+    // $type_path_foto = $_FILES['foto_type']['tmp_name'];
+
+
+
   if($edit == ""){
     $check = $db->selectTable("type_galeri","id_owner",$id,"name_type",$type,"id_merek",$merk);
     if(mysqli_num_rows($check) > 0){
@@ -211,7 +218,7 @@ if(isset($_POST['add_tipe'])){
                 <div class="card">
                   <div class="card-body">
                     <div class="card-title">Tambah Tipe</div>
-                    <form method="post" action="">
+                    <form method="post" action="" enctype="multipart/form-data">
                       <div class="mb-3">
                         <label for="merek" class="form-label">Merek</label>
                         <select name="merek" id="merek" class="form-select" required>
@@ -251,6 +258,10 @@ if(isset($_POST['add_tipe'])){
                         <label for="tipe" class="form-label">Tipe</label>
                         <input type="text" class="form-control" id="tipe" value="<?= $edit != "" ? $rowselect['name_type'] : $_POST['tipe'] ?>" name="tipe" required>
                       </div>
+                      <!-- <div class="mb-3">
+                        <label for="foto_pola" class="form-label">Upload Foto</label>
+                        <input type="file" name="foto_type" id="foto_pola" class="form-control" required>
+                      </div> -->
                       <div class="mb-3">
                         <label for="full" class="form-label">Fullbody</label>
                         <div class="input-group">

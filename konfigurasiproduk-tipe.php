@@ -31,6 +31,10 @@ $delete = $_GET['delete'];
 
 $checkdata = $db->selectTable("type_galeri","id_type",$delete);
 if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
+  $rowdatee = mysqli_fetch_assoc($deletel);
+  if(file_exists($rowdatee['foto_type'])){
+    unlink($rowdatee['foto_type']);
+  }
   $deletel = $db->deleteTable("type_galeri",$delete,"id_type");
   if($deletel){
     $_SESSION['alert'] = "1";
@@ -59,14 +63,12 @@ if(isset($_POST['add_tipe'])){
     $fulldash = $_POST['fullbodydash'];
     $lite = $_POST['lite'];
 
-
-    $type_foto = $_FILES['foto_type']['name'];
+    $type_foto = basename($_FILES['foto_type']['name']);
     $dbfoto = "empty";
     if($type_foto != ""){
       $type_path_foto = $_FILES['foto_type']['tmp_name'];
-      $type_foto = $_FILES['foto_type']['name'];
       $folder = "assets/images/foto_type";
-      $save_file = $db->saveFoto2($folder, $type_foto, $type_path_foto);
+      $save_file = $db->saveFoto2($folder, $type_foto, $type_path_foto, $type);
       $dbfoto = $save_file;
     }
 
@@ -273,7 +275,7 @@ if(isset($_POST['add_tipe'])){
                       </div>
                       <div class="mb-3">
                         <label for="foto_pola" class="form-label">Upload Foto</label>
-                        <input type="file" name="foto_type" id="foto_pola" class="form-control">
+                        <input type="file" accept=".jpg,.png,.jpeg" name="foto_type" id="foto_pola" class="form-control">
                       </div>
                       <div class="mb-3">
                         <label for="full" class="form-label">Fullbody</label>

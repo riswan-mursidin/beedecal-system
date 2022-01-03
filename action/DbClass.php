@@ -296,7 +296,7 @@
             if(!file_exists($folder)){
                 mkdir($folder);
             }
-
+            
             if(!is_null($produk_name)){
                 $produk_name = str_replace("/\s+/","_",$produk_name);
             }else{

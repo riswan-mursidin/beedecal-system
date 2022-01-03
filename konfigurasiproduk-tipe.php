@@ -273,7 +273,7 @@ if(isset($_POST['add_tipe'])){
                       </div>
                       <div class="mb-3">
                         <label for="foto_pola" class="form-label">Upload Foto</label>
-                        <input type="file" name="foto_type" id="foto_pola" class="form-control" required>
+                        <input type="file" name="foto_type" id="foto_pola" class="form-control">
                       </div>
                       <div class="mb-3">
                         <label for="full" class="form-label">Fullbody</label>

@@ -56,6 +56,53 @@ if($edit != ""){
   }
 }
 
+if(isset($_POST['edit_harga'])){
+  $persen = $_POST['persen']/100;
+  $operator = $_POST['operator'];
+  $kategori_harga = $_POST['kategori_harga'];
+
+  $typedata = $db->selectTable("type_galeri","id_owner",$id);
+  while($rowtypee = mysqli_fetch_assoc($typedata)){
+    $fullbodyy = $rowtypee['fullbody_harga_type'] == "" ? 0 : $rowtypee['fullbody_harga_type'] ;
+    $fullbodyydashh = $rowtypee['fullbodydash_harga_type'] == "" ? 0 : $rowtypee['fullbodydash_harga_type'] ;
+    $lite = $rowtypee['lite_harga_type'] == "" ? 0 : $rowtypee['lite_harga_type'];
+    $id_tyype = $rowtypee['id_type'];
+    
+    $hasilfulldash = $fullbodyydashh + ($fullbodyydashh * $persen);
+    $hasilfull = $fullbodyy + ($fullbodyy * $persen);
+    $hasillite = $lite + ($lite * $persen);
+
+    if($operator == "kurang"){
+      $hasilfulldash = $fullbodyydashh - ($fullbodyydashh * $persen);
+      $hasilfull = $fullbodyy - ($fullbodyy * $persen);
+      $hasillite = $lite - ($lite * $persen);
+    }
+
+    $resultlt = false;
+    if($kategori_harga == "all"){
+      $queryupdate = "UPDATE type_galeri SET fullbodydash_harga_type='$hasilfulldash', fullbody_harga_type='$hasilfull', lite_harga_type='$hasillite' WHERE id_type='$id_tyype'";
+      $resultlt = mysqli_query($db->conn,$queryupdate);
+    }elseif($kategori_harga == "fullbody"){
+      $queryupdate = "UPDATE type_galeri SET fullbody_harga_type='$hasilfull' WHERE id_type='$id_tyype'";
+      $resultlt = mysqli_query($db->conn,$queryupdate);
+    }elseif($kategori_harga == "fullbodydash"){
+      $queryupdate = "UPDATE type_galeri SET fullbodydash_harga_type='$hasilfulldash' WHERE id_type='$id_tyype'";
+      $resultlt = mysqli_query($db->conn,$queryupdate);
+    }elseif($kategori_harga == "lite"){
+      $queryupdate = "UPDATE type_galeri SET lite_harga_type='$hasillite' WHERE id_type='$id_tyype'";
+      $resultlt = mysqli_query($db->conn,$queryupdate);
+    }
+
+    if($resultlt){
+      $_SESSION['alert'] = "1";
+      header('Location: konfigurasiproduk-tipe');
+      exit();
+    }else{
+      $alert = "3";
+    }
+  }
+
+}
 if(isset($_POST['add_tipe'])){
     $merk = $_POST['merek'];
     $type = strtolower($_POST['tipe']); 
@@ -298,57 +345,96 @@ if(isset($_POST['add_tipe'])){
                           <input type="number" class="form-control" placeholder="0.00" id="lite" name="lite" value="<?= $edit != "" ? $rowselect['lite_harga_type'] : $_POST['lite'] ?>">
                         </div>
                       </div>
-                      <button type="submit" name="add_tipe" class="btn btn-primary">Submit</button>
+                      <button type="submit" name="add_tipe" class="btn btn-success">Submit</button>
                     </form>
                   </div>
                 </div>
               </div>
               <div class="col-12 col-md-9">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="card-title">Tipe Produk</div>
-                      <table id="datatable" class="table table-bordered table-hover dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>Tipe</th>
-                            <th>Harga</th>
-                            <th>Jenis</th>
-                            <th>Merek</th>
-                            <th>Aksi</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <?php  
-                          $no = 0;
-                          $viewtipe = $db->selectTable("type_galeri","id_owner",$id);
-                          while($rowtipe = mysqli_fetch_assoc($viewtipe)){
-                          ?>
-                          <tr>
-                            <td><?= ++$no ?></td>
-                            <?php 
-                            $m = showMerk($rowtipe['id_merek']);
-                            foreach($m as $rowmerk){
-                            ?>
-                            <td><?= $db->nameFormater($rowtipe['name_type']) ?></td>
-                            <td>
-                              <?= $rowtipe['fullbodydash_harga_type'] != "" ? "Fullbody Dash : Rp.". number_format($rowtipe['fullbodydash_harga_type'],0,",",".")."<br>" : "" ?>
-                              <?= $rowtipe['fullbody_harga_type'] != "" ? "Fullbody : Rp.". number_format($rowtipe['fullbody_harga_type'],0,",",".")."<br>" : "" ?>
-                              <?= $rowtipe['lite_harga_type'] != "" ? "Lite : Rp.". number_format($rowtipe['lite_harga_type'],0,",",".")."<br>" : "" ?>
-                            </td>
-                            <td><?= $db->nameFormater($rowmerk['jenis_merek']) ?></td>
-                            <td><?= $db->nameFormater($rowmerk['name_merek']) ?></td>
-                            <?php } ?>
-                            <td>
-                              <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                <a href="konfigurasiproduk-tipe?edit=<?= $rowtipe['id_type']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
-                                <a href="konfigurasiproduk-tipe?delete=<?= $rowtipe['id_type']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="card-title">Edit Harga Produk Massal</div>
+                        <form action="" method="post">
+                          <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                              <label for="" class="form-label">Persen</label>
+                              <div class="input-group">
+                                <input type="number" step="0.01" max="100" name="persen" id="" class="form-control">
+                                <span class="input-group-text">%</span>
                               </div>
-                            </td>
-                          </tr>
-                          <?php } ?>
-                        </tbody>
-                      </table>
+                            </div>
+                            <div class="col-md-4">
+                              <label for="" class="form-label">Kategori Harga</label>
+                              <select name="kategori_harga" id="" class="form-select">
+                                <option value="all">ALL</option>
+                                <option value="fullbody">Fullbody</option>
+                                <option value="fullbodydash">Fullbodydash</option>
+                                <option value="lite">Lite</option>
+                              </select>
+                            </div>
+                            <div class="col-md-4">
+                              <label for="" class="form-label">Tambah/Kurang</label>
+                              <select name="operator" id="" class="form-select">
+                                <option value="tambah">Tambah</option>
+                                <option value="kurang">Kurang</option>
+                              </select>
+                            </div>
+                          </div>
+                          <button type="submit" name="edit_harga" class="btn btn-success">Submit</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="card-title">Tipe Produk </div>
+                          <table id="datatable" class="table table-bordered table-hover dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                            <thead>
+                              <tr>
+                              
+                                <th>Tipe</th>
+                                <th>Harga</th>
+                                <th>Jenis</th>
+                                <th>Merek</th>
+                                <th>Aksi</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <?php  
+                             
+                              $viewtipe = $db->selectTable("type_galeri","id_owner",$id);
+                              while($rowtipe = mysqli_fetch_assoc($viewtipe)){
+                              ?>
+                              <tr>
+                             
+                                <?php 
+                                $m = showMerk($rowtipe['id_merek']);
+                                foreach($m as $rowmerk){
+                                ?>
+                                <td><?= $db->nameFormater($rowtipe['name_type']) ?></td>
+                                <td>
+                                  <?= $rowtipe['fullbodydash_harga_type'] != "" || $rowtipe['fullbodydash_harga_type'] != 0 ? "Fullbody Dash : Rp.". number_format($rowtipe['fullbodydash_harga_type'],0,",",".")."<br>" : "" ?>
+                                  <?= $rowtipe['fullbody_harga_type'] != "" || $rowtipe['fullbody_harga_type'] != 0 ? "Fullbody : Rp.". number_format($rowtipe['fullbody_harga_type'],0,",",".")."<br>" : "" ?>
+                                  <?= $rowtipe['lite_harga_type'] != "" || $rowtipe['lite_harga_type'] != 0 ? "Lite : Rp.". number_format($rowtipe['lite_harga_type'],0,",",".")."<br>" : "" ?>
+                                </td>
+                                <td><?= $db->nameFormater($rowmerk['jenis_merek']) ?></td>
+                                <td><?= $db->nameFormater($rowmerk['name_merek']) ?></td>
+                                <?php } ?>
+                                <td>
+                                  <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                                    <a href="konfigurasiproduk-tipe?edit=<?= $rowtipe['id_type']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
+                                    <a href="konfigurasiproduk-tipe?delete=<?= $rowtipe['id_type']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
+                                  </div>
+                                </td>
+                              </tr>
+                              <?php } ?>
+                            </tbody>
+                          </table>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

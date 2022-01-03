@@ -4,14 +4,14 @@
 
     class DbClass{
         // Configuration Db
-        // var $SERVERNAME = "localhost"; 
-        // var $USERNAME = "root";
-        // var $PASSWORD = "" ;
-        // var $DBNAME = "galeri_stiker";
         var $SERVERNAME = "localhost"; 
-        var $USERNAME = "u1438856_decal";
-        var $PASSWORD = "riswanboss9999" ;
-        var $DBNAME = "u1438856_decal";
+        var $USERNAME = "root";
+        var $PASSWORD = "" ;
+        var $DBNAME = "galeri_stiker";
+        // var $SERVERNAME = "localhost"; 
+        // var $USERNAME = "u1438856_decal";
+        // var $PASSWORD = "riswanboss9999" ;
+        // var $DBNAME = "u1438856_decal";
         // Var Connection
         var $conn;
         // Table name in array

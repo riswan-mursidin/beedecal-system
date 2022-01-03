@@ -311,10 +311,10 @@ if(isset($_POST['add_tipe'])){
                         <thead>
                           <tr>
                             <th>#</th>
-                            <th>Jenis</th>
-                            <th>Merek</th>
                             <th>Tipe</th>
                             <th>Harga</th>
+                            <th>Jenis</th>
+                            <th>Merek</th>
                             <th>Aksi</th>
                           </tr>
                         </thead>
@@ -330,15 +330,15 @@ if(isset($_POST['add_tipe'])){
                             $m = showMerk($rowtipe['id_merek']);
                             foreach($m as $rowmerk){
                             ?>
-                            <td><?= $db->nameFormater($rowmerk['jenis_merek']) ?></td>
-                            <td><?= $db->nameFormater($rowmerk['name_merek']) ?></td>
-                            <?php } ?>
                             <td><?= $db->nameFormater($rowtipe['name_type']) ?></td>
                             <td>
                               <?= $rowtipe['fullbodydash_harga_type'] != "" ? "Fullbody Dash : Rp.". number_format($rowtipe['fullbodydash_harga_type'],0,",",".")."<br>" : "" ?>
                               <?= $rowtipe['fullbody_harga_type'] != "" ? "Fullbody : Rp.". number_format($rowtipe['fullbody_harga_type'],0,",",".")."<br>" : "" ?>
                               <?= $rowtipe['lite_harga_type'] != "" ? "Lite : Rp.". number_format($rowtipe['lite_harga_type'],0,",",".")."<br>" : "" ?>
                             </td>
+                            <td><?= $db->nameFormater($rowmerk['jenis_merek']) ?></td>
+                            <td><?= $db->nameFormater($rowmerk['name_merek']) ?></td>
+                            <?php } ?>
                             <td>
                               <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                                 <a href="konfigurasiproduk-tipe?edit=<?= $rowtipe['id_type']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>

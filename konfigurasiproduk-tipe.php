@@ -60,17 +60,22 @@ if(isset($_POST['add_tipe'])){
     $lite = $_POST['lite'];
 
 
-    // $type_foto = $_FILES['foto_type']['name'];
-    // $type_path_foto = $_FILES['foto_type']['tmp_name'];
-
-
+    $type_foto = $_FILES['foto_type']['name'];
+    $dbfoto = "";
+    if($type_foto != ""){
+      $type_path_foto = $_FILES['foto_type']['tmp_name'];
+      $type_foto = $_FILES['foto_type']['name'];
+      $folder = "assets/images/foto_type";
+      $save_file = $db->saveFoto2($folder, $type_foto, $type_path_foto);
+      $dbfoto = $save_file;
+    }
 
   if($edit == ""){
     $check = $db->selectTable("type_galeri","id_owner",$id,"name_type",$type,"id_merek",$merk);
     if(mysqli_num_rows($check) > 0){
       $alert = "4";
     }else{
-      $insert = $db->insertType($type,$fulldash,$fullbody,$lite,$merk,$id);
+      $insert = $db->insertType($type,$fulldash,$fullbody,$lite,$merk,$dbfoto,$id);
       if($insert){
         $_SESSION['alert'] = "1";
         header('Location: konfigurasiproduk-tipe');
@@ -82,16 +87,20 @@ if(isset($_POST['add_tipe'])){
   }else{
     $oldmerk = $rowselect['id_merek'];
     $oldtype = $rowselect['name_type']; 
+    $oldfoto = $rowselect['foto_type']; 
     $oldfullbody = $rowselect['fullbody_harga_type'];
     $oldfulldash = $rowselect['fullbodydash_harga_type'];
     $oldlite = $rowselect['lite_harga_type'];
-    $update = $db->updateType(" ",$oldfulldash,$oldfullbody,$oldlite," ",$edit);
+    $update = $db->updateType(" ",$oldfulldash,$oldfullbody,$oldlite,$oldfoto," ",$edit);
     $check = $db->selectTable("type_galeri","id_owner",$id,"name_type",$type,"id_merek",$merk);
     if(mysqli_num_rows($check) > 0){
-      $update = $db->updateType($oldtype,$oldfulldash,$oldfullbody,$oldlite,$oldmerk,$edit);
+      $update = $db->updateType($oldtype,$oldfulldash,$oldfullbody,$oldlite,$oldmerk,$oldfoto,$edit);
       $alert = "4";
     }else{
-      $update = $db->updateType($type,$fulldash,$fullbody,$lite,$merk,$edit);
+      if($type_foto == ""){
+        $dbfoto = $oldfoto;
+      }
+      $update = $db->updateType($type,$fulldash,$fullbody,$lite,$merk,$dbfoto,$edit);
       if($update){
         $_SESSION['alert'] = "1";
         header('Location: konfigurasiproduk-tipe');
@@ -258,10 +267,10 @@ if(isset($_POST['add_tipe'])){
                         <label for="tipe" class="form-label">Tipe</label>
                         <input type="text" class="form-control" id="tipe" value="<?= $edit != "" ? $rowselect['name_type'] : $_POST['tipe'] ?>" name="tipe" required>
                       </div>
-                      <!-- <div class="mb-3">
+                      <div class="mb-3">
                         <label for="foto_pola" class="form-label">Upload Foto</label>
                         <input type="file" name="foto_type" id="foto_pola" class="form-control" required>
-                      </div> -->
+                      </div>
                       <div class="mb-3">
                         <label for="full" class="form-label">Fullbody</label>
                         <div class="input-group">

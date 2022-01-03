@@ -4,6 +4,10 @@
 
     class DbClass{
         // Configuration Db
+        // var $SERVERNAME = "localhost"; 
+        // var $USERNAME = "root";
+        // var $PASSWORD = "" ;
+        // var $DBNAME = "galeri_stiker";
         var $SERVERNAME = "localhost"; 
         var $USERNAME = "u1438856_decal";
         var $PASSWORD = "riswanboss9999" ;
@@ -529,9 +533,10 @@
             string $value3,
             string $value4,
             string $value5,
+            string $value6,
             string $owner
             ){
-            $query = "INSERT INTO type_galeri (name_type,fullbodydash_harga_type,fullbody_harga_type,lite_harga_type,id_merek,id_owner) VALUES('$value1','$value2','$value3','$value4','$value5','$owner')";
+            $query = "INSERT INTO type_galeri (name_type,fullbodydash_harga_type,fullbody_harga_type,lite_harga_type,id_merek,foto_type,id_owner) VALUES('$value1','$value2','$value3','$value4','$value5','$value6','$owner')";
             $result = mysqli_query($this->conn, $query);
             return $result;
         }
@@ -542,6 +547,7 @@
             string $value3,
             string $value4,
             string $value5,
+            string $value6,
             string $param
         ){
             $query = "UPDATE type_galeri SET name_type='$value1', fullbodydash_harga_type='$value2', fullbody_harga_type='$value3', lite_harga_type='$value4', id_merek='$value5' WHERE id_type='$param'";

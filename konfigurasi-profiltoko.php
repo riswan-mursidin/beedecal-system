@@ -43,6 +43,7 @@ if($row['id_owner'] == "0"){
   $owner = $db->selectTable("user_galeri","id_user",$id);
   $rowouwner = mysqli_fetch_assoc($owner);
   $pemilik = $rowouwner['username_user'];
+  $namatoko = $rowouwner['toko_user'];
 }
 
 $alert = "";

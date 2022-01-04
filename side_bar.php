@@ -321,10 +321,13 @@
                       <a href="konfigurasiproduk-tipe">Tipe/Harga</a>
                     </li>
                     <li>
-                      <a href="konfigurasiproduk-kategori">Kategori</a>
+                      <a href="konfigurasiproduk-kategori">Kategori Produk</a>
                     </li>
                     <li>
-                      <a href="konfigurasiproduk-produk">Produk</a>
+                    <li>
+                      <a href="konfigurasistiker-custom">Stiker Custom</a>
+                    </li>
+                      <a href="konfigurasiproduk-produk">Produk </a>
                     </li>
                     <li>
                       <a href="konfigurasiproduk-jenisbahan">Jenis Bahan</a>

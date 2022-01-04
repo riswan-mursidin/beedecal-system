@@ -210,6 +210,10 @@ if(isset($_POST['add_kategori'])){
                     <div class="card-title">Tambah Kategori</div>
                     <form method="post" action="">
                       <div class="mb-3">
+                        <label for="jeniskategori" class="form-label">Jenis Kategori</label>
+                        
+                      </div>
+                      <div class="mb-3">
                         <label for="category" class="form-label">Kategori Produk</label>
                         <select name="category" id="category" class="form-select" required <?=  $edit != "" ? "disabled" : "" ?>> 
                           <option value="">--PILIH KATEGORI--</option>

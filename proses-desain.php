@@ -323,7 +323,11 @@ function showDesigner($id){
                         <tr>
                           <td>
                             <?= $roworder['code_order'] ?><br>
-                            <?= $roworder['jenis_produk_order'] == 'Custom' ? $db->nameFormater(showProduk($roworder['produk_order'])) : '' ?><br>
+                            <?= 
+                            $roworder['jenis_produk_order'] == 'Custom' && $roworder['kategori_produk_order'] == "Other" ? 
+                              $db->nameFormater($roworder['produk_order']) : 
+                                $db->nameFormater(showProduk($roworder['produk_order'])) 
+                            ?><br>
                             <?= $roworder['model_stiker_order'] ?><br>
                           </td>
                           <td>

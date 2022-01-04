@@ -66,19 +66,27 @@ if(isset($_POST['create_spk'])){
 
   $user = $_SESSION['login_stiker_id'];
   
-  
-  // informasi Pemesanan
-  $kategori_produk = $_POST['kategori_produk'];
-  $jenis_produk = $_POST['jenis_produk'];
   $produk_id = $_POST['produk'];
   $varian = $_POST['varian_harga'];
+
   $array_varian = explode(" - ",$varian);
   $varian_harga = $array_varian[0];
   $varian_model = end(explode(" - ",$varian));
+
+  // informasi Pemesanan
+  $kategori_produk = $_POST['kategori_produk'];
+  $jenis_produk = $_POST['jenis_produk'];
+  if($kategori_produk == "Other" && $jenis_produk == "Custom"){
+    $varian_harga = $varian;
+    $varian_model = "Stiker Custom";
+    $produk_id = $_POST['produk2'];
+  }
+
   $desain_status = $_POST['desain_status'];
   $cetak_status = $_POST['cetak_status'];
   $laminating = ucfirst($_POST['laminating']);
   $pemasangan_status = $_POST['pemasangan_status'];
+
 
   // detail desain
   $dbfoto = array();
@@ -440,6 +448,9 @@ if(isset($_POST['create_spk'])){
     <script>
       function showfeeby(str){
         var fee = document.getElementById("harga").value;
+        if(document.getElementById("jenis").value ==  "Custom" && document.getElementById("kategori").value == "Other"){
+          var fee = document.getElementById("harga2").value;
+        }
         var diskon = document.getElementById("diskon").value;
         var debit = document.getElementById("debit").value;
         var tamby = document.getElementsByName("biaya_tambahan[]");
@@ -574,6 +585,9 @@ if(isset($_POST['create_spk'])){
     <script>
       function showFee3(diskon){
         var fee = document.getElementById("harga").value;
+        if(document.getElementById("jenis").value ==  "Custom" && document.getElementById("kategori").value == "Other"){
+          var fee = document.getElementById("harga2").value;
+        }
         var debit = document.getElementById("debit").value;
         var tamby = document.getElementsByName("biaya_tambahan[]");
         var count = 0;
@@ -649,6 +663,9 @@ if(isset($_POST['create_spk'])){
     <script>
       function sisaDari(debit){
         var fee = document.getElementById("harga").value;
+        if(document.getElementById("jenis").value ==  "Custom" && document.getElementById("kategori").value == "Other"){
+          var fee = document.getElementById("harga2").value;
+        }
         var diskon = document.getElementById("diskon").value;
         var tamby = document.getElementsByName("biaya_tambahan[]");
         var count = 0;
@@ -727,13 +744,34 @@ if(isset($_POST['create_spk'])){
       function showSubJenis1(kategori) {
         var jenis = document.getElementById("jenis").value;
         if(kategori != "" && jenis != ""){
-          $.ajax({
-            type:'post',
-            url:'data_produk_kategori.php?jenisp='+kategori+'&jenispr='+jenis+'&id='+<?= $id ?>,
-            success:function(hasil_views){
-              $("select[name=produk]").html(hasil_views);
-            }
-          })
+          if(kategori == "Other" && jenis == "Custom"){
+            document.getElementById("produk").style.display = "none";
+            document.getElementById("produk2").style.display = "";
+
+            // $('#custmview').append(
+            //   '<div class="row">\
+            //     <div class="col-md-6">\
+            //       <label for="" class="form-label">Pesanan</label>\
+            //       <input type="text" name="produk" id="" class="form-control">\
+            //     </div>\
+            //     <div class="col-md-6">\
+            //       <label for="" class="form-label">Harga</label>\
+            //       <input type="number" name="varian_harga"  id="harga" class="form-control" onkeyup="showFee(this.value)">\
+            //     </div>\
+            //   </div>'
+            // );
+          }else{
+            document.getElementById("produk").style.display = "";
+            document.getElementById("produk2").style.display = "none";
+            // $('#cus').remove();
+            $.ajax({
+              type:'post',
+              url:'data_produk_kategori.php?jenisp='+kategori+'&jenispr='+jenis+'&id='+<?= $id ?>,
+              success:function(hasil_views){
+                $("select[name=produk]").html(hasil_views);
+              }
+            })
+          }
         }
       }
     </script>
@@ -741,13 +779,33 @@ if(isset($_POST['create_spk'])){
       function showSubJenis2(jenis) {
         var kategori = document.getElementById("kategori").value;
         if(kategori != "" && jenis != ""){
-          $.ajax({
-            type:'post',
-            url:'data_produk_kategori.php?jenisp='+kategori+'&jenispr='+jenis+'&id='+<?= $id ?>,
-            success:function(hasil_views){
-              $("select[name=produk]").html(hasil_views);
-            }
-          })
+          if(kategori == "Other" && jenis == "Custom"){
+            document.getElementById("produk").style.display = "none";
+            document.getElementById("produk2").style.display = "";
+            // $('#custmview').append(
+            //   '<div class="row" id="cus">\
+            //     <div class="col-md-6">\
+            //       <label for="" class="form-label">Pesanan</label>\
+            //       <input type="text" name="produk" id="" class="form-control">\
+            //     </div>\
+            //     <div class="col-md-6">\
+            //       <label for="" class="form-label">Harga</label>\
+            //       <input type="number" onkeyup="showFee(this.value)" id="harga" class="form-control" name="varian_harga" id="harga" class="form-control">\
+            //     </div>\
+            //   </div>'
+            // );
+          }else{
+            document.getElementById("produk").style.display = "";
+            document.getElementById("produk2").style.display = "none";
+            // $('#cus').remove();
+            $.ajax({
+              type:'post',
+              url:'data_produk_kategori.php?jenisp='+kategori+'&jenispr='+jenis+'&id='+<?= $id ?>,
+              success:function(hasil_views){
+                $("select[name=produk]").html(hasil_views);
+              }
+            })
+          }
         }
       }
     </script>
@@ -843,6 +901,8 @@ if(isset($_POST['create_spk'])){
   <body data-sidebar="dark" >
     <!-- <body data-layout="horizontal" data-topbar="dark"> -->
 
+    
+
     <!-- Begin page -->
     <div id="layout-wrapper">
       <?php require_once "header.php" ?>
@@ -919,67 +979,81 @@ if(isset($_POST['create_spk'])){
                             <?php } ?>
                           </select>
                         </div>
-                        <div class="col-md-3">
-                          <label for="kategori_type" class="form-label">Produk Tersedia</label>
-                          <select onchange="showVarian()" name="produk" id="kategori_type" class="form-control js-example-basic-single" required>
-                            <?php 
-                            if($edit != ""){ 
-                              if($rowedit['jenis_produk_order'] == "Custom"){
-                                if($rowedit['kategori_produk_order'] == "Other"){
-                            
-                                }else{
-                                    $views = $db->selectTable("merek_galeri","id_owner",$id,"jenis_merek",$rowedit['kategori_produk_order']);
-                                    echo '<option value="" hidden>PILIH TYPE</option>';
-                                    if(mysqli_num_rows($views)>0){
-                                        while($row=mysqli_fetch_assoc($views)){
-                                            $views2 = $db->selectTable("type_galeri","id_owner",$id,"id_merek",$row['id_merek']);
-                                            if(mysqli_num_rows($views2)>0){
-                                                echo '<optgroup label="'.$db->nameFormater($row['name_merek']).'">';
-                                                $val = $rowedit['produk_order'];
-                                                while($row2=mysqli_fetch_assoc($views2)){
-                                                    $select = $val == $row2['id_type'] ? 'selected="selected"' : '';
-                                                    echo '<option '.$select.' value="'.$row2['id_type'].'">'.$db->nameFormater($row2['name_type']).'</option>';
+                        <div id="custmview" class="col-md-6">
+                          <div class="row" id="produk">
+                            <div class="col-md-6">
+                              <label for="kategori_type" class="form-label">Produk Tersedia</label>
+                              <select onchange="showVarian()" name="produk" id="kategori_type" class="form-control js-example-basic-single" >
+                                <?php 
+                                if($edit != ""){ 
+                                  if($rowedit['jenis_produk_order'] == "Custom"){
+                                    if($rowedit['kategori_produk_order'] == "Other"){
+                                
+                                    }else{
+                                        $views = $db->selectTable("merek_galeri","id_owner",$id,"jenis_merek",$rowedit['kategori_produk_order']);
+                                        echo '<option value="" hidden>PILIH TYPE</option>';
+                                        if(mysqli_num_rows($views)>0){
+                                            while($row=mysqli_fetch_assoc($views)){
+                                                $views2 = $db->selectTable("type_galeri","id_owner",$id,"id_merek",$row['id_merek']);
+                                                if(mysqli_num_rows($views2)>0){
+                                                    echo '<optgroup label="'.$db->nameFormater($row['name_merek']).'">';
+                                                    $val = $rowedit['produk_order'];
+                                                    while($row2=mysqli_fetch_assoc($views2)){
+                                                        $select = $val == $row2['id_type'] ? 'selected="selected"' : '';
+                                                        echo '<option '.$select.' value="'.$row2['id_type'].'">'.$db->nameFormater($row2['name_type']).'</option>';
+                                                    }
+                                                    echo '</optgroup>';
                                                 }
-                                                echo '</optgroup>';
                                             }
                                         }
                                     }
-                                }
-                              }else{
-                                  echo '<option value="" hidden>PILIH PRODUK</option>';
-                              }
-                            }else{
-                            ?>
-                            <option value="" hidden>PRODUK</option>
-                            <?php } ?>
-                        </select>
-                        </div>
-                        <div class="col-md-3">
-                          <label for="harga" class="form-label">Harga/Varian Produk</label>
-                          <select name="varian_harga" id="harga" class="form-select" onchange="showFee(this.value)">
-                            <?php  
-                            if($edit != ""){
-                              $val = $rowedit['model_stiker_order'];
-                              if($rowedit['jenis_produk_order'] == "Custom"){
-                                $views = $db->selectTable("type_galeri","id_type",$row2['id_type'],"id_owner",$id);
-                                $row=mysqli_fetch_assoc($views);
-                                $type = array("fulldash","fullbody","lite");
-                                echo '<option value="">PILIH</option>';
-                                foreach($type as $ty){
-                                  $select = $ty == strtolower($rowedit['model_stiker_order']) ? 'selected="selected"' : '';
-                                  if($ty == ""){
-                                    continue;
                                   }else{
-                                    $fee = $ty == "fulldash" ? $row['fullbodydash_harga_type'] : ($ty == "fullbody" ? $row['fullbody_harga_type'] : $row['lite_harga_type'] );
-                                    echo '<option '.$select.' value="'.$fee.' - '.$ty.'">'.number_format($fee,2,",",".").' ('.preg_replace('/\s+/','',$db->nameFormater($ty)).')</option>';
+                                      echo '<option value="" hidden>PILIH PRODUK</option>';
                                   }
-                                }
-                              }
-                            }else{
-                            ?>
-                            <option value="">PILIH</option>
-                            <?php } ?>
-                          </select>
+                                }else{
+                                ?>
+                                <option value="" hidden>PRODUK</option>
+                                <?php } ?>
+                              </select>
+                            </div>
+                            <div class="col-md-6">
+                              <label for="harga" class="form-label">Harga/Varian Produk</label>
+                              <select name="varian_harga" id="harga" class="form-select" onchange="showFee(this.value)">
+                                <?php  
+                                if($edit != ""){
+                                  $val = $rowedit['model_stiker_order'];
+                                  if($rowedit['jenis_produk_order'] == "Custom"){
+                                    $views = $db->selectTable("type_galeri","id_type",$row2['id_type'],"id_owner",$id);
+                                    $row=mysqli_fetch_assoc($views);
+                                    $type = array("fulldash","fullbody","lite");
+                                    echo '<option value="">PILIH</option>';
+                                    foreach($type as $ty){
+                                      $select = $ty == strtolower($rowedit['model_stiker_order']) ? 'selected="selected"' : '';
+                                      if($ty == ""){
+                                        continue;
+                                      }else{
+                                        $fee = $ty == "fulldash" ? $row['fullbodydash_harga_type'] : ($ty == "fullbody" ? $row['fullbody_harga_type'] : $row['lite_harga_type'] );
+                                        echo '<option '.$select.' value="'.$fee.' - '.$ty.'">'.number_format($fee,2,",",".").' ('.preg_replace('/\s+/','',$db->nameFormater($ty)).')</option>';
+                                      }
+                                    }
+                                  }
+                                }else{
+                                ?>
+                                <option value="">PILIH</option>
+                                <?php } ?>
+                              </select>
+                            </div>
+                          </div>
+                          <div style="display: none;" id="produk2" class="row">
+                            <div class="col-md-6">
+                              <label for="" class="form-label">Nama Produk</label>
+                              <input type="text" name="produk2" id="" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                              <label for="" class="form-label">Harga</label>
+                              <input type="number" name="varian_harga" id="harga2" class="form-control" onkeyup="showFee(this.value)">
+                            </div>
+                          </div>
                         </div>
 
                         <div class="col-md-3">
@@ -1011,7 +1085,7 @@ if(isset($_POST['create_spk'])){
                         <div class="col-md-3">
                           <label for="laminating" class="form-label">Laminating</label>
                           <select name="laminating" id="" class="form-select">
-                            <option value="" >Tidak</option>
+                            <option value="">Tidak</option>
                             <?php  
                             $v = $edit != "" ? $rowedit['laminating_order'] : '' ; 
                             $laminatt = $db->selectTable("bahan_laminating","id_owner",$id);
@@ -1323,7 +1397,7 @@ if(isset($_POST['create_spk'])){
                               foreach($data->costs as $d){
                                 $select = $d->service == $rowedit['nama_paket_send_order'] ? 'selected="selected"' : '' ;
                                 echo '<option '.$select.' value="'.$d->cost[0]->value.' - '.$d->service.' - '.$d->cost[0]->etd.'">Rp.'.number_format($d->cost[0]->value,2,",",".").' (Paket: '.$d->service.' Estimasi: '.$d->cost[0]->etd. ')</option>';
-                            }
+                              }
                               ?>
                             </select>
                             <button class="btn btn-warning" type="button" id="button-addon2" onclick="showOngkir()">Cek</button>
@@ -1602,6 +1676,9 @@ if(isset($_POST['create_spk'])){
               $(this).closest('.hapus').remove(); //Remove field html
               x--; //Decrement field counter
               var fee = document.getElementById("harga").value;
+              if(document.getElementById("jenis").value ==  "Custom" && document.getElementById("kategori").value == "Other"){
+                var fee = document.getElementById("harga2").value;
+              }
               var diskon = document.getElementById("diskon").value;
               var debit = document.getElementById("debit").value;
               var tamby = document.getElementsByName("biaya_tambahan[]");

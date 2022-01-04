@@ -16,6 +16,11 @@ $id = $row['id_owner'];
 if($row['id_owner'] == "0"){
   $id = $row['id_user'];
 }
+
+$store = $db->selectTable("store_galeri","id_owner",$id);
+$rowstore = mysqli_fetch_assoc($store);
+$asal = $rowstore['kab_id'];
+
 $alert = $_SESSION['alert'];
 
 if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
@@ -194,6 +199,33 @@ function showCetakan($id_order, $owner){
   $result['percetakan'] = showPercetakan($id_cetakan,$owner);
   return $result;
 }
+
+if(isset($_POST['edit_send'])){
+  $id_order = $_POST['id_order'];
+  $status_pengiriman = $_POST['send_status'];
+  $kurir = $status_pengiriman == "Ya" ? $_POST['kurir'] : '';
+  $prov_desti = $status_pengiriman == "Ya" ? $_POST['prov'] : '';
+  $kabkota_desti = $status_pengiriman == "Ya" ? $_POST['kabkota'] : '';
+  $kec_desti = $status_pengiriman == "Ya" ? $_POST['kec'] : '';
+  $alamat_lengkap = $status_pengiriman == "Ya" ? $_POST['alamat_lengkap'] : '';
+  $kode_pos = $status_pengiriman == "Ya" ? $_POST['kode_pos'] : '';
+  $berat = $status_pengiriman == "Ya" ? $_POST['berat'] : '';
+  $paket_ongkir = explode(" - ",$_POST['resultcost']);
+
+  // detail pengiriman
+  $cost = $status_pengiriman == "Ya" ? $paket_ongkir[0] : '';
+  $name_paket = $status_pengiriman == "Ya" ? $paket_ongkir[1] : '';
+  $etd = $status_pengiriman == "Ya" ? $paket_ongkir[2] : '';
+
+  $query = "UPDATE data_pemesanan SET status_pengiriman_order='$status_pengiriman', kurir_pengiriman_order='$kurir', prov_send_order='$prov_desti', kab_send_order='$kabkota_desti', kec_send_order='$kec_desti', kode_pos_send_order='$kode_pos', alamat_lengkap_send_order='$alamat_lengkap', berat_send_order='$berat', ongkir_send_order='$cost', nama_paket_send_order='$name_paket', estimasi_send_order='$etd' WHERE id_order='$id_order'";
+
+  $result = mysqli_query($db->conn, $query);
+  if($result){
+    $_SESSION['alert'] = "1";
+    header('Location: ambil-ditoko');
+    exit();
+  }
+}
 ?> 
 
 <!DOCTYPE html>
@@ -239,8 +271,63 @@ function showCetakan($id_order, $owner){
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 
+    <!-- Kab -->
+    <script>
+      function viewKab(str) {
+        $.ajax({
+          type:'post',
+          url:'api_kab_kota.php?prov_id='+str,
+          success:function(hasil_kab){
+            $("select[name=kabkota]").html(hasil_kab);
+          }
+        })
+      }
+    </script>
+    <!-- end Kab -->
+
+    <!-- Kec -->
+    <script>
+      function viewkec(str) {
+        $.ajax({
+          type:'post',
+          url:'api_kecamatan.php?city_id='+str,
+          success:function(hasil_kec){
+            $("select[name=kec]").html(hasil_kec);
+          }
+        })
+      }
+    </script>
+    <!-- end Kec -->
+
+
+    <!-- ongkir -->
+    <script>
+      function showOngkir(){
+        var kurir = document.getElementById("kurir").value;
+        var asal = "<?= $asal ?>";
+        var tujuan = document.getElementById("kec").value;
+        var berat = document.getElementById("berat").value;
+        $.ajax({
+          type:'post',
+          url:'count_ongkir.php?kurir='+kurir+'&asal='+asal+'&tujuan='+tujuan+'&berat='+berat,
+          success:function(hasil_costs){
+            $("select[name=resultcost]").html(hasil_costs);
+          }
+        })
+      }
+    </script>
+    <!-- end ongkir -->
     
-    
+    <script>
+      function detailPengiriman(str){
+        var detail = document.getElementById("detailpengiriman");
+        if(str == "Ya"){
+          detail.style.display = "block";
+        }else{
+          detail.style.display = "none";
+        }
+      }
+    </script>
 
     <script type="text/javascript">
             function showTime() {
@@ -325,6 +412,100 @@ function showCetakan($id_order, $owner){
                   $codee = $roworder['code_order']
             ?>
               <!-- Modal -->
+              <div class="modal fade" id="editpengiriman<?= $roworder['id_order'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <form action="" method="post" class="modal-content" enctype="multipart/form-data">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Edit Pengiriman</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <input type="hidden" name="id_order" value="<?= $roworder['id_order'] ?>">
+                      <div class="mb-3">
+                        <label for="" class="form-label">Status Pengiriman</label>
+                        <select name="send_status" id="" onchange="detailPengiriman(this.value)" class="form-select">
+                          <?php  
+                          $options = array("Ya","Tidak");
+                          foreach($options as $ops){
+                            $select = $ops == $roworder['status_pengiriman_order'] ? 'selected="selected"' : '';
+                          ?>
+                          <option value="<?= $ops ?>" <?= $select ?>><?= $ops ?></option>
+                          <?php } ?>
+                        </select>
+                      </div>
+                      <div class="" id="detailpengiriman" style="display: none;">
+                        <div class="mb-3">
+                          <label for="" class="form-label">Kurir</label>
+                          <select name="kurir" id="kurir" class="form-select">
+                            <optgroup label="PILIH KURIR">
+                              <option value="pos">POS Indonesia (POS)</option>
+                              <option value="lion">Lion Parcel (LION)</option>
+                              <option value="jne">Jalur Nugraha Ekakurir (JNE)</option>
+                              <option value="jnt">J&T Express (J&T)</option>
+                            </optgroup>
+                          </select>
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">Provinsi</label>
+                            <select name="prov" id="prov" class="form-select" onchange="viewKab(this.value)">
+                              <option value="" hidden>PROVINSI</option>
+                              <?php  
+                              $provs = $db->dataIndonesia("prov",null);
+                              foreach($provs as $prov){
+                                echo '<option value="'.$prov['province_id'].'">'.$prov['province'].'</option>';
+                              }
+                              ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">KABUPATEN/KOTA</label>
+                          <select name="kabkota" id="kabkota" class="form-select" onchange="viewkec(this.value)" >
+                              <option value="" hidden>KABUPATEN/KOTA</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">KECAMATAN</label>
+                          <select name="kec" id="kec" class="form-select" >
+                            <option value="" hidden>KECAMATAN</option>
+                            <?php  
+                            $kecamatan = $db->dataIndonesia("kec",$roworder['kab_send_order']);
+                            foreach ($kecamatan as $key => $kec){
+                              $select = $kec["subdistrict_id"] == $roworder['kec_send_order'] ? 'selected="selected"' : '';
+                              echo '<option value="'.$kec["subdistrict_id"].'" '.$select.'>'.$kec["subdistrict_name"].'</option>';
+                            }
+                            ?>
+                          </select>
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">Kode Pos</label>
+                          <input type="number" name="kode_pos" id="kode_pos" class="form-control" placeholder="Kode Pos">
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">Alamat Lengkap</label>
+                          <textarea name="alamat_lengkap" id="" rows="3" class="form-control"></textarea>
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">Berat</label>
+                          <<input type="number" name="berat" step="0.01" id="berat" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">Ongkir</label>
+                          <div class="input-group ">
+                            <select name="resultcost" id="resut_pengiriman" onchange="showFee4(this.value)" class="form-control">
+                              <option value="">PILIH PAKET</option>
+                            </select>
+                            <button class="btn btn-warning" type="button" id="button-addon2" onclick="showOngkir()">Cek</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                      <button type="submit" name="edit_send" class="btn btn-primary">Simpan</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
               <div class="modal fade" id="detailsby<?= $roworder['id_order'] ?>" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                   <div class="modal-content">
@@ -458,14 +639,18 @@ function showCetakan($id_order, $owner){
                         <tr>
                           <td>
                             <?= $roworder['code_order'] ?><br>
-                            <?= $roworder['jenis_produk_order'] == 'Custom' ? $db->nameFormater(showProduk($roworder['produk_order'])) : '' ?><br>
+                            <?= 
+                            $roworder['jenis_produk_order'] == 'Custom' && $roworder['kategori_produk_order'] == "Other" ? 
+                              $db->nameFormater($roworder['produk_order']) : 
+                                $db->nameFormater(showProduk($roworder['produk_order'])) 
+                            ?><br>
                             <?= $roworder['model_stiker_order'] ?><br>
                             <?= $roworder['laminating_order'] ?>
                           </td>
                           <td>
                             <?php 
                               $status = $roworder['jenis_produk_order'] == 'Custom' ? '<span class="badge bg-light">Custom</span>' : 'No Custom';
-                              $customer = showCustomer($roworder['id_customer'],$roworder['status_Pengiriman_order'],$roworder['id_order']);
+                              $customer = showCustomer($roworder['id_customer'],$roworder['status_pengiriman_order'],$roworder['id_order']);
                               echo "<b>".$db->nameFormater($customer['name'])."</b>"." ".$status."<br>"; 
                             ?>
                             <?php
@@ -518,6 +703,9 @@ function showCetakan($id_order, $owner){
                                   <i class="ri-check-line"></i>
                                 </a>
                             <?php } ?>
+                              <a href="#editpengiriman<?= $roworder['id_order'] ?>" data-bs-toggle="modal" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Pengiriman">
+                                <i class="ri-pencil-line"></i>
+                              </a>
                               <a target="_blank" href="print_note?spk=<?= $roworder['code_order'] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Note"><i class="ri-printer-line"></i></a>
                             </div>
                           </td>
@@ -536,7 +724,7 @@ function showCetakan($id_order, $owner){
         <!-- End Page-content -->
 
         
-        
+       
         
         <!-- Footer -->
         <footer class="footer">

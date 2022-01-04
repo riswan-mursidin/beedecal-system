@@ -10,7 +10,7 @@ $db = new ConfigClass;
 
 if($jenis == "Custom"){
     if($kategori == "Other"){
-
+        
     }else{
         $views = $db->selectTable("merek_galeri","id_owner",$owner,"jenis_merek",$kategori);
         echo '<option value="" hidden>PILIH TYPE</option>';
@@ -28,6 +28,9 @@ if($jenis == "Custom"){
         }
     }
 }else{
+    if($kategori = "Other"){
+
+    }
     echo '<option value="" hidden>PILIH PRODUK</option>';
     
 }

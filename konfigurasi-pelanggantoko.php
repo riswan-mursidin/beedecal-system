@@ -8,6 +8,30 @@ if($_SESSION['login_stiker_admin'] != true ){
 
 $db = new ConfigClass();
 
+$userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
+$row = mysqli_fetch_assoc($userselect);
+$usernamelogin = $row['username_user'];
+$id = $row['id_owner'];
+// jika yang login buka owner ambil data owner dari id owner
+if($row['id_owner'] == "0"){
+  $id = $row['id_user'];
+}
+
+if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
+  if($row['level_user'] == "Desainer"){
+    header('Location: menunggu_designer');
+    exit();
+  }elseif($row['level_user'] == "Produksi"){
+    header('Location: siap-cetak');
+    exit();
+  }else{
+    header('Location: siap-dipasang');
+    exit();
+  }
+}
+
+$alert = $_SESSION['alert'];
+
 function showAddress($param, $idprov=null, $idkab=null, $idkec=null){
   global $db;
 
@@ -57,15 +81,7 @@ if(mysqli_num_rows($check) != 0 && $pelanggan != ""){
     }
 }
 
-$userselect = $db->selectTable("user_galeri","id_user",$_SESSION['login_stiker_id']);
-$row = mysqli_fetch_assoc($userselect);
-$usernamelogin = $row['username_user'];
-$id = $row['id_owner'];
-// jika yang login buka owner ambil data owner dari id owner
-if($row['id_owner'] == "0"){
-  $id = $row['id_user'];
-}
-$alert = $_SESSION['alert'];
+
 
 
 ?>

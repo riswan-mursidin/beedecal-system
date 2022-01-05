@@ -15,6 +15,18 @@ $id = $row['id_owner'];
 if($row['id_owner'] == "0"){
   $id = $row['id_user'];
 }
+if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
+  if($row['level_user'] == "Desainer"){
+    header('Location: menunggu_designer');
+    exit();
+  }elseif($row['level_user'] == "Produksi"){
+    header('Location: siap-cetak');
+    exit();
+  }else{
+    header('Location: siap-dipasang');
+    exit();
+  }
+}
 $alert = "";
 
 $edit = $_GET['edit'];

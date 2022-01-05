@@ -16,6 +16,7 @@ $id = $row['id_owner'];
 if($row['id_owner'] == "0"){
   $id = $row['id_user'];
 }
+$alert = $_SESSION['alert'];
 
 if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
   if($row['level_user'] == "Desainer"){
@@ -30,7 +31,21 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
   }
 }
 
-$alert = $_SESSION['alert'];
+// pelanggan
+$pelanggan = $_GET['delete'];
+$check = $db->selectTable("customer_stiker","username_customer",$pelanggan);
+if(mysqli_num_rows($check) != 0 && $pelanggan != ""){
+    $delete = $db->deleteTable("customer_stiker",$pelanggan,"username_customer");
+    if($delete){
+        $_SESSION['alert'] = "1";
+        header('Location: konfigurasi-pelanggantoko');
+        exit();
+    }else{
+        $_SESSION['alert'] = "2";
+        header('Location: konfigurasi-pelanggantoko');
+        exit();
+    }
+}
 
 function showAddress($param, $idprov=null, $idkab=null, $idkec=null){
   global $db;
@@ -63,22 +78,6 @@ function showAddress($param, $idprov=null, $idkab=null, $idkec=null){
     }
     return $namekec;
   } 
-}
-
-// pelanggan
-$pelanggan = $_GET['delete'];
-$check = $db->selectTable("customer_stiker","username_customer",$pelanggan);
-if(mysqli_num_rows($check) != 0 && $pelanggan != ""){
-    $delete = $db->deleteTable("customer_stiker",$pelanggan,"username_customer");
-    if($delete){
-        $_SESSION['alert'] = "1";
-        header('Location: konfigurasi-pelanggantoko');
-        exit();
-    }else{
-        $_SESSION['alert'] = "2";
-        header('Location: konfigurasi-pelanggantoko');
-        exit();
-    }
 }
 
 

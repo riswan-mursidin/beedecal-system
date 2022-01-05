@@ -142,75 +142,58 @@
 
         function showAddress($param, $idprov=null, $idkab=null, $idkec=null){
             
-            
-              return $param;
-            
-          }
-          
+            if($param == "prov"){
+                $nameprov = "";
+                $func_prov = $this->dataIndonesia("prov",null);
+                foreach($func_prov as $key => $prov){
+                    if($prov['province_id'] == $idprov){
+                        $nameprov = $prov['province'];
+                    }
+                }
+                return $nameprov;
+            }elseif($param == "kabkota"){
+                $namekab = "";
+                $func_kab = $this->dataIndonesia("kab_kota",$idprov);
+                foreach($func_kab as $key => $kab){
+                    if($kab['city_id'] == $idkab){
+                        $namekab = $kab['city_name'];
+                    }
+                }
+                return $namekab;
+            }elseif($param == "kec"){
+                $namekec = "";
+                $func_kec = $this->dataIndonesia("kec",$idkab);
+                foreach($func_kec as $key => $kec){
+                    if($kec['subdistrict_id'] == $idkec){
+                        $namekec = $kec['subdistrict_name'];
+                    }
+                }
+                return $namekec;
+            } 
+        }
+    
 
         public function dataIndonesia(string $param, ?string $id){
             if($param == "prov"){
-
-                $curl = curl_init();
-
-                curl_setopt_array($curl, array(
-                    CURLOPT_URL => "https://pro.rajaongkir.com/api/province",
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => "",
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 30,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => "GET",
-                    CURLOPT_HTTPHEADER => array(
-                        "key: 3edd124529d0527e0cff142cd3ec17a6"
-                    ),
-                ));
-
-                $response = curl_exec($curl);
-                $err = curl_error($curl);
-
-                curl_close($curl);
-
-                if ($err) {
-                    return "error";
-                } else {
-                    $array = json_decode($response,TRUE);
-                    return $array["rajaongkir"]["results"];
-                    
+                $query = "SELECT * FROM provinsi";
+                $result = mysqli_query($this->conn,$query);
+                while($row=mysqli_fetch_assoc($result)){
+                    $hasil[] = $row;
                 }
+                return $hasil;
+            
             }elseif($param == "kab_kota"){
-                $curl = curl_init();
-
-                curl_setopt_array($curl, array(
-                    CURLOPT_URL => "https://pro.rajaongkir.com/api/city?province=".$id,
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => "",
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 30,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => "GET",
-                    CURLOPT_HTTPHEADER => array(
-                        "key: 3edd124529d0527e0cff142cd3ec17a6"
-                    ),
-                ));
-
-                $response = curl_exec($curl);
-                $err = curl_error($curl);
-
-                curl_close($curl);
-
-                if ($err) {
-                    return "error";
-                } else {
-                    $array = json_decode($response,TRUE);
-                    return $array["rajaongkir"]["results"];
-                    
+                $query = "SELECT * FROM kabupaten_kota WHERE province_id='$id'";
+                $result = mysqli_query($this->conn,$query);
+                while($row=mysqli_fetch_assoc($result)){
+                    $hasil[] = $row;
                 }
+                return $hasil;
             }elseif($param == "kec"){
                 $curl = curl_init();
 
                 curl_setopt_array($curl, array(
-                    CURLOPT_URL => "https://pro.rajaongkir.com/api/subdistrict?city=".$id,
+                    CURLOPT_URL => "http://pro.rajaongkir.com/api/subdistrict?city=".$id,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => "",
                     CURLOPT_MAXREDIRS => 10,

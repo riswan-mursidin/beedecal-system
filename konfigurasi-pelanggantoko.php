@@ -47,40 +47,6 @@ if(mysqli_num_rows($check) != 0 && $pelanggan != ""){
     }
 }
 
-function showAddress($param, $idprov=null, $idkab=null, $idkec=null){
-  global $db;
-
-  if($param == "prov"){
-    $nameprov = "";
-    $func_prov = $db->dataIndonesia("prov",null);
-    foreach($func_prov as $key => $prov){
-      if($prov['province_id'] == $idprov){
-        $nameprov = $prov['province'];
-      }
-    }
-    return $nameprov;
-  }elseif($param == "kabkota"){
-    $namekab = "";
-    $func_kab = $db->dataIndonesia("kab_kota",$idprov);
-    foreach($func_kab as $key => $kab){
-      if($kab['city_id'] == $idkab){
-        $namekab = $kab['city_name'];
-      }
-    }
-    return $namekab;
-  }elseif($param == "kec"){
-    $namekec = "";
-    $func_kec = $db->dataIndonesia("kec",$idkab);
-    foreach($func_kec as $key => $kec){
-      if($kec['subdistrict_id'] == $idkec){
-        $namekec = $kec['subdistrict_name'];
-      }
-    }
-    return $namekec;
-  } 
-}
-
-
 
 
 ?>
@@ -236,7 +202,11 @@ function showAddress($param, $idprov=null, $idkab=null, $idkec=null){
                             <td><?= $rowviews['name_customer']; ?></td>
                             <td><?= $rowviews['email_customer']; ?></td>
                             <td>
-                              
+                              <?= $db->showAddress("prov",$rowviews['prov_customer']); ?><br>
+                              <?= $db->showAddress("kabkota",$rowviews['prov_customer'],$rowviews['kota_kab_customer']); ?><br>
+                              <?= $db->showAddress("kec",null,$rowviews['kota_kab_customer'],$rowviews['kec_customer']); ?><br>
+                              <?= $rowviews['kode_pos_customer']; ?><br>
+                              <?= $rowviews['address_customer']; ?>
                             </td>
                             <td>+62<?= $rowviews['telpn_customer']; ?></td>
                             <td><?= $rowviews['date_customer']; ?></td>

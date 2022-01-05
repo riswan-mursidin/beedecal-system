@@ -140,6 +140,39 @@
             }
         }
 
+        function showAddress($param, $idprov=null, $idkab=null, $idkec=null){
+            
+            if($param == "prov"){
+            $nameprov = "";
+              $func_prov = $this->dataIndonesia("prov",null);
+              foreach($func_prov as $key => $prov){
+                if($prov['province_id'] == $idprov){
+                  $nameprov = $prov['province'];
+                }
+              }
+              return $nameprov;
+            }elseif($param == "kabkota"){
+              $namekab = "";
+              $func_kab = $this->dataIndonesia("kab_kota",$idprov);
+              foreach($func_kab as $key => $kab){
+                if($kab['city_id'] == $idkab){
+                  $namekab = $kab['city_name'];
+                }
+              }
+              return $namekab;
+            }elseif($param == "kec"){
+              $namekec = "";
+              $func_kec = $this->dataIndonesia("kec",$idkab);
+              foreach($func_kec as $key => $kec){
+                if($kec['subdistrict_id'] == $idkec){
+                  $namekec = $kec['subdistrict_name'];
+                }
+              }
+              return $namekec;
+            } 
+          }
+          
+
         public function dataIndonesia(string $param, ?string $id){
             if($param == "prov"){
 

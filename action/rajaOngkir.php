@@ -1,13 +1,12 @@
 <?php  
 
 class RajaOngkir{
-    private string $key = '3edd124529d0527e0cff142cd3ec17a6';
 
     public function checkOngkir(string $kurir, string $asal, string $tujuan, string $berat){
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "http://pro.rajaongkir.com/api/cost",
+            CURLOPT_URL => "https://pro.rajaongkir.com/api/cost",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -31,8 +30,7 @@ class RajaOngkir{
         }else{
             $data = json_decode($response);
             return $data->rajaongkir->results[0];
-        }
-                
+        }   
     }
     
 }

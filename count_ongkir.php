@@ -1,11 +1,11 @@
 <?php  
 
-require_once "action/rajaOngkir.php";
 $kurir = $_GET['kurir'];
 $asal = $_GET['asal'];
 $tujuan = $_GET['tujuan'];
 $berat = $_GET['berat'];
 
+require_once "action/rajaOngkir.php";
 $rajaongkir = new RajaOngkir();
 
 $data = $rajaongkir->checkOngkir($kurir, $asal, $tujuan, $berat);

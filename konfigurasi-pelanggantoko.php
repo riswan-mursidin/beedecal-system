@@ -224,8 +224,8 @@ if(mysqli_num_rows($check) != 0 && $pelanggan != ""){
                             <td><?= $rowviews['email_customer']; ?></td>
                             <td>
                               <?= $rowviews['prov_customer']?><br>
-                              <?= $rowviews['prov_customer'] ?><br>
                               <?= $rowviews['kota_kab_customer'] ?><br>
+                              <?= $rowviews['kec_customer'] ?><br>
                               <?= $rowviews['kode_pos_customer']; ?><br>
                               <?= $rowviews['address_customer']; ?>
                             </td>

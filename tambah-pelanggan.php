@@ -57,7 +57,7 @@ if(isset($_POST['submit_pelanggan'])){
   $func_prov = $db->dataIndonesia("prov",null);
   foreach($func_prov as $key => $prov){
     if($prov['province_id'] == $idprov){
-      $nameprov = $prov['province_id'];
+      $nameprov = $prov['province'];
     }
   }
   $namekab = "";
@@ -65,7 +65,7 @@ if(isset($_POST['submit_pelanggan'])){
   $func_kab = $db->dataIndonesia("kab_kota",$idprov);
   foreach($func_kab as $key => $kab){
     if($kab['city_id'] == $idkab){
-      $namekab = $kab['city_id'];
+      $namekab = $kab['city_name'];
     }
   }
   $namekec = "";
@@ -73,7 +73,7 @@ if(isset($_POST['submit_pelanggan'])){
   $func_kec = $db->dataIndonesia("kec",$idkab);
   foreach($func_kec as $key => $kec){
     if($kec['subdistrict_id'] == $idkec){
-      $namekec = $kec['subdistrict_id'];
+      $namekec = $kec['subdistrict_name'];
     }
   }
   $kodepos = $_POST['kodepos'];
@@ -361,7 +361,7 @@ if(isset($_POST['submit_pelanggan'])){
                         </div>
                         <div class="col-md-3">
                           <div class="form-floating">
-                            <input placeholder="floot" type="number" class="form-control" value="<?= $edit != "" ? $rowedit['kode_pos_customer'] : "" ?>" name="kodepos" id="kodepos" required>
+                            <input placeholder="floot" type="number" class="form-control" value="<?= $edit != "" ? $rowedit['kode_pos_customer'] : "" ?>" name="kodepos" id="kodepos">
                             <label for="kodepos">Kode Pos</label>
                           </div>
                         </div>

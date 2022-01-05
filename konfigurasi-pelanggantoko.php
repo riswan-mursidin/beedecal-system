@@ -18,17 +18,37 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
-  if($row['level_user'] == "Desainer"){
-    header('Location: menunggu_designer');
-    exit();
-  }elseif($row['level_user'] == "Produksi"){
-    header('Location: siap-cetak');
-    exit();
-  }else{
-    header('Location: siap-dipasang');
-    exit();
-  }
+function showAddress($param, $idprov=null, $idkab=null, $idkec=null){
+  global $db;
+
+  if($param == "prov"){
+    $nameprov = "";
+    $func_prov = $db->dataIndonesia("prov",null);
+    foreach($func_prov as $key => $prov){
+      if($prov['province_id'] == $idprov){
+        $nameprov = $prov['province'];
+      }
+    }
+    return $nameprov;
+  }elseif($param == "kabkota"){
+    $namekab = "";
+    $func_kab = $db->dataIndonesia("kab_kota",$idprov);
+    foreach($func_kab as $key => $kab){
+      if($kab['city_id'] == $idkab){
+        $namekab = $kab['city_name'];
+      }
+    }
+    return $namekab;
+  }elseif($param == "kec"){
+    $namekec = "";
+    $func_kec = $db->dataIndonesia("kec",$idkab);
+    foreach($func_kec as $key => $kec){
+      if($kec['subdistrict_id'] == $idkec){
+        $namekec = $kec['subdistrict_name'];
+      }
+    }
+    return $namekec;
+  } 
 }
 
 // pelanggan
@@ -46,6 +66,7 @@ if(mysqli_num_rows($check) != 0 && $pelanggan != ""){
         exit();
     }
 }
+
 
 
 
@@ -202,9 +223,9 @@ if(mysqli_num_rows($check) != 0 && $pelanggan != ""){
                             <td><?= $rowviews['name_customer']; ?></td>
                             <td><?= $rowviews['email_customer']; ?></td>
                             <td>
-                              <?= $db->showAddress("prov",$rowviews['prov_customer']); ?><br>
-                              <?= $db->showAddress("kabkota",$rowviews['prov_customer'],$rowviews['kota_kab_customer']); ?><br>
-                              <?= $db->showAddress("kec",null,$rowviews['kota_kab_customer'],$rowviews['kec_customer']); ?><br>
+                              <?= $rowviews['prov_customer']?><br>
+                              <?= $rowviews['prov_customer'] ?><br>
+                              <?= $rowviews['kota_kab_customer'] ?><br>
                               <?= $rowviews['kode_pos_customer']; ?><br>
                               <?= $rowviews['address_customer']; ?>
                             </td>

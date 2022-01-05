@@ -236,11 +236,7 @@ function showAddress($param, $idprov=null, $idkab=null, $idkec=null){
                             <td><?= $rowviews['name_customer']; ?></td>
                             <td><?= $rowviews['email_customer']; ?></td>
                             <td>
-                              <?= showAddress("prov",$rowviews['prov_customer']); ?><br>
-                              <?= showAddress("kabkota",$rowviews['prov_customer'],$rowviews['kota_kab_customer']); ?><br>
-                              <?= showAddress("kec",null,$rowviews['kota_kab_customer'],$rowviews['kec_customer']); ?><br>
-                              <?= $rowviews['kode_pos_customer']; ?><br>
-                              <?= $rowviews['address_customer']; ?>
+                              
                             </td>
                             <td>+62<?= $rowviews['telpn_customer']; ?></td>
                             <td><?= $rowviews['date_customer']; ?></td>

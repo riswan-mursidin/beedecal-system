@@ -23,10 +23,11 @@ $alamat_lengkap = $rowcustomer['address_customer'];
 <div class="col-sm-3">
     <select name="prov" id="prov" class="form-select" onchange="viewKab(this.value)">
         <option value="">--PILIH PROVINSI--</option>
-        <?php  
+        <?php  $idprov = "";
         $provs = $db->dataIndonesia("prov",null);
         foreach($provs as $prov){
-            $select = $prov['province_id'] == $prov_post ? 'selected="selected"' : '';
+            $select = $prov['province'] == $prov_post ? 'selected="selected"' : '';
+            $idprov .= $prov['province'] == $prov_post ? $prov['province_id'] : '';
             echo '<option value="'.$prov['province_id'].'"'.$select.'>'.$prov['province'].'</option>';
         }
         ?>
@@ -35,10 +36,11 @@ $alamat_lengkap = $rowcustomer['address_customer'];
 <div class="col-sm-3">
     <select name="kabkota" id="kabkota" class="form-select" onchange="viewkec(this.value)" required>
         <option value="">--PILIH KAB/KOTA--</option>
-        <?php  
-        $kot_kab = $db->dataIndonesia("kab_kota",$prov_post);
+        <?php  $idkab = "";
+        $kot_kab = $db->dataIndonesia("kab_kota",$idprov);
         foreach($kot_kab as $k){
-            $select = $k['city_id'] == $kab_kota_post ? 'selected="selected"' : '';
+            $select = $k['city_name'] == $kab_kota_post ? 'selected="selected"' : '';
+            $idkab .= $k['city_name'] == $kab_kota_post ? $k['city_id'] : '';
             echo '<option value="'.$k['city_id'].'" '.$select.'>'.$k['city_name'].'</option>';
         }
         ?>
@@ -48,9 +50,9 @@ $alamat_lengkap = $rowcustomer['address_customer'];
     <select name="kec" id="kec" class="form-select" required>
         <option value="">--PILIH KECAMATAN--</option>
         <?php  
-        $kec = $db->dataIndonesia("kec",$kab_kota_post);
+        $kec = $db->dataIndonesia("kec",$idkab);
         foreach($kec as $j){
-            $select = $j['subdistrict_id'] == $kec_post ? 'selected="selected"' : '';
+            $select = $j['subdistrict_name'] == $kec_post ? 'selected="selected"' : '';
             echo '<option value="'.$j['subdistrict_id'].'" '.$select.'>'.$j['subdistrict_name'].'</option>';
         }
         ?>

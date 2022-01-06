@@ -252,7 +252,7 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
                           <td>
                             <?php 
                               $status = $roworder['jenis_produk_order'] == 'Custom' ? '<span class="badge bg-light">Custom</span>' : 'No Custom';
-                              $customer = showCustomer($roworder['id_customer'],$roworder['status_Pengiriman_order'],$roworder['id_order']);
+                              $customer = showCustomer($roworder['id_customer'],$roworder['status_pengiriman_order'],$roworder['id_order']);
                               echo "<b>".$db->nameFormater($customer['name'])."</b>"." ".$status."<br>"; 
                             ?>
                             <?php

@@ -82,7 +82,7 @@ if(isset($_POST['submit_pelanggan'])){
   if($edit == ""){
     $checkusername = $db->selectTable("customer_stiker","username_customer",$username);
     if(mysqli_fetch_assoc($checkusername) > 0){
-      $alert = "3";
+      $alert = "3"; 
     }else{
       $put = $db->insertCustomer($fullname,$username,$pass,$email,$no,$nameprov,$namekab,$namekec,$kodepos,$alamat,$id);
       if($put){

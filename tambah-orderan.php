@@ -77,7 +77,7 @@ if(isset($_POST['create_spk'])){
   $kategori_produk = $_POST['kategori_produk'];
   $jenis_produk = $_POST['jenis_produk'];
   if($kategori_produk == "Other" && $jenis_produk == "Custom"){
-    $varian_harga = $varian;
+    $varian_harga = $_POST['varian_harga2'];
     $varian_model = "Stiker Custom";
     $produk_id = $_POST['produk2'];
   }
@@ -104,11 +104,13 @@ if(isset($_POST['create_spk'])){
 
   // detail pasang
   $harga_pasang = $pemasangan_status == "Ya" ? $_POST['harga_pasang'] : '0';
+  $status_bayar_pasang = $_POST['status_bayar_pasang'];
   $kategori_pemasang = $pemasangan_status == "Ya" ? $_POST['kategori_pemasang'] : '';
 
   // detail pemesanan
   $customer_id = $_POST['pelanggan'];
   $keterangan = $_POST['keterangan'];
+  $satuan_potongan = $_POST['satuan_potongan'];
   $diskon = $_POST['diskon'];
   $sumber = $_POST['sumber'];
   $order_date = date("Y-m-d");
@@ -116,9 +118,37 @@ if(isset($_POST['create_spk'])){
 
   // detail pengiriman
   $kurir = $status_pengiriman == "Ya" ? $_POST['kurir'] : '';
-  $prov_desti = $status_pengiriman == "Ya" ? $_POST['prov'] : '';
-  $kabkota_desti = $status_pengiriman == "Ya" ? $_POST['kabkota'] : '';
-  $kec_desti = $status_pengiriman == "Ya" ? $_POST['kec'] : '';
+
+  $prov_desti = "";
+  if($status_pengiriman == "Ya" && $_POST['prov'] != ""){
+    $func_prov = $db->dataIndonesia("prov",null);
+    foreach($func_prov as $key => $prov){
+      if($prov['province_id'] == $_POST['prov']){
+        $prov_desti .= $prov['province'];
+      }
+    }
+  }
+  $kabkota_desti = "";
+  if($status_pengiriman == "Ya" && $_POST['kabkota'] != ""){
+    $func_kab = $db->dataIndonesia("kab_kota",$_POST['prov']);
+    foreach($func_kab as $key => $kab){
+      if($kab['city_id'] == $_POST['kabkota']){
+        $kabkota_desti .= $kab['city_name'];
+      }
+    }
+  }
+  $kec_desti = "";
+  if($status_pengiriman == "Ya" && $_POST['kec'] != ""){
+    $func_kec = $db->dataIndonesia("kec",$_POST['kabkota']);
+    foreach($func_kec as $key => $kec){
+      if($kec['subdistrict_id'] == $_POST['kec']){
+        $kec_desti .= $kec['subdistrict_name'];
+      }
+    }
+  }
+
+
+
   $alamat_lengkap = $status_pengiriman == "Ya" ? $_POST['alamat_lengkap'] : '';
   $kode_pos = $_POST['kode_pos'];
   $berat = $status_pengiriman == "Ya" ? $_POST['berat'] : '';
@@ -199,7 +229,9 @@ if(isset($_POST['create_spk'])){
         $name_paket,
         $etd,
         $sisabayar,
-        $sumber
+        $sumber,
+        $satuan_potongan,
+        $status_bayar_pasang
     );
     if($query){
       if(count($dbfoto) > 0){
@@ -285,7 +317,9 @@ if(isset($_POST['create_spk'])){
         $etd,
         $sisabayar,
         $sumber,
-        $user
+        $user,
+        $satuan_potongan,
+        $status_bayar_pasang
     );
   
     if($query){
@@ -445,6 +479,24 @@ if(isset($_POST['create_spk'])){
 
 
     <!-- show pembayaran -->
+
+    <!-- change satuan potongan -->
+    <script>
+      function changeSatuan(str){
+        var rupiah = document.getElementById("rupiah").style;
+        var persen = document.getElementById("persen").style;
+        if(str == "persen"){
+          rupiah.display = "none";
+          persen.display = ""
+        }else{
+          rupiah.display = "";
+          persen.display = "none"
+        }
+      }
+    </script>
+    <!-- end change satuan potongan -->
+
+    <!-- biaya tambahan -->
     <script>
       function showfeeby(str){
         var fee = document.getElementById("harga").value;
@@ -457,7 +509,11 @@ if(isset($_POST['create_spk'])){
         var count = 0;
         if(fee != ""){
           if(diskon != ""){
+            var satuan = document.getElementById("satuan").value;
             var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
+            if(satuan == "rupiah"){
+              hasil = parseFloat(fee) - parseFloat(diskon);
+            }
             if(debit != ""){
                 for(var i = 0; i < tamby.length; i++){
                   if(tamby[i].value == ""){
@@ -465,8 +521,6 @@ if(isset($_POST['create_spk'])){
                   }else{
                     count += parseFloat(tamby[i].value);
                   }
-  
-                
               }
               document.getElementById("fee").value = hasil + parseFloat(count) - parseFloat(debit);
             }else{
@@ -523,6 +577,9 @@ if(isset($_POST['create_spk'])){
         }
       }
     </script>
+    <!-- end biaya tambahan -->
+
+    <!-- onkeyup and onchange harga produk -->
     <script>
       function showFee(fee){
         var diskon = document.getElementById("diskon").value;
@@ -530,7 +587,11 @@ if(isset($_POST['create_spk'])){
         var tamby = document.getElementsByName("biaya_tambahan[]");
         var count = 0
         if(diskon != ""){
+          var satuan = document.getElementById("satuan").value;
           var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
+          if(satuan == "rupiah"){
+            hasil = parseFloat(fee) - parseFloat(diskon);
+          }
           if(debit != ""){
             
               for(var i = 0; i < tamby.length; i++){
@@ -581,7 +642,9 @@ if(isset($_POST['create_spk'])){
         }
       }
     </script>
+    <!-- end onkeyup and onchange harga produk -->
 
+    <!-- onkeyup diskon -->
     <script>
       function showFee3(diskon){
         var fee = document.getElementById("harga").value;
@@ -593,7 +656,11 @@ if(isset($_POST['create_spk'])){
         var count = 0;
         if(fee != ""){
           if(diskon != ""){
+            var satuan = document.getElementById("satuan").value;
             var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
+            if(satuan == "rupiah"){
+              hasil = parseFloat(fee) - parseFloat(diskon);
+            }
             if(debit != ""){
                 for(var i = 0; i < tamby.length; i++){
                   if(tamby[i].value == ""){
@@ -601,9 +668,7 @@ if(isset($_POST['create_spk'])){
                   }else{
                     count += parseFloat(tamby[i].value);
                   }
-  
-                
-              }
+                }
               document.getElementById("fee").value = hasil + parseFloat(count) - parseFloat(debit);
             }else{
                 for(var i = 0; i < tamby.length; i++){
@@ -659,7 +724,9 @@ if(isset($_POST['create_spk'])){
         }
       }
     </script>
+    <!-- end onkeyup diskon -->
 
+    <!-- onkeyup pembayaran customer -->
     <script>
       function sisaDari(debit){
         var fee = document.getElementById("harga").value;
@@ -671,7 +738,11 @@ if(isset($_POST['create_spk'])){
         var count = 0;
         if(fee != ""){
           if(diskon != ""){
+            var satuan = document.getElementById("satuan").value;
             var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
+            if(satuan == "rupiah"){
+              hasil = parseFloat(fee) - parseFloat(diskon);
+            }
             if(debit != ""){
                 for(var i = 0; i < tamby.length; i++){
                   if(tamby[i].value == ""){
@@ -737,6 +808,8 @@ if(isset($_POST['create_spk'])){
         }
       }
     </script>
+    <!-- onkeyup pembayaran customer -->
+
     <!-- end show pembayaran -->
 
     <!-- show produk -->
@@ -980,6 +1053,83 @@ if(isset($_POST['create_spk'])){
                           </select>
                         </div>
                         <div id="custmview" class="col-md-6">
+                          <?php  
+                          if($edit != ""){
+                          ?>
+                          <div <?= $display = $rowedit['jenis_produk_order'] == "Custom" && $rowedit['kategori_produk_order'] == "Other" ? 'style="display: none;"' : '' ?> class="row" id="produk">
+                            <div class="col-md-6">
+                              <label for="kategori_type" class="form-label">Produk Tersedia</label>
+                              <select onchange="showVarian()" name="produk" id="kategori_type" class="form-control js-example-basic-single" >
+                                <?php 
+                                if($edit != ""){ 
+                                  if($rowedit['jenis_produk_order'] == "Custom"){
+                                    if($rowedit['kategori_produk_order'] == "Other"){
+                                
+                                    }else{
+                                        $views = $db->selectTable("merek_galeri","id_owner",$id,"jenis_merek",$rowedit['kategori_produk_order']);
+                                        echo '<option value="" hidden>PILIH TYPE</option>';
+                                        if(mysqli_num_rows($views)>0){
+                                            while($row=mysqli_fetch_assoc($views)){
+                                                $views2 = $db->selectTable("type_galeri","id_owner",$id,"id_merek",$row['id_merek']);
+                                                if(mysqli_num_rows($views2)>0){
+                                                    echo '<optgroup label="'.$db->nameFormater($row['name_merek']).'">';
+                                                    $val = $rowedit['produk_order'];
+                                                    while($row2=mysqli_fetch_assoc($views2)){
+                                                        $select = $val == $row2['id_type'] ? 'selected="selected"' : '';
+                                                        echo '<option '.$select.' value="'.$row2['id_type'].'">'.$db->nameFormater($row2['name_type']).'</option>';
+                                                    }
+                                                    echo '</optgroup>';
+                                                }
+                                            }
+                                        }
+                                    }
+                                  }else{
+                                      echo '<option value="" hidden>PILIH PRODUK</option>';
+                                  }
+                                }else{
+                                ?>
+                                <option value="" hidden>PRODUK</option>
+                                <?php } ?>
+                              </select>
+                            </div>
+                            <div class="col-md-6">
+                              <label for="harga" class="form-label">Harga/Varian Produk</label>
+                              <select name="varian_harga" id="harga" class="form-select" onchange="showFee(this.value)">
+                                <?php  
+                                if($edit != ""){
+                                  $val = $rowedit['model_stiker_order'];
+                                  if($rowedit['jenis_produk_order'] == "Custom" && $rowedit['kategori_produk_order'] != "Other"){
+                                    $views = $db->selectTable("type_galeri","id_type",$rowedit['id_type'],"id_owner",$id);
+                                    $row=mysqli_fetch_assoc($views);
+                                    $type = array("fulldash","fullbody","lite");
+                                    echo '<option value="">PILIH</option>';
+                                    foreach($type as $ty){
+                                      $select = $ty == strtolower($rowedit['model_stiker_order']) ? 'selected="selected"' : '';
+                                      $fee = $ty == "fulldash" ? $row['fullbodydash_harga_type'] : ($ty == "fullbody" ? $row['fullbody_harga_type'] : $row['lite_harga_type'] );
+                                      if($fee != 0){
+                                        echo '<option '.$select.' value="'.$fee.' - '.$ty.'">'.number_format($fee,2,",",".").' ('.preg_replace('/\s+/','',$db->nameFormater($ty)).')</option>';
+                                      }
+                                      
+                                    }
+                                  }
+                                }else{
+                                ?>
+                                <option value="">PILIH</option>
+                                <?php } ?>
+                              </select>
+                            </div>
+                          </div>
+                          <div <?= $display = $rowedit['jenis_produk_order'] != "Custom" && $rowedit['kategori_produk_order'] != "Other" ? 'style="display: none;"' : '' ?> id="produk2" class="row">
+                            <div class="col-md-6">
+                              <label for="" class="form-label">Nama Produk</label>
+                              <input type="text" value="<?= $rowedit['produk_order'] ?>" name="produk2" id="" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                              <label for="" class="form-label">Harga</label>
+                              <input type="number" value="<?= $rowedit['harga_produk_order'] ?>" name="varian_harga2" id="harga2" class="form-control" onkeyup="showFee(this.value)">
+                            </div>
+                          </div>
+                          <?php }else{ ?>
                           <div class="row" id="produk">
                             <div class="col-md-6">
                               <label for="kategori_type" class="form-label">Produk Tersedia</label>
@@ -1022,19 +1172,18 @@ if(isset($_POST['create_spk'])){
                                 <?php  
                                 if($edit != ""){
                                   $val = $rowedit['model_stiker_order'];
-                                  if($rowedit['jenis_produk_order'] == "Custom"){
-                                    $views = $db->selectTable("type_galeri","id_type",$row2['id_type'],"id_owner",$id);
+                                  if($rowedit['jenis_produk_order'] == "Custom" && $rowedit['kategori_produk_order'] != "Other"){
+                                    $views = $db->selectTable("type_galeri","id_type",$rowedit['id_type'],"id_owner",$id);
                                     $row=mysqli_fetch_assoc($views);
                                     $type = array("fulldash","fullbody","lite");
                                     echo '<option value="">PILIH</option>';
                                     foreach($type as $ty){
                                       $select = $ty == strtolower($rowedit['model_stiker_order']) ? 'selected="selected"' : '';
-                                      if($ty == ""){
-                                        continue;
-                                      }else{
-                                        $fee = $ty == "fulldash" ? $row['fullbodydash_harga_type'] : ($ty == "fullbody" ? $row['fullbody_harga_type'] : $row['lite_harga_type'] );
+                                      $fee = $ty == "fulldash" ? $row['fullbodydash_harga_type'] : ($ty == "fullbody" ? $row['fullbody_harga_type'] : $row['lite_harga_type'] );
+                                      if($fee != 0){
                                         echo '<option '.$select.' value="'.$fee.' - '.$ty.'">'.number_format($fee,2,",",".").' ('.preg_replace('/\s+/','',$db->nameFormater($ty)).')</option>';
                                       }
+                                      
                                     }
                                   }
                                 }else{
@@ -1051,9 +1200,10 @@ if(isset($_POST['create_spk'])){
                             </div>
                             <div class="col-md-6">
                               <label for="" class="form-label">Harga</label>
-                              <input type="number" name="varian_harga" id="harga2" class="form-control" onkeyup="showFee(this.value)">
+                              <input type="number" name="varian_harga2" id="harga2" class="form-control" onkeyup="showFee(this.value)">
                             </div>
                           </div>
+                          <?php } ?>
                         </div>
 
                         <div class="col-md-3">
@@ -1159,10 +1309,25 @@ if(isset($_POST['create_spk'])){
                       <div class="card-title">Detail Pemasangan</div>
                       <div class="row g-3">
                         <label for="" class="col-sm-2 col-form-label">Harga Pasang</label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-7">
                           <div class="input-group">
                             <span class="input-group-text">Rp.</span>
                             <input type="number" name="harga_pasang" value="<?= $rowedit['harga_pasang_order'] ?>" id="feepemasang" placeholder="0.00" onkeyup="showFee2(this.value)" class="form-control">
+                          </div>
+                        </div>
+                        <div class="col-sm-3">
+                          <div class="input-group">
+                            <span class="input-group-text">Lunas:</span>
+                            <select name="status_bayar_pasang" id="" class="form-select">
+                              <?php  
+                              $val = $edit != "" ? $rowedit['status_bayar_pasang'] : '';
+                              $options = array("Ya","Tidak");
+                              foreach($options as $ops){
+                                $select = $val == $ops ? 'selected="selected"' : '';
+                              ?>
+                              <option value="<?= $ops ?>" <?= $select ?> ><?= $ops ?></option>
+                              <?php } ?>
+                            </select>
                           </div>
                         </div>
                         <label for="" class="col-sm-2 col-form-label">Kategori Pemasang</label>
@@ -1208,10 +1373,25 @@ if(isset($_POST['create_spk'])){
                       <div class="card-title">Detail Pemasangan</div>
                       <div class="row g-3">
                         <label for="" class="col-sm-2 col-form-label">Harga Pasang</label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-7">
                           <div class="input-group">
                             <span class="input-group-text">Rp.</span>
                             <input type="number" name="harga_pasang" id="feepemasang" placeholder="0.00" onkeyup="showFee2(this.value)" class="form-control">
+                          </div>
+                        </div>
+                        <div class="col-sm-3">
+                          <div class="input-group">
+                            <span class="input-group-text">Lunas:</span>
+                            <select name="status_bayar_pasang" id="" class="form-select">
+                              <?php  
+                              $val = $edit != "" ? $rowedit['status_bayar_pasang'] : '';
+                              $options = array("Ya","Tidak");
+                              foreach($options as $ops){
+                                $select = $val == $ops ? 'selected="selected"' : '';
+                              ?>
+                              <option value="<?= $ops ?>" <?= $select ?> ><?= $ops ?></option>
+                              <?php } ?>
+                            </select>
                           </div>
                         </div>
                         <label for="" class="col-sm-2 col-form-label">Kategori Pemasang</label>
@@ -1242,19 +1422,39 @@ if(isset($_POST['create_spk'])){
                               while($rowcs=mysqli_fetch_assoc($cs)){
                                 $select = $val == $rowcs['id_customer'] ? 'selected="selected"' : '';
                             ?>
-                            <option value="<?= $rowcs['id_customer'] ?>" <?= $select ?>><?= $rowcs['username_customer'] ?></option>
+                            <option value="<?= $rowcs['id_customer'] ?>" <?= $select ?>><?= $db->nameFormater($rowcs['username_customer']) ?></option>
                             <?php } ?>
                           </select>
                         </div>
                         <div class="col-sm-3">
                           <input type="text" name="keterangan" value="<?= $edit != "" ? $rowedit['keterangan_order'] : ''; ?>" placeholder="Keterangan" id="" class="form-control">
                         </div>
+
                         <div class="col-sm-3">
-                          <div class="input-group">
-                            <input type="number" step="0.01" name="diskon" value="<?= $edit != "" ? $rowedit['diskon_order'] : '' ?>" placeholder="Diskon" id="diskon" class="form-control" onkeyup="showFee3(this.value)">
-                            <span class="input-group-text">%</span>
+                          <div class="row">
+                            <div class="col-sm-6">
+                              <select name="satuan_potongan" class="form-select" id="satuan" onchange="changeSatuan(this.value)">
+                                <?php  
+                                $v = $edit != "" ? $rowedit['satuan_potongan'] : '' ;
+                                $option = array("persen","rupiah");
+                                $ico = array("%","Rp.");
+                                foreach($option as $key => $ops){
+                                  $select = $v == $ops ? 'selected="selected"' : ''
+                                ?>
+                                <option value="<?= $ops ?>" <?= $select ?> ><?= strtoupper($ops)." (".$ico[$key].")" ?></option>
+                                <?php } ?>
+                              </select>
+                            </div>
+                            <div class="col-sm-6">
+                              <div class="input-group">
+                              <span class="input-group-text" id="rupiah" style="display: none;">Rp</span>
+                                <input type="number" step="0.01" name="diskon" value="<?= $edit != "" ? $rowedit['diskon_order'] : '' ?>" placeholder="Diskon" id="diskon" class="form-control" onkeyup="showFee3(this.value)">
+                                <span class="input-group-text" id="persen">%</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
+
                         <label for="" class="col-sm-2 col-form-label">Sumber</label>
                         <div class="col-sm-10">
                           <select name="sumber" id="" class="form-select" required>
@@ -1271,14 +1471,14 @@ if(isset($_POST['create_spk'])){
                         </div>
                         <label for="" class="col-sm-2 col-form-label">Tanggal Pemesanan</label>
                         <div class="col-sm-10">
-                          <div class="input-group">
-                            <span class="input-group-text" id="basic-addon1"><i class="ri-calendar-todo-fill"></i></span>
-                            <input type="text" style="cursor: not-allowed;" class="form-control" value="<?= $edit != "" ? $db->dateFormatter($rowedit['tgl_order']) : $db->dateFormatter(date("Y-m-d")) ?>" disabled>
-                          </div>
+                          <!-- <div class="input-group"> -->
+                            <!-- <span class="input-group-text" id="basic-addon1"><i class="ri-calendar-todo-fill"></i></span> -->
+                            <input type="<?= $edit != "" ? 'text' : 'date' ?>" class="form-control" <?= $edit != "" ? 'disabled' : '' ?> value="<?= $edit != "" ? $db->dateFormatter($rowedit['tgl_order']) : $db->dateFormatter(date("Y-m-d")) ?>">
+                          <!-- </div> -->
                         </div>
                         <label for="pengiriman" class="col-sm-2 col-form-label">Pengiriman</label>
                         <div class="col-sm-10">
-                          <select name="pengiriman" id="pengiriman_statuss" onchange="detailPengiriman(this.value)" id="pengiriman" class="form-select">
+                          <select name="pengiriman" id="pengiriman_statuss" onchange="detailPengiriman(this.value)" id="pengiriman" class="form-select" >
                           <?php
                             $v = $edit != "" ? $rowedit['status_pengiriman_order'] : "Tidak";  
                             $d = array("Ya","Tidak");
@@ -1337,10 +1537,11 @@ if(isset($_POST['create_spk'])){
                           <div class="col-sm-3">
                             <select name="prov" id="prov" class="form-select" onchange="viewKab(this.value)">
                               <option value="" hidden>PROVINSI</option>
-                              <?php  
+                              <?php $idprov = ""; 
                               $provs = $db->dataIndonesia("prov",null);
                               foreach($provs as $prov){
-                                $select = $prov['province_id'] == $rowedit['prov_send_order'] ? 'selected="selected"' : '';
+                                $select = $prov['province'] == $rowedit['prov_send_order'] ? 'selected="selected"' : '';
+                                $idprov .= $rowedit['prov_send_order'] == $prov['province'] ? $prov["province_id"] : "";
                                 echo '<option value="'.$prov['province_id'].'" '.$select.'>'.$prov['province'].'</option>';
                               }
                               ?>
@@ -1349,10 +1550,11 @@ if(isset($_POST['create_spk'])){
                           <div class="col-sm-3">
                             <select name="kabkota" id="kabkota" class="form-select" onchange="viewkec(this.value)" >
                               <option value="" hidden>KABUPATEN/KOTA</option>
-                              <?php
-                              $kab_kota = $db->dataIndonesia("kab_kota",$rowedit['prov_send_order']);
+                              <?php $idkab = "";
+                              $kab_kota = $db->dataIndonesia("kab_kota",$idprov);
                               foreach ($kab_kota as $key => $kab){
-                                $select = $kab['city_id'] == $rowedit['kab_send_order'] ? 'selected="selected"' : '';
+                                $select = $kab['city_name'] == $rowedit['kab_send_order'] ? 'selected="selected"' : '';
+                                $idkab .= $rowedit['kab_send_order'] == $kab["city_name"] ? $kab["city_id"] : "";
                                 echo '<option value="'.$kab["city_id"].'" '.$select.'>'.$kab["city_name"].'</option>';
                               }
                               ?>
@@ -1361,10 +1563,11 @@ if(isset($_POST['create_spk'])){
                           <div class="col-sm-3">
                             <select name="kec" id="kec" class="form-select" >
                               <option value="" hidden>KECAMATAN</option>
-                              <?php  
-                              $kecamatan = $db->dataIndonesia("kec",$rowedit['kab_send_order']);
+                              <?php  $idkec = "";
+                              $kecamatan = $db->dataIndonesia("kec",$idkab);
                               foreach ($kecamatan as $key => $kec){
-                                $select = $kec["subdistrict_id"] == $rowedit['kec_send_order'] ? 'selected="selected"' : '';
+                                $select = $kec["subdistrict_name"] == $rowedit['kec_send_order'] ? 'selected="selected"' : '';
+                                $idkec .= $kec["subdistrict_name"] == $rowedit['kec_send_order'] ? $kec['subdistrict_id'] : '';
                                 echo '<option value="'.$kec["subdistrict_id"].'" '.$select.'>'.$kec["subdistrict_name"].'</option>';
                               }
                               ?>
@@ -1393,7 +1596,7 @@ if(isset($_POST['create_spk'])){
                               require_once "action/rajaOngkir.php";
                               $rajaongkir = new RajaOngkir();
 
-                              $data = $rajaongkir->checkOngkir($rowedit['kurir_pengiriman_order'], $asal, $rowedit['kec_send_order'], $rowedit['berat_send_order']);
+                              $data = $rajaongkir->checkOngkir($rowedit['kurir_pengiriman_order'], $asal, $idkec, $rowedit['berat_send_order']);
                               foreach($data->costs as $d){
                                 $select = $d->service == $rowedit['nama_paket_send_order'] ? 'selected="selected"' : '' ;
                                 echo '<option '.$select.' value="'.$d->cost[0]->value.' - '.$d->service.' - '.$d->cost[0]->etd.'">Rp.'.number_format($d->cost[0]->value,2,",",".").' (Paket: '.$d->service.' Estimasi: '.$d->cost[0]->etd. ')</option>';
@@ -1684,7 +1887,11 @@ if(isset($_POST['create_spk'])){
               var tamby = document.getElementsByName("biaya_tambahan[]");
               var count = 0
               if(diskon != ""){
+                var satuan = document.getElementById("satuan").value;
                 var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
+                if(satuan == "rupiah"){
+                  hasil = parseFloat(fee) - parseFloat(diskon);
+                }
                 if(debit != ""){
                   
                     for(var i = 0; i < tamby.length; i++){

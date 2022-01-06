@@ -55,9 +55,12 @@ function showProduk($id_produk){
   return $result;
 }
 
-function resultDiskon($harga,$disk){
+function resultDiskon($harga,$disk,$satuan){
   $diskon = $harga * ($disk/100);
   $result = $harga - $diskon;
+  if($satuan == "rupiah"){
+    $result = $harga - $disk;
+  }
   return $result;
 }
 
@@ -68,67 +71,30 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
   $rowdb=mysqli_fetch_assoc($querydb);
 
   // alamat customer
-  $nameprov = "";
-  $namekabkot = "";
-  $namekec = "";
-  $kodepos = "";
-  if($pengiriman == "Ya"){
-    $order = $db->selectTable("data_pemesanan","id_order",$id_order);
-    $roworder=mysqli_fetch_assoc($order);
-    $kodepos = $roworder['kode_pos_send_order'];
-    $provs = $db->dataIndonesia("prov",null);
-    foreach($provs as $prov){
-      if($prov['province_id'] == $roworder['prov_send_order']){
-        $nameprov = $prov['province'];
-      }
-    }
-    $kabkot = $db->dataIndonesia("kab_kota",$roworder['prov_send_order']);
-    foreach($kabkot as $kab){
-      if($kab['city_id'] == $roworder['kab_send_order']){
-        $namekabkot = $kab['city_name'];
-      }
-    }
-    $kecs = $db->dataIndonesia("kec",$roworder['kab_send_order']);
-    foreach($kecs as $kec){
-      if($kec['subdistrict_id'] == $roworder['kec_send_order']){
-        $namekec = $kec['subdistrict_name'];
-      }
-    }
-  }else{
-    $kodepos = $rowdb['kode_pos_customer'];
-    $provs = $db->dataIndonesia("prov",null);
-    foreach($provs as $prov){
-      if($prov['province_id'] == $rowdb['prov_customer']){
-        $nameprov = $prov['province'];
-      }
-    }
-    $kabkot = $db->dataIndonesia("kab_kota",$rowdb['prov_customer']);
-    foreach($kabkot as $kab){
-      if($kab['city_id'] == $rowdb['kota_kab_customer']){
-        $namekabkot = $kab['city_name'];
-      }
-    }
-    $kecs = $db->dataIndonesia("kec",$rowdb['kota_kab_customer']);
-    foreach($kecs as $kec){
-      if($kec['subdistrict_id'] == $rowdb['kec_customer']){
-        $namekec = $kec['subdistrict_name'];
-      }
-    }
-  }
+  
   $result['name'] = $rowdb['name_customer'];
-  $result['prov'] = $nameprov;
-  $result['kab'] = $namekabkot;
-  $result['kec'] = $namekec;
-  $result['kodepos'] = $kodepos;
+  $result['prov'] = $rowdb['prov_customer'];
+  $result['kab'] = $rowdb['kota_kab_customer'];
+  $result['kec'] = $rowdb['kec_customer'];
+  $result['kodepos'] = $rowdb['kode_pos_customer'];
   return $result;
 }
 
 function statusBadge($txt){
   if($txt == "Belum Lunas"){
-    $result = '<h5><span class="badge bg-danger">Belum Lunas</span></h5>';
+    $result = '<h9><span class="badge rounded-pill bg-danger">Belum Lunas</span></h9>';
     return $result;
   }else{
-    $result = '<h5><span class="badge bg-success">Lunas</span></h5>';
+    $result = '<h9><span class="badge rounded-pill bg-success">Lunas</span></h9>';
+    return $result;
+  }
+}
+function statusBadge2($txt){
+  if($txt == "Tidak"){
+    $result = '<h9><span class="badge rounded-pill bg-danger">Belum Lunas</span></h9>';
+    return $result;
+  }else{
+    $result = '<h9><span class="badge rounded-pill bg-success">Lunas</span></h9>';
     return $result;
   }
 }
@@ -286,22 +252,35 @@ function statusBadge($txt){
                           <td>
                             <?php 
                               $status = $roworder['jenis_produk_order'] == 'Custom' ? '<span class="badge bg-light">Custom</span>' : 'No Custom';
-                              $customer = showCustomer($roworder['id_customer'],$roworder['status_Pengiriman_order'],$roworder['id_order']);
+                              $customer = showCustomer($roworder['id_customer'],$roworder['status_pengiriman_order'],$roworder['id_order']);
                               echo "<b>".$db->nameFormater($customer['name'])."</b>"." ".$status."<br>"; 
                             ?>
                             <?php
-                              echo 'Prov: '.$customer['prov'].'<br>';
-                              echo 'Kab/Kota: '.$customer['kab'].'<br>';
-                              echo 'Kec: '.$customer['kec'].'<br>';
-                              echo 'Kode Pos: '.$customer['kodepos'].'<br>';
+                              if($roworder['status_pengiriman_order'] == "Ya"){
+                                echo 'Prov: '.$roworder['	prov_send_order'].'<br>';
+                                echo 'Kab/Kota: '.$roworder['kab_send_order'].'<br>';
+                                echo 'Kec: '.$roworder['kec_send_order'].'<br>';
+                                echo 'Kode Pos: '.$roworder['kode_pos_send_order'].'<br>';
+                              }else{
+                                echo 'Prov: '.$customer['prov'].'<br>';
+                                echo 'Kab/Kota: '.$customer['kab'].'<br>';
+                                echo 'Kec: '.$customer['kec'].'<br>';
+                                echo 'Kode Pos: '.$customer['kodepos'].'<br>';
+                              }
                             ?>
                           </td>
                           <td>
-                            <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format($roworder['harga_produk_order'],2,",",".").'" class="badge bg-secondary">disk '.$roworder['diskon_order'].'%</span>' : '' ?><br>
-                            Harga Produk: Rp.<?= number_format(resultDiskon($roworder['harga_produk_order'],$roworder['diskon_order']),2,",",".") ?><br>
-                            Harga Pasang: <?= $roworder['status_pasang_order'] == "Ya" ? ' Rp.'.number_format($roworder['harga_pasang_order'],2,",",".") : 'Tidak Dipasang' ?><br>
+                            <?php if($roworder['satuan_potongan'] == "persen"){ ?>
+                            <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format($roworder['harga_produk_order'],2,",",".").'" class="badge bg-secondary">Diskon '.$roworder['diskon_order'].'%</span><br>' : '' ?>
+                            <?php }else{ ?>
+                              <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format($roworder['harga_produk_order'],2,",",".").'" class="badge bg-secondary">Diskon Rp.'.number_format($roworder['diskon_order'],2,",",".").'</span><br>' : '' ?>
+                            <?php } ?>
+                            Harga Produk: Rp.<?= number_format(resultDiskon($roworder['harga_produk_order'],$roworder['diskon_order'],$roworder['satuan_potongan']),2,",",".") ?>
+                            <?= statusBadge($roworder['status_pay_order']) ?><br>
+                            Harga Pasang: <?= $roworder['status_pasang_order'] == "Ya" ? ' Rp.'.number_format($roworder['harga_pasang_order'],2,",",".") : 'Tidak Dipasang' ?>
+                            <?= $roworder['status_pasang_order'] == "Ya" ? statusBadge2($roworder['status_bayar_pasang']) : '' ?><br>
                             Harga Pengiriman: <?= $roworder['status_Pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".") : '-,-' ?>
-                            <?= statusBadge($roworder['status_pay_order']) ?>
+                            
                           </td>
                           <td>
                             Desain: <b><?= $roworder['status_desain_order'] ?></b><br>

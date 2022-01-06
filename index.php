@@ -23,6 +23,9 @@ $total_ordee = 0; $total_by = 0;
 $ordertoday = $db->selectTable("data_pemesanan","id_owner",$id,"tgl_order",date("Y-m-d"));
 while($roworder=mysqli_fetch_assoc($ordertoday)){
   $potongan =  $roworder['harga_produk_order'] * ($roworder['diskon_order'] / 100);
+  if($roworder['satuan_potongan'] == "rupiah"){
+    $potongan = $roworder['diskon_order'];
+  }
   $total_ordee += $roworder['harga_produk_order'] - $potongan;
   $code_spk = $roworder['code_order'];
   
@@ -39,6 +42,9 @@ $orderbulan = mysqli_query($db->conn, $queribulan);
 while($roworder_bulan=mysqli_fetch_assoc($orderbulan)){
   $pemasangan_bln += $roworder_bulan['harga_pasang_order'] + $roworder_bulan['biaya_tambah_pemasangan_order'];
   $potongan =  $roworder_bulan['harga_produk_order'] * ($roworder_bulan['diskon_order'] / 100);
+  if($roworder_bulan['satuan_potongan'] == "rupiah"){
+    $potongan = $roworder_bulan['diskon_order'];
+  }
   $total_ordeer_bulan_ini += $roworder_bulan['harga_produk_order'] - $potongan;
   $code_spk = $roworder_bulan['code_order'];
 

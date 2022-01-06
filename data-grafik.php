@@ -236,11 +236,15 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       <?php
                       $year = date("Y"); $month = 1;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
+                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $count += $rowomset['harga_produk_order'];
+                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          if($rowomset['satuan_potongan'] == "rupiah"){
+                            $potongan = $rowomset['diskon_order'];
+                          }
+                          $count += $rowomset["harga_produk_order"] - $potongan;
                         }
                       }
                       echo $count
@@ -248,11 +252,15 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       <?php
                       $year = date("Y"); $month = 2;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
+                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $count += $rowomset['harga_produk_order'];
+                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          if($rowomset['satuan_potongan'] == "rupiah"){
+                            $potongan = $rowomset['diskon_order'];
+                          }
+                          $count += $rowomset["harga_produk_order"] - $potongan;
                         }
                       }
                       echo $count
@@ -260,11 +268,15 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       <?php
                       $year = date("Y"); $month = 3;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
+                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $count += $rowomset['harga_produk_order'];
+                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          if($rowomset['satuan_potongan'] == "rupiah"){
+                            $potongan = $rowomset['diskon_order'];
+                          }
+                          $count += $rowomset["harga_produk_order"] - $potongan;
                         }
                       }
                       echo $count
@@ -272,11 +284,15 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       <?php
                       $year = date("Y"); $month = 4;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
+                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $count += $rowomset['harga_produk_order'];
+                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          if($rowomset['satuan_potongan'] == "rupiah"){
+                            $potongan = $rowomset['diskon_order'];
+                          }
+                          $count += $rowomset["harga_produk_order"] - $potongan;
                         }
                       }
                       echo $count
@@ -284,11 +300,15 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       <?php
                       $year = date("Y"); $month = 5;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
+                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $count += $rowomset['harga_produk_order'];
+                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          if($rowomset['satuan_potongan'] == "rupiah"){
+                            $potongan = $rowomset['diskon_order'];
+                          }
+                          $count += $rowomset["harga_produk_order"] - $potongan;
                         }
                       }
                       echo $count
@@ -296,11 +316,15 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       <?php
                       $year = date("Y"); $month = 6;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
+                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $count += $rowomset['harga_produk_order'];
+                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          if($rowomset['satuan_potongan'] == "rupiah"){
+                            $potongan = $rowomset['diskon_order'];
+                          }
+                          $count += $rowomset["harga_produk_order"] - $potongan;
                         }
                       }
                       echo $count
@@ -308,11 +332,15 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       <?php
                       $year = date("Y"); $month = 7;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
+                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $count += $rowomset['harga_produk_order'];
+                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          if($rowomset['satuan_potongan'] == "rupiah"){
+                            $potongan = $rowomset['diskon_order'];
+                          }
+                          $count += $rowomset["harga_produk_order"] - $potongan;
                         }
                       }
                       echo $count
@@ -320,11 +348,15 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       <?php
                       $year = date("Y"); $month = 8;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
+                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $count += $rowomset['harga_produk_order'];
+                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          if($rowomset['satuan_potongan'] == "rupiah"){
+                            $potongan = $rowomset['diskon_order'];
+                          }
+                          $count += $rowomset["harga_produk_order"] - $potongan;
                         }
                       }
                       echo $count
@@ -332,11 +364,15 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       <?php
                       $year = date("Y"); $month = 9;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
+                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $count += $rowomset['harga_produk_order'];
+                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          if($rowomset['satuan_potongan'] == "rupiah"){
+                            $potongan = $rowomset['diskon_order'];
+                          }
+                          $count += $rowomset["harga_produk_order"] - $potongan;
                         }
                       }
                       echo $count
@@ -344,11 +380,15 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       <?php
                       $year = date("Y"); $month = 10;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
+                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $count += $rowomset['harga_produk_order'];
+                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          if($rowomset['satuan_potongan'] == "rupiah"){
+                            $potongan = $rowomset['diskon_order'];
+                          }
+                          $count += $rowomset["harga_produk_order"] - $potongan;
                         }
                       }
                       echo $count
@@ -356,11 +396,15 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       <?php
                       $year = date("Y"); $month = 11;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
+                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $count += $rowomset['harga_produk_order'];
+                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          if($rowomset['satuan_potongan'] == "rupiah"){
+                            $potongan = $rowomset['diskon_order'];
+                          }
+                          $count += $rowomset["harga_produk_order"] - $potongan;
                         }
                       }
                       echo $count
@@ -368,11 +412,15 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       <?php
                       $year = date("Y"); $month = 12;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
+                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $count += $rowomset['harga_produk_order'];
+                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          if($rowomset['satuan_potongan'] == "rupiah"){
+                            $potongan = $rowomset['diskon_order'];
+                          }
+                          $count += $rowomset["harga_produk_order"] - $potongan;
                         }
                       }
                       echo $count

@@ -399,7 +399,7 @@ function showCetakan($id_order, $owner){
                             <?= statusBadge($roworder['status_pay_order']) ?><br>
                             Harga Pasang: <?= $roworder['status_pasang_order'] == "Ya" ? ' Rp.'.number_format($roworder['harga_pasang_order'],2,",",".") : 'Tidak Dipasang' ?>
                             <?= $roworder['status_pasang_order'] == "Ya" ? statusBadge2($roworder['status_bayar_pasang']) : '' ?><br>
-                            Harga Pengiriman: <?= $roworder['status_Pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".") : '-,-' ?>
+                            Harga Pengiriman: <?= $roworder['status_pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".") : '-,-' ?>
                             
                           </td>
                           <td>

@@ -21,7 +21,7 @@ if($row['id_owner'] == "0"){
 // DATA STORE
 $store = $db->selectTable("store_galeri","id_owner",$id);
 $rowtoko = mysqli_fetch_assoc($store);
-$addresstoko = addressShow($rowtoko['prov_id'],$rowtoko['kab_id'],$rowtoko['kec_id']);
+$addresstoko = addressShow2($rowtoko['prov_id'],$rowtoko['kab_id'],$rowtoko['kec_id']);
 
 // DATA ORDER
 $order = $db->selectTable("data_pemesanan","code_order",$spk,"id_owner",$id);
@@ -40,10 +40,11 @@ function showProduk($id_produk){
     return $result;
 }
 
-function addressShow($provid,$kabid,$kecid){
+function addressShow2($provid,$kabid,$kecid){
     global $db;
 
     $provname = "";
+    $pov = "";
     $provs = $db->dataIndonesia("prov",null);
     foreach($provs as $prov){
         if($prov['province_id'] == $provid){
@@ -52,6 +53,7 @@ function addressShow($provid,$kabid,$kecid){
     }
 
     $kabname = "";
+    $kaid = "";
     $kab_kota = $db->dataIndonesia("kab_kota",$provid);
     foreach ($kab_kota as $key => $kab){
         if($kab['city_id'] == $kabid){
@@ -63,6 +65,39 @@ function addressShow($provid,$kabid,$kecid){
     $kecamatan = $db->dataIndonesia("kec",$kabid);
     foreach ($kecamatan as $key => $kec){
         if($kec["subdistrict_id"] == $kecid){
+            $kecname = $kec["subdistrict_name"];
+        }else{continue;}
+    }
+
+    return array($provname,$kabname,$kecname);
+}
+function addressShow($provid,$kabid,$kecid){
+    global $db;
+
+    $provname = "";
+    $pov = "";
+    $provs = $db->dataIndonesia("prov",null);
+    foreach($provs as $prov){
+        if($prov['province'] == $provid){
+            $provname = $prov['province'];
+            $pov .= $prov['province_id'];
+        }else{continue;}
+    }
+
+    $kabname = "";
+    $kaid = "";
+    $kab_kota = $db->dataIndonesia("kab_kota",$pov);
+    foreach ($kab_kota as $key => $kab){
+        if($kab['city_name'] == $kabid){
+            $kabname = $kab["city_name"];
+            $kaid .= $kab["city_id"];
+        }else{continue;}
+    }
+
+    $kecname = "";
+    $kecamatan = $db->dataIndonesia("kec",$kaid);
+    foreach ($kecamatan as $key => $kec){
+        if($kec["subdistrict_name"] == $kecid){
             $kecname = $kec["subdistrict_name"];
         }else{continue;}
     }

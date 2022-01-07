@@ -158,6 +158,14 @@ if(isset($_POST['create_spk'])){
   $cost = $status_pengiriman == "Ya" ? $paket_ongkir[0] : '';
   $name_paket = $status_pengiriman == "Ya" ? $paket_ongkir[1] : '';
   $etd = $status_pengiriman == "Ya" ? $paket_ongkir[2] : '';
+  $cod = '';
+  if($status_pengiriman == "Ya"){
+    if($_POST['cod'] == "on"){
+      $cod = "COD";
+    }else{
+      $cod = "Cash";
+    }
+  }
 
   // detail pembayaran
   $sisabayar = $_POST['sisa_pembayaran'];
@@ -231,47 +239,21 @@ if(isset($_POST['create_spk'])){
         $sisabayar,
         $sumber,
         $satuan_potongan,
-        $status_bayar_pasang
+        $status_bayar_pasang,
+        $total_pembayaran,
+        $cod
     );
     if($query){
       if(count($dbfoto) > 0){
         for($index = 0; $index < count($dbfoto); $index++){
-          $query = "INSERT INTO contoh_desain (foto_contoh,code_order,id_owner) VALUES('$dbfoto[$index]','$spk','$id')";
+          $query = "INSERT INTO contoh_desain (foto_contoh,code_order,id_owner) VALUES('$dbfoto[$index]','$edit','$id')";
           $result = mysqli_query($db->conn, $query);
         }
       }
 
-      $tr = $db->selectTable("detail_transaksi","code_order",$edit,"id_owner",$id); 
-      while($rowtr=mysqli_fetch_assoc($tr)){
-        if(isset($_POST['fee'.$rowtr['id']])){
-          $fee = $_POST['fee'.$rowtr['id']];
-          $sisa = "";
-          if($fee < $rowtr['jumlah_transaksi']){  
-            $updatefee = $rowtr['jumlah_transaksi'] - $fee;
-            $sisa = $rowedit['sisa_pembayaran_order'] + $updatefee;
-          }else{
-            $updatefee = $fee - $rowtr['jumlah_transaksi'];
-            $sisa = $rowedit['sisa_pembayaran_order'] - $updatefee;
-          }
-          $updatetr = $db->updateDetailTr($rowtr['id'],$fee,$sisa,$rowedit['code_order']);
-          if($updatetr){
-            $editselect = $db->selectTable("data_pemesanan","code_order",$edit,"id_owner",$id);
-            $rowedit = mysqli_fetch_assoc($editselect);
-          }
-        }
-      }
+      $tr = mysqli_query($db->conn, "DELETE FROM biaya_tambahan_order WHERE id_owner='$id' AND code_order='$edit'");
 
-      $biayaa = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$edit);
-      if(mysqli_num_rows($biayaa) > 0){
-        while($rowby=mysqli_fetch_assoc($biayaa)){
-          $keterangan = $_POST['ket_biaya_tambhahan'.$rowby['id']];
-          $biaya = $_POST['biaya_tambahan'.$rowby['id']];
-          $query = "UPDATE biaya_tambahan_order SET keterangan_biaya='$keterangan', harga_ketbiaya='$biaya' WHERE id='".$rowby['id']."'";
-          $result = mysqli_query($db->conn, $query);
-        }
-      }
-
-      if(count($ket_biaya_tambahan) > 0){
+      if(count($ket_biaya_tambahan) > 0 && $tr){
         foreach($ket_biaya_tambahan as $index => $ket){
           $keterangan = $ket;
           $biaya = $biaya_tambahan[$index];
@@ -279,8 +261,19 @@ if(isset($_POST['create_spk'])){
           $result = mysqli_query($db->conn, $query);
         }
       }
-      $_SESSION['alert'] = "1";
-      header('Location:data-pesanan.php');
+
+      $tp = mysqli_query($db->conn, "DELETE FROM detail_transaksi WHERE id_owner='$id' AND code_order='$edit'");
+      if($total_pembayaran != "" && $tp){
+        $transaksi = $db->insertDetailTr($id,$edit,$order_date,$total_pembayaran);
+        if($transaksi){
+
+          $_SESSION['alert'] = "1";
+          header('Location:data-pesanan.php');
+        }
+      }else{
+        $_SESSION['alert'] = "1";
+        header('Location:data-pesanan.php');
+      }
     }
   }else{
     $query = $db->insertOrder(
@@ -319,7 +312,9 @@ if(isset($_POST['create_spk'])){
         $sumber,
         $user,
         $satuan_potongan,
-        $status_bayar_pasang
+        $status_bayar_pasang,
+        $total_pembayaran,
+        $cod
     );
   
     if($query){
@@ -506,74 +501,146 @@ if(isset($_POST['create_spk'])){
         var diskon = document.getElementById("diskon").value;
         var debit = document.getElementById("debit").value;
         var tamby = document.getElementsByName("biaya_tambahan[]");
-        var count = 0;
+        var satuan = document.getElementById("satuan").value;
+
+        // jika harga produk tidak kosong
         if(fee != ""){
-          if(diskon != ""){
-            var satuan = document.getElementById("satuan").value;
-            var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
-            if(satuan == "rupiah"){
-              hasil = parseFloat(fee) - parseFloat(diskon);
+          var hasil = 0;
+          // jika biaya tambahan tidak kosong
+          if(tamby.length > 0){
+            var count = 0;
+            // loop array input biaya tambahan
+            for(var index = 0; index < tamby.length; index++){
+              // jika nilai input index kosong (null)
+              if(tamby[index].value == ""){
+                count += 0;
+              }
+              // jika nilai input index tdak kosong (nulll)
+              else{
+                count += parseFloat(tamby[index].value);
+              }
             }
-            if(debit != ""){
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = (parseFloat(fee) + parseFloat(count)) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
               }
-              document.getElementById("fee").value = hasil + parseFloat(count) - parseFloat(debit);
-            }else{
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) + parseFloat(count) - $potongan) - debit;
               }
-              document.getElementById("fee").value = hasil + parseFloat(count);
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) + parseFloat(count) - $potongan
+              }
             }
-          }else{
-            if(debit != ''){
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) + parseFloat(count)) - debit;
               }
-              document.getElementById("fee").value = parseFloat(fee) + parseFloat(count) - parseFloat(debit);
-            }else{
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) + parseFloat(count)
               }
-              document.getElementById("fee").value = parseFloat(fee) + parseFloat(count);
             }
           }
-        }else{
-            if(debit != ''){
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+          // jika biaya tambahan kosong
+          else{
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = parseFloat(fee) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
               }
-              document.getElementById("fee").value = parseFloat(count) - parseFloat(debit);
-            }else{
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) - $potongan) - debit;
               }
-              document.getElementById("fee").value = parseFloat(count);
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) - $potongan
+              }
             }
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(fee) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee);              
+              }
+            }
+          }
+          // sisa atau hasil dari yang dibayar
+          document.getElementById("fee").value = hasil;
+        }
+        // jika harga produk kosong
+        else{
+          // jika biaya tambahan tidak kosong
+          if(tamby.length > 0){
+            var count = 0;
+            // loop array input biaya tambahan
+            for(var index = 0; index < tamby.length; index++){
+              // jika nilai input index kosong (null)
+              if(tamby[index].value == ""){
+                count += 0;
+              }
+              // jika nilai input index tdak kosong (nulll)
+              else{
+                count += parseFloat(tamby[index].value);
+              }
+            }
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = parseFloat(count) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
+              }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(count) - $potongan - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(count) - $potongan;
+              }
+            }
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(count) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(count)
+              }
+            }
+          }
+          // jika biaya tambahan kosong
+          else{
+            // jika debit customer tidak kosong
+            if(debit != ""){
+              hasil = 0 - debit;
+            }
+            // jika debit customer kosong
+            else{
+              hasil = 0;
+            }
+          }
+          // sisa atau hasil dari yang dibayar
+          document.getElementById("fee").value = hasil;
         }
       }
     </script>
@@ -585,60 +652,145 @@ if(isset($_POST['create_spk'])){
         var diskon = document.getElementById("diskon").value;
         var debit = document.getElementById("debit").value;
         var tamby = document.getElementsByName("biaya_tambahan[]");
-        var count = 0
-        if(diskon != ""){
-          var satuan = document.getElementById("satuan").value;
-          var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
-          if(satuan == "rupiah"){
-            hasil = parseFloat(fee) - parseFloat(diskon);
+        var satuan = document.getElementById("satuan").value;
+        // jika harga produk tidak kosong
+        if(fee != ""){
+          var hasil = 0;
+          // jika biaya tambahan tidak kosong
+          if(tamby.length > 0){
+            var count = 0;
+            // loop array input biaya tambahan
+            for(var index = 0; index < tamby.length; index++){
+              // jika nilai input index kosong (null)
+              if(tamby[index].value == ""){
+                count += 0;
+              }
+              // jika nilai input index tdak kosong (nulll)
+              else{
+                count += parseFloat(tamby[index].value);
+              }
+            }
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = (parseFloat(fee) + parseFloat(count)) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
+              }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) + parseFloat(count) - $potongan) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) + parseFloat(count) - $potongan
+              }
+            }
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) + parseFloat(count)) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) + parseFloat(count)
+              }
+            }
           }
-          if(debit != ""){
-            
-              for(var i = 0; i < tamby.length; i++){
-                if(tamby[i].value == ""){
-                  count += 0;
-                }else{
-                  count += parseFloat(tamby[i].value);
-                }
-              
+          // jika biaya tambahan kosong
+          else{
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = parseFloat(fee) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
+              }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) - $potongan) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) - $potongan
+              }
             }
-            document.getElementById("fee").value = hasil + parseFloat(count) - parseFloat(debit);
-          }else{
-            
-              for(var i = 0; i < tamby.length; i++){
-                if(tamby[i].value == ""){
-                  count += 0;
-                }else{
-                  count += parseFloat(tamby[i].value);
-                }
-              
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(fee) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee);              
+              }
             }
-            document.getElementById("fee").value = hasil + parseFloat(count);
           }
-        }else{
-          if(debit != ''){
-            
-              for(var i = 0; i < tamby.length; i++){
-                if(tamby[i].value == ""){
-                  count += 0;
-                }else{
-                  count += parseFloat(tamby[i].value);
-                }
-              
+          // sisa atau hasil dari yang dibayar
+          document.getElementById("fee").value = hasil;
+        }
+        // jika harga produk kosong
+        else{
+          // jika biaya tambahan tidak kosong
+          if(tamby.length > 0){
+            var count = 0;
+            // loop array input biaya tambahan
+            for(var index = 0; index < tamby.length; index++){
+              // jika nilai input index kosong (null)
+              if(tamby[index].value == ""){
+                count += 0;
+              }
+              // jika nilai input index tdak kosong (nulll)
+              else{
+                count += parseFloat(tamby[index].value);
+              }
             }
-            document.getElementById("fee").value = parseFloat(fee) + parseFloat(count) - parseFloat(debit);
-          }else{
-            
-              for(var i = 0; i < tamby.length; i++){
-                if(tamby[i].value == ""){
-                  count += 0;
-                }else{
-                  count += parseFloat(tamby[i].value);
-                }
-              
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = parseFloat(count) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
+              }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(count) - $potongan - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(count) - $potongan;
+              }
             }
-            document.getElementById("fee").value = parseFloat(fee) + parseFloat(count);
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(count) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(count)
+              }
+            }
           }
+          // jika biaya tambahan kosong
+          else{
+            // jika debit customer tidak kosong
+            if(debit != ""){
+              hasil = 0 - debit;
+            }
+            // jika debit customer kosong
+            else{
+              hasil = 0;
+            }
+          }
+          // sisa atau hasil dari yang dibayar
+          document.getElementById("fee").value = hasil;
         }
       }
     </script>
@@ -653,74 +805,145 @@ if(isset($_POST['create_spk'])){
         }
         var debit = document.getElementById("debit").value;
         var tamby = document.getElementsByName("biaya_tambahan[]");
-        var count = 0;
+        var satuan = document.getElementById("satuan").value;
+        // jika harga produk tidak kosong
         if(fee != ""){
-          if(diskon != ""){
-            var satuan = document.getElementById("satuan").value;
-            var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
-            if(satuan == "rupiah"){
-              hasil = parseFloat(fee) - parseFloat(diskon);
+          var hasil = 0;
+          // jika biaya tambahan tidak kosong
+          if(tamby.length > 0){
+            var count = 0;
+            // loop array input biaya tambahan
+            for(var index = 0; index < tamby.length; index++){
+              // jika nilai input index kosong (null)
+              if(tamby[index].value == ""){
+                count += 0;
+              }
+              // jika nilai input index tdak kosong (nulll)
+              else{
+                count += parseFloat(tamby[index].value);
+              }
             }
-            if(debit != ""){
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
-                }
-              document.getElementById("fee").value = hasil + parseFloat(count) - parseFloat(debit);
-            }else{
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = (parseFloat(fee) + parseFloat(count)) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
               }
-              document.getElementById("fee").value = hasil + parseFloat(count);
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) + parseFloat(count) - $potongan) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) + parseFloat(count) - $potongan
+              }
             }
-          }else{
-            if(debit != ''){
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) + parseFloat(count)) - debit;
               }
-              document.getElementById("fee").value = parseFloat(fee) + parseFloat(count) - parseFloat(debit);
-            }else{
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) + parseFloat(count)
               }
-              document.getElementById("fee").value = parseFloat(fee) + parseFloat(count);
             }
           }
-        }else{
-            if(debit != ''){
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+          // jika biaya tambahan kosong
+          else{
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = parseFloat(fee) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
               }
-              document.getElementById("fee").value = parseFloat(count) - parseFloat(debit);
-            }else{
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) - $potongan) - debit;
               }
-              document.getElementById("fee").value = parseFloat(count);
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) - $potongan
+              }
             }
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(fee) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee);              
+              }
+            }
+          }
+          // sisa atau hasil dari yang dibayar
+          document.getElementById("fee").value = hasil;
+        }
+        // jika harga produk kosong
+        else{
+          // jika biaya tambahan tidak kosong
+          if(tamby.length > 0){
+            var count = 0;
+            // loop array input biaya tambahan
+            for(var index = 0; index < tamby.length; index++){
+              // jika nilai input index kosong (null)
+              if(tamby[index].value == ""){
+                count += 0;
+              }
+              // jika nilai input index tdak kosong (nulll)
+              else{
+                count += parseFloat(tamby[index].value);
+              }
+            }
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = parseFloat(count) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
+              }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(count) - $potongan - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(count) - $potongan;
+              }
+            }
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(count) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(count)
+              }
+            }
+          }
+          // jika biaya tambahan kosong
+          else{
+            // jika debit customer tidak kosong
+            if(debit != ""){
+              hasil = 0 - debit;
+            }
+            // jika debit customer kosong
+            else{
+              hasil = 0;
+            }
+          }
+          // sisa atau hasil dari yang dibayar
+          document.getElementById("fee").value = hasil;
         }
       }
     </script>
@@ -735,76 +958,145 @@ if(isset($_POST['create_spk'])){
         }
         var diskon = document.getElementById("diskon").value;
         var tamby = document.getElementsByName("biaya_tambahan[]");
-        var count = 0;
+        var satuan = document.getElementById("satuan").value;
+        // jika harga produk tidak kosong
         if(fee != ""){
-          if(diskon != ""){
-            var satuan = document.getElementById("satuan").value;
-            var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
-            if(satuan == "rupiah"){
-              hasil = parseFloat(fee) - parseFloat(diskon);
+          var hasil = 0;
+          // jika biaya tambahan tidak kosong
+          if(tamby.length > 0){
+            var count = 0;
+            // loop array input biaya tambahan
+            for(var index = 0; index < tamby.length; index++){
+              // jika nilai input index kosong (null)
+              if(tamby[index].value == ""){
+                count += 0;
+              }
+              // jika nilai input index tdak kosong (nulll)
+              else{
+                count += parseFloat(tamby[index].value);
+              }
             }
-            if(debit != ""){
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
-  
-                
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = (parseFloat(fee) + parseFloat(count)) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
               }
-              document.getElementById("fee").value = hasil + parseFloat(count) - parseFloat(debit);
-            }else{
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) + parseFloat(count) - $potongan) - debit;
               }
-              document.getElementById("fee").value = hasil + parseFloat(count);
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) + parseFloat(count) - $potongan
+              }
             }
-          }else{
-            if(debit != ''){
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) + parseFloat(count)) - debit;
               }
-              document.getElementById("fee").value = parseFloat(fee) + parseFloat(count) - parseFloat(debit);
-            }else{
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) + parseFloat(count)
               }
-              document.getElementById("fee").value = parseFloat(fee) + parseFloat(count);
             }
           }
-        }else{
-            if(debit != ''){
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+          // jika biaya tambahan kosong
+          else{
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = parseFloat(fee) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
               }
-              document.getElementById("fee").value = parseFloat(count) - parseFloat(debit);
-            }else{
-                for(var i = 0; i < tamby.length; i++){
-                  if(tamby[i].value == ""){
-                    count += 0;
-                  }else{
-                    count += parseFloat(tamby[i].value);
-                  }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) - $potongan) - debit;
               }
-              document.getElementById("fee").value = parseFloat(count);
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) - $potongan
+              }
             }
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(fee) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee);              
+              }
+            }
+          }
+          // sisa atau hasil dari yang dibayar
+          document.getElementById("fee").value = hasil;
+        }
+        // jika harga produk kosong
+        else{
+          // jika biaya tambahan tidak kosong
+          if(tamby.length > 0){
+            var count = 0;
+            // loop array input biaya tambahan
+            for(var index = 0; index < tamby.length; index++){
+              // jika nilai input index kosong (null)
+              if(tamby[index].value == ""){
+                count += 0;
+              }
+              // jika nilai input index tdak kosong (nulll)
+              else{
+                count += parseFloat(tamby[index].value);
+              }
+            }
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = parseFloat(count) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
+              }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(count) - $potongan - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(count) - $potongan;
+              }
+            }
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(count) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(count)
+              }
+            }
+          }
+          // jika biaya tambahan kosong
+          else{
+            // jika debit customer tidak kosong
+            if(debit != ""){
+              hasil = 0 - debit;
+            }
+            // jika debit customer kosong
+            else{
+              hasil = 0;
+            }
+          }
+          // sisa atau hasil dari yang dibayar
+          document.getElementById("fee").value = hasil;
         }
       }
     </script>
@@ -1589,21 +1881,37 @@ if(isset($_POST['create_spk'])){
                         </div>
                         <label for="" class="col-sm-2 col-form-label">Ongkos Kirim</label>
                         <div class="col-sm-10">
-                          <div class="input-group">
-                            <select name="resultcost" id="resut_pengiriman" onchange="showFee4(this.value)" class="form-control">
-                              <option value="">PILIH PAKET</option>
-                              <?php  
-                              require_once "action/rajaOngkir.php";
-                              $rajaongkir = new RajaOngkir();
-
-                              $data = $rajaongkir->checkOngkir($rowedit['kurir_pengiriman_order'], $asal, $idkec, $rowedit['berat_send_order']);
-                              foreach($data->costs as $d){
-                                $select = $d->service == $rowedit['nama_paket_send_order'] ? 'selected="selected"' : '' ;
-                                echo '<option '.$select.' value="'.$d->cost[0]->value.' - '.$d->service.' - '.$d->cost[0]->etd.'">Rp.'.number_format($d->cost[0]->value,2,",",".").' (Paket: '.$d->service.' Estimasi: '.$d->cost[0]->etd. ')</option>';
-                              }
-                              ?>
-                            </select>
-                            <button class="btn btn-warning" type="button" id="button-addon2" onclick="showOngkir()">Cek</button>
+                          <div class="row">
+                            <div class="col-sm-12">
+                              <div class="input-group">
+                                <select name="resultcost" id="resut_pengiriman" onchange="showFee4(this.value)" class="form-control">
+                                  <option value="">PILIH PAKET</option>
+                                  <?php  
+                                  require_once "action/rajaOngkir.php";
+                                  $rajaongkir = new RajaOngkir();
+    
+                                  $data = $rajaongkir->checkOngkir($rowedit['kurir_pengiriman_order'], $asal, $idkec, $rowedit['berat_send_order']);
+                                  foreach($data->costs as $d){
+                                    $select = $d->service == $rowedit['nama_paket_send_order'] ? 'selected="selected"' : '' ;
+                                    echo '<option '.$select.' value="'.$d->cost[0]->value.' - '.$d->service.' - '.$d->cost[0]->etd.'">Rp.'.number_format($d->cost[0]->value,2,",",".").' (Paket: '.$d->service.' Estimasi: '.$d->cost[0]->etd. ')</option>';
+                                  }
+                                  ?>
+                                </select>
+                                <button class="btn btn-warning" type="button" id="button-addon2" onclick="showOngkir()">Cek</button>
+                                
+                              </div>
+                            </div>
+                            <div class="col-sm-12 mt-2">
+                              <div class="form-check">
+                                <?php  
+                                $checked = $rowedit['ongkir_cod_order'] == "COD" ? "checked" : '';
+                                ?>
+                                <input class="form-check-input" name="cod" type="checkbox" value="on" id="flexCheckChecked" <?= $checked ?>>
+                                <label class="form-check-label" for="flexCheckChecked">
+                                  Cash on delivery
+                                </label>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1667,11 +1975,23 @@ if(isset($_POST['create_spk'])){
                         </div>
                         <label for="" class="col-sm-2 col-form-label">Ongkos Kirim</label>
                         <div class="col-sm-10">
-                          <div class="input-group">
-                            <select name="resultcost" id="resut_pengiriman" onchange="showFee4(this.value)" class="form-control">
-                              <option value="">PILIH PAKET</option>
-                            </select>
-                            <button class="btn btn-warning" type="button" id="button-addon2" onclick="showOngkir()">Cek</button>
+                          <div class="row">
+                            <div class="col-sm-12">
+                              <div class="input-group">
+                                <select name="resultcost" id="resut_pengiriman" onchange="showFee4(this.value)" class="form-control">
+                                  <option value="">PILIH PAKET</option>
+                                </select>
+                                <button class="btn btn-warning" type="button" id="button-addon2" onclick="showOngkir()">Cek</button>
+                              </div>
+                            </div>
+                            <div class="col-sm-12 mt-2">
+                              <div class="form-check">
+                                <input class="form-check-input" name="cod" type="checkbox" value="on" id="flexCheckChecked">
+                                <label class="form-check-label" for="flexCheckChecked">
+                                  Cash on delivery
+                                </label>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1688,19 +2008,18 @@ if(isset($_POST['create_spk'])){
                         if($edit != ""){
                           $biayaa = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$edit);
                           if(mysqli_num_rows($biayaa) > 0){
+                            
                             while($rowby=mysqli_fetch_assoc($biayaa)){
                         ?>
-                            <div class="row mt-3">
+                            <div class="row mt-3 hapus">
                               <div class="col-md-5">
-                                <input type="text" name="ket_biaya_tambhahan<?= $rowby['id'] ?>" value="<?= $rowby['keterangan_biaya'] ?>" class="form-control" placeholder="Keterangan">
+                                <input type="text" name="ket_biaya_tambhahan[]" value="<?= $rowby['keterangan_biaya'] ?>" class="form-control" placeholder="Keterangan">
                               </div>
                               <div class="col-md-6">
-                                <input type="number" name="biaya_tambahan<?= $rowby['id'] ?>" value="<?= $rowby['harga_ketbiaya'] ?>" class="form-control" placeholder="Harga">
+                                <input type="number" onkeyup="showfeeby(this.value)" name="biaya_tambahan[]" value="<?= $rowby['harga_ketbiaya'] ?>" class="form-control" placeholder="Harga">
                               </div>
-                              <div class="col-md-1">
-                                <a id="hpsbiaya" href="action/hapusbiaya?page=<?= $rowby['id'] ?>&spk=<?= $edit; ?>" class="btn btn-danger">
-                                  <i class="mdi mdi-delete-outline"></i>
-                                </a>
+                              <div class="col col-md-1">
+                                <button id="remove_button" class="btn btn-danger"><i class="mdi mdi-delete-outline"></i></button>
                               </div>
                             </div>
                         <?php
@@ -1719,68 +2038,19 @@ if(isset($_POST['create_spk'])){
                       <div class="card-title">Detail Pembayaran</div>
                       <div class="row g-3">
                         <label for="" class="col-sm-2 col-form-label">Pembayaran</label>
-                        <div class="col-sm-<?= $edit != "" ? "10" : "5" ; ?>">
-                          <div class="input-group">
-                            <span class="input-group-text">Rp.</span>
-                            <input type="number" id="fee" placeholder="Jumlah Pembayaran" step="0.01" class="form-control" name="sisa_pembayaran" value="<?= $edit != "" ? $rowedit['sisa_pembayaran_order'] : '' ; ?>" readonly>
-                          </div>
-                          <?php  
-                          if($edit != ""){
-                          ?>
-                          <table class="table table-responsive table-hover mt-3">
-                            <thead>
-                              <tr>
-                                <th>#</th>
-                                <th>Tanggal</th>
-                                <th>Jumlah Pembayaran</th>
-                                <th>Aksi</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <?php 
-                              $no = 0;
-                              $tr = $db->selectTable("detail_transaksi","code_order",$edit,"id_owner",$id);
-                              while($rowtr=mysqli_fetch_assoc($tr)){
-                              ?>
-                              <form action="" method="post">
-                                <tr>
-                                  <td><?= ++$no ?></td>
-                                  <td><?= $rowtr['tgl_transaksi'] ?></td>
-                                  <td>
-                                    <span id="view2<?= $rowtr['id'] ?>">Rp.<?= number_format($rowtr['jumlah_transaksi'],2,",",".") ?></span> 
-                                    <div class="input-group" id="view<?= $rowtr['id'] ?>" style="display: none;">
-                                      <span class="input-group-text">Rp.</span>
-                                      <input type="text" name="fee<?= $rowtr['id'] ?>" class="form-control" value="<?= $rowtr['jumlah_transaksi'] ?>">
-                                    </div>
-                                  </td>
-                                  <td>
-                                    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                      <button id="editt<?= $rowtr['id'] ?>" class="btn btn-primary" type="button" onclick="editr(<?= $rowtr['id'] ?>)" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="ri-pencil-line"></i></button>
-                                      <button style="display: none;" id="batall<?= $rowtr['id'] ?>" class="btn btn-danger" type="button" onclick="bataltr(<?= $rowtr['id'] ?>)" data-bs-toggle="tooltip" data-bs-placement="top" title="Batal"><i class="mdi mdi-close-thick"></i></button>
-                                    </div>
-                                  </td>
-                                </tr>
-                              </form>
-                              <?php } ?>
-                            </tbody>
-                          </table>
-                          <?php } ?>
-                          <?php  
-                            if($edit == ""){
-                          ?>
-                          <span style="font-size:0.8rem"><strong>*jika pembayaran tidak memenuhi harga produk, maka berstatus DP</strong></span>
-                          <?php } ?>
-                        </div>
-                        <?php  
-                        if($edit == ""){
-                        ?>
                         <div class="col-sm-5">
                           <div class="input-group">
                             <span class="input-group-text">Rp.</span>
-                            <input type="number" name="total_pembayaran" id="debit" placeholder="Enter Pembayaran" onkeyup="sisaDari(this.value)" class="form-control" >
+                            <input type="number" id="fee" placeholder="Jumlah Pembayaran" step="0.01" class="form-control" name="sisa_pembayaran" value="<?= $edit != "" ? $rowedit['sisa_pembayaran_order'] : '' ; ?>" readonly>
+                          </div>  
+                          <span style="font-size:0.8rem"><strong>*jika pembayaran tidak memenuhi harga produk, maka berstatus DP</strong></span>  
+                        </div>
+                        <div class="col-sm-5">
+                          <div class="input-group">
+                            <span class="input-group-text">Rp.</span>
+                            <input type="number" name="total_pembayaran" id="debit" value="<?= $rowedit['pembayaran_customer_order'] ?>" placeholder="Enter Pembayaran" onkeyup="sisaDari(this.value)" class="form-control" >
                           </div>
                         </div>
-                        <?php } ?>
                       </div>
                       <button type="submit" name="create_spk" class="btn btn-primary mt-3"><?= $edit != "" ? "Update" : "Buat SPK" ; ?></button>
                     </div>
@@ -1886,44 +2156,145 @@ if(isset($_POST['create_spk'])){
               var debit = document.getElementById("debit").value;
               var tamby = document.getElementsByName("biaya_tambahan[]");
               var count = 0
-              if(diskon != ""){
-                var satuan = document.getElementById("satuan").value;
-                var hasil = parseFloat(fee) - (parseFloat(fee) * parseFloat(diskon/100));
-                if(satuan == "rupiah"){
-                  hasil = parseFloat(fee) - parseFloat(diskon);
-                }
-                if(debit != ""){
-                  
-                    for(var i = 0; i < tamby.length; i++){
-                      count += parseFloat(tamby[i].value);
-                    
-                  }
-                  document.getElementById("fee").value = hasil + parseFloat(count) - parseFloat(debit);
-                }else{
-                  
-                    for(var i = 0; i < tamby.length; i++){
-                      count += parseFloat(tamby[i].value);
-                    
-                  }
-                  document.getElementById("fee").value = hasil + parseFloat(count);
-                }
-              }else{
-                if(debit != ''){
-                  
-                    for(var i = 0; i < tamby.length; i++){
-                      count += parseFloat(tamby[i].value);
-                    
-                  }
-                  document.getElementById("fee").value = parseFloat(fee) + parseFloat(count) - parseFloat(debit);
-                }else{
-                  
-                    for(var i = 0; i < tamby.length; i++){
-                      count += parseFloat(tamby[i].value);
-                    
-                  }
-                  document.getElementById("fee").value = parseFloat(fee) + parseFloat(count);
-                }
+              // jika harga produk tidak kosong
+        if(fee != ""){
+          var hasil = 0;
+          // jika biaya tambahan tidak kosong
+          if(tamby.length > 0){
+            var count = 0;
+            // loop array input biaya tambahan
+            for(var index = 0; index < tamby.length; index++){
+              // jika nilai input index kosong (null)
+              if(tamby[index].value == ""){
+                count += 0;
               }
+              // jika nilai input index tdak kosong (nulll)
+              else{
+                count += parseFloat(tamby[index].value);
+              }
+            }
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = (parseFloat(fee) + parseFloat(count)) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
+              }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) + parseFloat(count) - $potongan) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) + parseFloat(count) - $potongan
+              }
+            }
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) + parseFloat(count)) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) + parseFloat(count)
+              }
+            }
+          }
+          // jika biaya tambahan kosong
+          else{
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = parseFloat(fee) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
+              }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = (parseFloat(fee) - $potongan) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee) - $potongan
+              }
+            }
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(fee) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(fee);              
+              }
+            }
+          }
+          // sisa atau hasil dari yang dibayar
+          document.getElementById("fee").value = hasil;
+        }
+        // jika harga produk kosong
+        else{
+          // jika biaya tambahan tidak kosong
+          if(tamby.length > 0){
+            var count = 0;
+            // loop array input biaya tambahan
+            for(var index = 0; index < tamby.length; index++){
+              // jika nilai input index kosong (null)
+              if(tamby[index].value == ""){
+                count += 0;
+              }
+              // jika nilai input index tdak kosong (nulll)
+              else{
+                count += parseFloat(tamby[index].value);
+              }
+            }
+            // jika diskon tidak kosong
+            if(diskon != ""){
+              // potongan dengan persen
+              $potongan = parseFloat(count) * (parseFloat(diskon)/100);
+              // potongan dengan rupiah
+              if(satuan == "rupiah"){
+                $potongan = parseFloat(diskon);
+              }
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(count) - $potongan - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(count) - $potongan;
+              }
+            }
+            // jika diskon kosong
+            else{
+              // jika debit customer tidak kosong
+              if(debit != ""){
+                hasil = parseFloat(count) - debit;
+              }
+              // jika debit customer kosong
+              else{
+                hasil = parseFloat(count)
+              }
+            }
+          }
+          // jika biaya tambahan kosong
+          else{
+            // jika debit customer tidak kosong
+            if(debit != ""){
+              hasil = 0 - debit;
+            }
+            // jika debit customer kosong
+            else{
+              hasil = 0;
+            }
+          }
+          // sisa atau hasil dari yang dibayar
+          document.getElementById("fee").value = hasil;
+        }
           });
       });
       </script>

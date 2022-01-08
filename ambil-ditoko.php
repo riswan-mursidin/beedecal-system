@@ -315,7 +315,7 @@ if(isset($_POST['edit_send'])){
           var kec = document.getElementById("kec").value;
           $.ajax({
             type:'post',
-            url:'action/adreess_pengiriman.php?id_order='+id_order+'&prov='+prov+'&kab='+kab+'&kec='+kec,
+            url:'action/adreess-pengiriman.php?id_order='+id_order+'&prov='+prov+'&kab='+kab+'&kec='+kec,
             success:function(hasil_address){
               $("#detailpengiriman").html(hasil_address);
             }

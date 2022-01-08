@@ -1454,9 +1454,9 @@ if(isset($_POST['create_spk'])){
                                         }
                                     }
                                   }
-                                  // }else{
-                                  //     echo '<option value="" hidden>PILIH PRODUK</option>';
-                                  // }
+                                  else{
+                                      echo '<option value="" hidden>PILIH PRODUK</option>';
+                                  }
                                 }else{
                                 ?>
                                 <option value="" hidden>PRODUK</option>

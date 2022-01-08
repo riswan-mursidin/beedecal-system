@@ -315,7 +315,7 @@ if(isset($_POST['edit_send'])){
           var kec = document.getElementById("kec").value;
           $.ajax({
             type:'post',
-            url:'adreess_pengiriman.php?id_order='+id_order+'&prov='+prov+'&kab='+kab+'&kec='+kec,
+            url:'action/adreess_pengiriman.php?id_order='+id_order+'&prov='+prov+'&kab='+kab+'&kec='+kec,
             success:function(hasil_address){
               $("#detailpengiriman").html(hasil_address);
             }
@@ -423,7 +423,7 @@ if(isset($_POST['edit_send'])){
                         <label for="" class="form-label">Status Pengiriman</label>
                         <select name="send_status" id="" onchange="detailPengiriman(this.value)" class="form-select">
                           <?php  
-                          $options = array("Ya","Tidak");
+                          $options = array("0",$roworder['id_order']);
                           foreach($options as $ops){
                             $select = $ops == $roworder['status_pengiriman_order'] ? 'selected="selected"' : '';
                           ?>

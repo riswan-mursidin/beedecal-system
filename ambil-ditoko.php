@@ -608,7 +608,7 @@ if(isset($_POST['edit_send'])){
                             ?>
                           </td>
                           <td>
-                            <?= showDesigner($roworder['id_designer']); ?>
+                            <?= $roworder['id_designer'] != "" ? showDesigner($roworder['id_designer']) : '' ?>
                           </td>
                           <!-- <td> -->
                          

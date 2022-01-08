@@ -1958,12 +1958,12 @@ if(isset($_POST['create_spk'])){
                             </select>
                           </div>
                           <div class="col-sm-3">
-                            <select name="kabkota" id="kabkota" class="form-select" onchange="viewkec(this.value)" required>
+                            <select name="kabkota" id="kabkota" class="form-select" onchange="viewkec(this.value)">
                               <option value="" hidden>KABUPATEN/KOTA</option>
                             </select>
                           </div>
                           <div class="col-sm-3">
-                            <select name="kec" id="kec" class="form-select" required>
+                            <select name="kec" id="kec" class="form-select">
                               <option value="" hidden>KECAMATAN</option>
                             </select>
                           </div>

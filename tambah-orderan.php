@@ -1352,7 +1352,7 @@ if(isset($_POST['create_spk'])){
                           <?php  
                           if($edit != ""){
                           ?>
-                          <div <?= $display = $rowedit['jenis_produk_order'] == "Custom" && $rowedit['kategori_produk_order'] == "Other" ? 'style="display: none;"' : '' ?> class="row" id="produk">
+                          <div <?= $display = $rowedit['jenis_produk_order'] == "Custom" && $rowedit['kategori_produk_order'] == "Other" ? 'style="display: none;"' : 'style="display: block;"' ?> class="row" id="produk">
                             <div class="col-md-6">
                               <label for="kategori_type" class="form-label">Produk Tersedia</label>
                               <select onchange="showVarian()" name="produk" id="kategori_type" class="form-control js-example-basic-single" >
@@ -1453,9 +1453,10 @@ if(isset($_POST['create_spk'])){
                                             }
                                         }
                                     }
-                                  }else{
-                                      echo '<option value="" hidden>PILIH PRODUK</option>';
                                   }
+                                  // }else{
+                                  //     echo '<option value="" hidden>PILIH PRODUK</option>';
+                                  // }
                                 }else{
                                 ?>
                                 <option value="" hidden>PRODUK</option>

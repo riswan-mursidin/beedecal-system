@@ -117,6 +117,7 @@ function statusBadge($txt,$sisa){
     return $result;
   }
 }
+
 function statusBadge2($txt){
   if($txt == "Tidak"){
     $result = '<h9><span class="badge rounded-pill bg-danger">Belum Lunas</span></h9>';

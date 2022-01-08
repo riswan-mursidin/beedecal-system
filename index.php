@@ -22,36 +22,41 @@ if($row['id_owner'] == "0"){
 $total_ordee = 0; $total_by = 0;
 $ordertoday = $db->selectTable("data_pemesanan","id_owner",$id,"tgl_order",date("Y-m-d"));
 while($roworder=mysqli_fetch_assoc($ordertoday)){
-  $potongan =  $roworder['harga_produk_order'] * ($roworder['diskon_order'] / 100);
+  $counttam = 0;
+  $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$roworder['code_order']);
+  if(mysqli_num_rows($tamby)>0){
+    while($rowby=mysqli_fetch_assoc($tamby)){
+      $counttam += $rowby['harga_ketbyaya'];
+    }
+  }
+  $potongan =  ($roworder['harga_produk_order'] + $counttam) * ($roworder['diskon_order'] / 100);
   if($roworder['satuan_potongan'] == "rupiah"){
     $potongan = $roworder['diskon_order'];
   }
-  $total_ordee += $roworder['harga_produk_order'] - $potongan;
-  $code_spk = $roworder['code_order'];
+  $total_ordee += ($roworder['harga_produk_order'] + $counttam) - $potongan;
   
-  $detailby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$code_spk);
-  while($rowtr=mysqli_fetch_assoc($detailby)){
-    $total_ordee += $rowtr['harga_ketbiaya'];
-  }
 }
 // penjualan bulan ini
 $total_ordeer_bulan_ini = 0; $pemasangan_bln = 0;
 $date = date("m");
-$queribulan = "SELECT * FROM data_pemesanan WHERE month(tgl_order)='$date' AND id_owner='$id'";
+$year = date("Y");
+$queribulan = "SELECT * FROM data_pemesanan WHERE month(tgl_order)='$date' AND year(tgl_order)='$year' AND id_owner='$id'";
 $orderbulan = mysqli_query($db->conn, $queribulan);
 while($roworder_bulan=mysqli_fetch_assoc($orderbulan)){
+  $counttam = 0;
+  $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$roworder['code_order']);
+  if(mysqli_num_rows($tamby)>0){
+    while($rowby=mysqli_fetch_assoc($tamby)){
+      $counttam += $rowby['harga_ketbyaya'];
+    }
+  }
   $pemasangan_bln += $roworder_bulan['harga_pasang_order'] + $roworder_bulan['biaya_tambah_pemasangan_order'];
-  $potongan =  $roworder_bulan['harga_produk_order'] * ($roworder_bulan['diskon_order'] / 100);
+  $potongan =  ($roworder_bulan['harga_produk_order'] + $counttam) * ($roworder_bulan['diskon_order'] / 100);
   if($roworder_bulan['satuan_potongan'] == "rupiah"){
     $potongan = $roworder_bulan['diskon_order'];
   }
-  $total_ordeer_bulan_ini += $roworder_bulan['harga_produk_order'] - $potongan;
+  $total_ordeer_bulan_ini += ($roworder_bulan['harga_produk_order'] + $counttam) - $potongan;
   $code_spk = $roworder_bulan['code_order'];
-
-  $detailby_bulan = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$code_spk);
-  while($rowtr_bulan=mysqli_fetch_assoc($detailby_bulan)){
-    $total_ordeer_bulan_ini += $rowtr_bulan['harga_ketbiaya'];
-  }
 }
 $rata_rata = $total_ordeer_bulan_ini / intval(date("d"));
 $rata_rata_pasang = $pemasangan_bln / intval(date("d"));

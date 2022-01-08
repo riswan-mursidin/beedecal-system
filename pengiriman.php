@@ -100,13 +100,32 @@ function showProduk($id_produk){
   return $result;
 }
 
-function resultDiskon($harga,$disk,$satuan){
-  $diskon = $harga * ($disk/100);
-  $result = $harga - $diskon;
-  if($satuan == "rupiah"){
-    $result = $harga - $disk;
+function resultDiskon($owner,$spk,$harga,$disk,$satuan){
+  global $db;
+  $count = 0;
+  $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$owner,"code_order",$spk);
+  if(mysqli_num_rows($tamby) > 0){
+    while($rowtamby=mysqli_fetch_assoc($tamby)){
+      $count += $rowtamby['harga_ketbiaya'];
+    }
+    $diskon = ($harga + $count) * ($disk/100);
+    $result['hasil'] = ($harga + $count) - $diskon;
+    $result['tamby'] = $count;
+    if($satuan == "rupiah"){
+      $result['tamby'] = $count;
+      $result['hasil'] = ($harga + $count) - $disk;
+    }
+    return $result;
+  }else{
+    $diskon = $harga * ($disk/100);
+    $result['hasil'] = $harga - $diskon;
+    $result['tamby'] = $count;
+    if($satuan == "rupiah"){
+      $result['hasil'] = $harga - $disk;
+      $result['tamby'] = 0;
+    }
+    return $result;
   }
-  return $result;
 }
 
 function showCustomer($id_customer, $pengiriman, $id_order=null){
@@ -127,9 +146,10 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
 
 
 
-function statusBadge($txt){
+function statusBadge($txt,$sisa){
+  
   if($txt == "Belum Lunas"){
-    $result = '<h9><span class="badge rounded-pill bg-danger">Belum Lunas</span></h9>';
+    $result = '<h9><span class="badge rounded-pill bg-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Sisa Rp.'.number_format($sisa,2,",",".").'">Belum Lunas</span></h9>';
     return $result;
   }else{
     $result = '<h9><span class="badge rounded-pill bg-success">Lunas</span></h9>';
@@ -390,16 +410,24 @@ function showCetakan($id_order, $owner){
                             <?= showCetakan($roworder['code_order'],$id)['percetakan'] ?>
                           </td>
                           <td>
-                            <?php if($roworder['satuan_potongan'] == "persen"){ ?>
-                            <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format($roworder['harga_produk_order'],2,",",".").'" class="badge bg-secondary">Diskon '.$roworder['diskon_order'].'%</span><br>' : '' ?>
+                            <?php $resultdisk = resultDiskon($id,$roworder['code_order'],$roworder['harga_produk_order'],$roworder['diskon_order'],$roworder['satuan_potongan']);
+                            if($roworder['satuan_potongan'] == "persen"){ ?>
+                            <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format(($roworder['harga_produk_order']+$resultdisk['tamby']),2,",",".").'" class="badge bg-secondary">Diskon '.$roworder['diskon_order'].'%</span><br>' : '' ?>
                             <?php }else{ ?>
-                              <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format($roworder['harga_produk_order'],2,",",".").'" class="badge bg-secondary">Diskon Rp.'.number_format($roworder['diskon_order'],2,",",".").'</span><br>' : '' ?>
+                              <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format(($roworder['harga_produk_order']+$resultdisk['tamby']),2,",",".").'" class="badge bg-secondary">Diskon Rp.'.number_format($roworder['diskon_order'],2,",",".").'</span><br>' : '' ?>
                             <?php } ?>
-                            Harga Produk: Rp.<?= number_format(resultDiskon($roworder['harga_produk_order'],$roworder['diskon_order'],$roworder['satuan_potongan']),2,",",".") ?>
-                            <?= statusBadge($roworder['status_pay_order']) ?><br>
+                            Harga Produk: Rp.<?= number_format($resultdisk['hasil'],2,",",".") ?>
+                            <?= statusBadge($roworder['status_pay_order'],$roworder['sisa_pembayaran_order']) ?><br>
                             Harga Pasang: <?= $roworder['status_pasang_order'] == "Ya" ? ' Rp.'.number_format($roworder['harga_pasang_order'],2,",",".") : 'Tidak Dipasang' ?>
                             <?= $roworder['status_pasang_order'] == "Ya" ? statusBadge2($roworder['status_bayar_pasang']) : '' ?><br>
-                            Harga Pengiriman: <?= $roworder['status_pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".") : '-,-' ?>
+                            <?php  $badge = "";
+                            if($roworder['ongkir_cod_order'] == "COD"){
+                              $badge = "bg-danger";
+                            }else{
+                              $badge = "bg-success";
+                            }
+                            ?>
+                            Harga Pengiriman: <?= $roworder['status_pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".").' <h9><span class="badge rounded-pill '.$badge.'">'.$roworder['ongkir_cod_order'].'</span></h9>' : '-,-' ?>
                             
                           </td>
                           <td>

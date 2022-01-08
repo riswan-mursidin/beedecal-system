@@ -236,15 +236,22 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       <?php
                       $year = date("Y"); $month = 1;
                       $count = 0;
-                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
+                      $omset_query = "SELECT code_order,harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          $counttam = 0;
+                          $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$rowomset['code_order']);
+                          if(mysqli_num_rows($tamby)>0){
+                            while($rowby=mysqli_fetch_assoc($tamby)){
+                              $counttam += $rowby['harga_ketbyaya'];
+                            }
+                          }
+                          $potongan = ($rowomset['harga_produk_order'] + $counttam) * ($rowomset['diskon_order']/100);
                           if($rowomset['satuan_potongan'] == "rupiah"){
                             $potongan = $rowomset['diskon_order'];
                           }
-                          $count += $rowomset["harga_produk_order"] - $potongan;
+                          $count += ($rowomset['harga_produk_order'] + $counttam) - $potongan;
                         }
                       }
                       echo $count
@@ -256,11 +263,18 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          $counttam = 0;
+                          $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$rowomset['code_order']);
+                          if(mysqli_num_rows($tamby)>0){
+                            while($rowby=mysqli_fetch_assoc($tamby)){
+                              $counttam += $rowby['harga_ketbyaya'];
+                            }
+                          }
+                          $potongan = ($rowomset['harga_produk_order'] + $counttam) * ($rowomset['diskon_order']/100);
                           if($rowomset['satuan_potongan'] == "rupiah"){
                             $potongan = $rowomset['diskon_order'];
                           }
-                          $count += $rowomset["harga_produk_order"] - $potongan;
+                          $count += ($rowomset['harga_produk_order'] + $counttam) - $potongan;
                         }
                       }
                       echo $count
@@ -272,11 +286,18 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          $counttam = 0;
+                          $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$rowomset['code_order']);
+                          if(mysqli_num_rows($tamby)>0){
+                            while($rowby=mysqli_fetch_assoc($tamby)){
+                              $counttam += $rowby['harga_ketbyaya'];
+                            }
+                          }
+                          $potongan = ($rowomset['harga_produk_order'] + $counttam) * ($rowomset['diskon_order']/100);
                           if($rowomset['satuan_potongan'] == "rupiah"){
                             $potongan = $rowomset['diskon_order'];
                           }
-                          $count += $rowomset["harga_produk_order"] - $potongan;
+                          $count += ($rowomset['harga_produk_order'] + $counttam) - $potongan;
                         }
                       }
                       echo $count
@@ -288,11 +309,18 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          $counttam = 0;
+                          $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$rowomset['code_order']);
+                          if(mysqli_num_rows($tamby)>0){
+                            while($rowby=mysqli_fetch_assoc($tamby)){
+                              $counttam += $rowby['harga_ketbyaya'];
+                            }
+                          }
+                          $potongan = ($rowomset['harga_produk_order'] + $counttam) * ($rowomset['diskon_order']/100);
                           if($rowomset['satuan_potongan'] == "rupiah"){
                             $potongan = $rowomset['diskon_order'];
                           }
-                          $count += $rowomset["harga_produk_order"] - $potongan;
+                          $count += ($rowomset['harga_produk_order'] + $counttam) - $potongan;
                         }
                       }
                       echo $count
@@ -304,11 +332,18 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          $counttam = 0;
+                          $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$rowomset['code_order']);
+                          if(mysqli_num_rows($tamby)>0){
+                            while($rowby=mysqli_fetch_assoc($tamby)){
+                              $counttam += $rowby['harga_ketbyaya'];
+                            }
+                          }
+                          $potongan = ($rowomset['harga_produk_order'] + $counttam) * ($rowomset['diskon_order']/100);
                           if($rowomset['satuan_potongan'] == "rupiah"){
                             $potongan = $rowomset['diskon_order'];
                           }
-                          $count += $rowomset["harga_produk_order"] - $potongan;
+                          $count += ($rowomset['harga_produk_order'] + $counttam) - $potongan;
                         }
                       }
                       echo $count
@@ -320,11 +355,18 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          $counttam = 0;
+                          $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$rowomset['code_order']);
+                          if(mysqli_num_rows($tamby)>0){
+                            while($rowby=mysqli_fetch_assoc($tamby)){
+                              $counttam += $rowby['harga_ketbyaya'];
+                            }
+                          }
+                          $potongan = ($rowomset['harga_produk_order'] + $counttam) * ($rowomset['diskon_order']/100);
                           if($rowomset['satuan_potongan'] == "rupiah"){
                             $potongan = $rowomset['diskon_order'];
                           }
-                          $count += $rowomset["harga_produk_order"] - $potongan;
+                          $count += ($rowomset['harga_produk_order'] + $counttam) - $potongan;
                         }
                       }
                       echo $count
@@ -336,11 +378,18 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          $counttam = 0;
+                          $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$rowomset['code_order']);
+                          if(mysqli_num_rows($tamby)>0){
+                            while($rowby=mysqli_fetch_assoc($tamby)){
+                              $counttam += $rowby['harga_ketbyaya'];
+                            }
+                          }
+                          $potongan = ($rowomset['harga_produk_order'] + $counttam) * ($rowomset['diskon_order']/100);
                           if($rowomset['satuan_potongan'] == "rupiah"){
                             $potongan = $rowomset['diskon_order'];
                           }
-                          $count += $rowomset["harga_produk_order"] - $potongan;
+                          $count += ($rowomset['harga_produk_order'] + $counttam) - $potongan;
                         }
                       }
                       echo $count
@@ -352,11 +401,18 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          $counttam = 0;
+                          $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$rowomset['code_order']);
+                          if(mysqli_num_rows($tamby)>0){
+                            while($rowby=mysqli_fetch_assoc($tamby)){
+                              $counttam += $rowby['harga_ketbyaya'];
+                            }
+                          }
+                          $potongan = ($rowomset['harga_produk_order'] + $counttam) * ($rowomset['diskon_order']/100);
                           if($rowomset['satuan_potongan'] == "rupiah"){
                             $potongan = $rowomset['diskon_order'];
                           }
-                          $count += $rowomset["harga_produk_order"] - $potongan;
+                          $count += ($rowomset['harga_produk_order'] + $counttam) - $potongan;
                         }
                       }
                       echo $count
@@ -368,11 +424,18 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          $counttam = 0;
+                          $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$rowomset['code_order']);
+                          if(mysqli_num_rows($tamby)>0){
+                            while($rowby=mysqli_fetch_assoc($tamby)){
+                              $counttam += $rowby['harga_ketbyaya'];
+                            }
+                          }
+                          $potongan = ($rowomset['harga_produk_order'] + $counttam) * ($rowomset['diskon_order']/100);
                           if($rowomset['satuan_potongan'] == "rupiah"){
                             $potongan = $rowomset['diskon_order'];
                           }
-                          $count += $rowomset["harga_produk_order"] - $potongan;
+                          $count += ($rowomset['harga_produk_order'] + $counttam) - $potongan;
                         }
                       }
                       echo $count
@@ -384,11 +447,18 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          $counttam = 0;
+                          $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$rowomset['code_order']);
+                          if(mysqli_num_rows($tamby)>0){
+                            while($rowby=mysqli_fetch_assoc($tamby)){
+                              $counttam += $rowby['harga_ketbyaya'];
+                            }
+                          }
+                          $potongan = ($rowomset['harga_produk_order'] + $counttam) * ($rowomset['diskon_order']/100);
                           if($rowomset['satuan_potongan'] == "rupiah"){
                             $potongan = $rowomset['diskon_order'];
                           }
-                          $count += $rowomset["harga_produk_order"] - $potongan;
+                          $count += ($rowomset['harga_produk_order'] + $counttam) - $potongan;
                         }
                       }
                       echo $count
@@ -400,11 +470,18 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          $counttam = 0;
+                          $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$rowomset['code_order']);
+                          if(mysqli_num_rows($tamby)>0){
+                            while($rowby=mysqli_fetch_assoc($tamby)){
+                              $counttam += $rowby['harga_ketbyaya'];
+                            }
+                          }
+                          $potongan = ($rowomset['harga_produk_order'] + $counttam) * ($rowomset['diskon_order']/100);
                           if($rowomset['satuan_potongan'] == "rupiah"){
                             $potongan = $rowomset['diskon_order'];
                           }
-                          $count += $rowomset["harga_produk_order"] - $potongan;
+                          $count += ($rowomset['harga_produk_order'] + $counttam) - $potongan;
                         }
                       }
                       echo $count
@@ -416,11 +493,18 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       $result_omset = mysqli_query($db->conn, $omset_query);
                       if(mysqli_num_rows($result_omset) >0){
                         while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $potongan = $rowomset['harga_produk_order'] * ($rowomset['diskon_order']/100);
+                          $counttam = 0;
+                          $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$rowomset['code_order']);
+                          if(mysqli_num_rows($tamby)>0){
+                            while($rowby=mysqli_fetch_assoc($tamby)){
+                              $counttam += $rowby['harga_ketbyaya'];
+                            }
+                          }
+                          $potongan = ($rowomset['harga_produk_order'] + $counttam) * ($rowomset['diskon_order']/100);
                           if($rowomset['satuan_potongan'] == "rupiah"){
                             $potongan = $rowomset['diskon_order'];
                           }
-                          $count += $rowomset["harga_produk_order"] - $potongan;
+                          $count += ($rowomset['harga_produk_order'] + $counttam) - $potongan;
                         }
                       }
                       echo $count

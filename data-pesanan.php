@@ -107,9 +107,10 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
   return $result;
 }
 
-function statusBadge($txt){
+function statusBadge($txt,$sisa){
+  
   if($txt == "Belum Lunas"){
-    $result = '<h9><span class="badge rounded-pill bg-danger">Belum Lunas</span></h9>';
+    $result = '<h9><span class="badge rounded-pill bg-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Sisa Rp.'.number_format($sisa,2,",",".").'">Belum Lunas</span></h9>';
     return $result;
   }else{
     $result = '<h9><span class="badge rounded-pill bg-success">Lunas</span></h9>';
@@ -312,7 +313,7 @@ function statusBadge2($txt){
                               <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format(($roworder['harga_produk_order']+$resultdisk['tamby']),2,",",".").'" class="badge bg-secondary">Diskon Rp.'.number_format($roworder['diskon_order'],2,",",".").'</span><br>' : '' ?>
                             <?php } ?>
                             Harga Produk: Rp.<?= number_format($resultdisk['hasil'],2,",",".") ?>
-                            <?= statusBadge($roworder['status_pay_order']) ?><br>
+                            <?= statusBadge($roworder['status_pay_order'],$roworder['sisa_pembayaran_order']) ?><br>
                             Harga Pasang: <?= $roworder['status_pasang_order'] == "Ya" ? ' Rp.'.number_format($roworder['harga_pasang_order'],2,",",".") : 'Tidak Dipasang' ?>
                             <?= $roworder['status_pasang_order'] == "Ya" ? statusBadge2($roworder['status_bayar_pasang']) : '' ?><br>
                             <?php  $badge = "";

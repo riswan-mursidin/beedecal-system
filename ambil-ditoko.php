@@ -609,11 +609,11 @@ if(isset($_POST['edit_send'])){
                           <td>
                             <?= $roworder['id_designer'] != "" ? showDesigner($roworder['id_designer']) : '' ?>
                           </td>
-                          <!-- <td> -->
+                          <td>
                          
-                             <!-- '<a target="_blank" href="'.$roworder['hasil_desain_order'].'">View Desain</a>'  -->
+                             <?= '<a target="_blank" href="'.$roworder['hasil_desain_order'].'">View Desain</a>' ?>
                          
-                        <!-- </td> -->
+                        </td>
                           <td>
                             <?= showCetakan($roworder['code_order'],$id)['percetakan'] ?>
                           </td>
@@ -638,11 +638,7 @@ if(isset($_POST['edit_send'])){
                             Harga Pengiriman: <?= $roworder['status_pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".").' <h9><span class="badge rounded-pill '.$badge.'">'.$roworder['ongkir_cod_order'].'</span></h9>' : '-,-' ?>
                             
                           </td>
-                          <td>
-                          <a data-bs-toggle="modal" href="#detailsby<?= $roworder['id_order'] ?>">
-                            Details
-                          </a>
-                          </td>
+                          
                           <td>
                             Desain: <b><?= $roworder['status_desain_order'] ?></b><br>
                             Cetak: <b><?= $roworder['status_cetak_order'] ?></b><br>

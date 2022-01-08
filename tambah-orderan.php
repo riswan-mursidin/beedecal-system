@@ -2052,7 +2052,7 @@ if(isset($_POST['create_spk'])){
                         <div class="col-sm-5">
                           <div class="input-group">
                             <span class="input-group-text">Rp.</span>
-                            <input type="number" name="total_pembayaran" id="debit" value="<?= $rowedit['pembayaran_customer_order'] ?>" placeholder="Enter Pembayaran" onkeyup="sisaDari(this.value)" class="form-control" >
+                            <input type="number" name="total_pembayaran" id="debit" value="<?= $edit != "" ? $rowedit['pembayaran_customer_order'] : '' ?>" placeholder="Enter Pembayaran" onkeyup="sisaDari(this.value)" class="form-control" >
                           </div>
                         </div>
                       </div>

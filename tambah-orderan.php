@@ -1351,8 +1351,21 @@ if(isset($_POST['create_spk'])){
                         <div id="custmview" class="col-md-6">
                           <?php  
                           if($edit != ""){
+                            if($rowedit['jenis_produk_order'] == "Custom" && $rowedit['kategori_produk_order'] == "Other"){
+
                           ?>
-                          <div <?= $display = $rowedit['jenis_produk_order'] == "Custom" && $rowedit['kategori_produk_order'] == "Other" ? 'style="display: none;"' : 'style="display: block;"' ?> class="row" id="produk">
+                          <div id="produk2" class="row">
+                            <div class="col-md-6">
+                              <label for="" class="form-label">Nama Produk</label>
+                              <input type="text" value="<?= $rowedit['produk_order'] ?>" name="produk2" id="" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                              <label for="" class="form-label">Harga</label>
+                              <input type="number" value="<?= $rowedit['harga_produk_order'] ?>" name="varian_harga2" id="harga2" class="form-control" onkeyup="showFee(this.value)">
+                            </div>
+                          </div>
+                          <?php }else{ ?>
+                          <div class="row" id="produk">
                             <div class="col-md-6">
                               <label for="kategori_type" class="form-label">Produk Tersedia</label>
                               <select onchange="showVarian()" name="produk" id="kategori_type" class="form-control js-example-basic-single" >
@@ -1414,17 +1427,7 @@ if(isset($_POST['create_spk'])){
                                 <?php } ?>
                               </select>
                             </div>
-                          </div>
-                          <div <?= $display = $rowedit['jenis_produk_order'] == "Custom" && $rowedit['kategori_produk_order'] == "Other" ? 'style="display: block;"' : 'style="display: none;"' ?> id="produk2" class="row">
-                            <div class="col-md-6">
-                              <label for="" class="form-label">Nama Produk</label>
-                              <input type="text" value="<?= $rowedit['produk_order'] ?>" name="produk2" id="" class="form-control">
-                            </div>
-                            <div class="col-md-6">
-                              <label for="" class="form-label">Harga</label>
-                              <input type="number" value="<?= $rowedit['harga_produk_order'] ?>" name="varian_harga2" id="harga2" class="form-control" onkeyup="showFee(this.value)">
-                            </div>
-                          </div>
+                          </div> <?php } ?>
                           <?php }else{ ?>
                           <div class="row" id="produk">
                             <div class="col-md-6">

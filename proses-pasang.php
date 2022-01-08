@@ -43,58 +43,12 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
   $rowdb=mysqli_fetch_assoc($querydb);
 
   // alamat customer
-  $nameprov = "";
-  $namekabkot = "";
-  $namekec = "";
-  $kodepos = "";
-  if($pengiriman == "Ya"){
-    $order = $db->selectTable("data_pemesanan","id_order",$id_order);
-    $roworder=mysqli_fetch_assoc($order);
-    $kodepos = $roworder['kode_pos_send_order'];
-    $provs = $db->dataIndonesia("prov",null);
-    foreach($provs as $prov){
-      if($prov['province_id'] == $roworder['prov_send_order']){
-        $nameprov = $prov['province'];
-      }
-    }
-    $kabkot = $db->dataIndonesia("kab_kota",$roworder['prov_send_order']);
-    foreach($kabkot as $kab){
-      if($kab['city_id'] == $roworder['kab_send_order']){
-        $namekabkot = $kab['city_name'];
-      }
-    }
-    $kecs = $db->dataIndonesia("kec",$roworder['kab_send_order']);
-    foreach($kecs as $kec){
-      if($kec['subdistrict_id'] == $roworder['kec_send_order']){
-        $namekec = $kec['subdistrict_name'];
-      }
-    }
-  }else{
-    $kodepos = $rowdb['kode_pos_customer'];
-    $provs = $db->dataIndonesia("prov",null);
-    foreach($provs as $prov){
-      if($prov['province_id'] == $rowdb['prov_customer']){
-        $nameprov = $prov['province'];
-      }
-    }
-    $kabkot = $db->dataIndonesia("kab_kota",$rowdb['prov_customer']);
-    foreach($kabkot as $kab){
-      if($kab['city_id'] == $rowdb['kota_kab_customer']){
-        $namekabkot = $kab['city_name'];
-      }
-    }
-    $kecs = $db->dataIndonesia("kec",$rowdb['kota_kab_customer']);
-    foreach($kecs as $kec){
-      if($kec['subdistrict_id'] == $rowdb['kec_customer']){
-        $namekec = $kec['subdistrict_name'];
-      }
-    }
-  }
+  
   $result['name'] = $rowdb['name_customer'];
-  $result['prov'] = $nameprov;
-  $result['kab'] = $namekabkot;
-  $result['kec'] = $namekec;
-  $result['kodepos'] = $kodepos;
+  $result['prov'] = $rowdb['prov_customer'];
+  $result['kab'] = $rowdb['kota_kab_customer'];
+  $result['kec'] = $rowdb['kec_customer'];
+  $result['kodepos'] = $rowdb['kode_pos_customer'];
   return $result;
 }
 
@@ -279,7 +233,7 @@ function showPemasang($id){
                             ?>
                           </td>
                           <td>
-                            <?= showDesigner($roworder['id_designer']) ?>
+                            <?= $roworder['id_designer'] != "" ? showDesigner($roworder['id_designer']) : '' ?>
                           </td>
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
                           <td><?= $db->dateFormatter($roworder['tgl_pasang_order']); ?></td>

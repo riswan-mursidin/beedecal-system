@@ -70,7 +70,7 @@ $kec = $_GET['kec'];
                         </div>
                         <div class="mb-3">
                           <label for="" class="form-label">Berat</label>
-                          <<input type="number" name="berat" step="0.01" id="berat" class="form-control">
+                          <input type="number" name="berat" step="0.01" id="berat" class="form-control">
                         </div>
                         <div class="mb-3">
                           <label for="" class="form-label">Ongkir</label>

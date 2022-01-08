@@ -308,7 +308,6 @@ if(isset($_POST['edit_send'])){
     
     <script>
       function detailPengiriman(str){
-        var detail = document.getElementById("detailpengiriman");
         if(str == "Ya"){
           var id_order = document.getElementById("id_order").value;
           var prov = document.getElementById("prov").value;
@@ -318,11 +317,11 @@ if(isset($_POST['edit_send'])){
             type:'post',
             url:'adreess_pengiriman.php?id_order='+id_order+'&prov='+prov+'&kab='+kab+'&kec='+kec,
             success:function(hasil_address){
-              $("div[id=detailpengiriman]").html(hasil_address);
+              $("#detailpengiriman").html(hasil_address);
             }
           })
         }else{
-          $("div[id=detailpengiriman]").html("");
+          $("#detailpengiriman").html("");
         }
       }
     </script>

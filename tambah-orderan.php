@@ -1415,7 +1415,7 @@ if(isset($_POST['create_spk'])){
                               </select>
                             </div>
                           </div>
-                          <div <?= $display = $rowedit['jenis_produk_order'] != "Custom" && $rowedit['kategori_produk_order'] != "Other" ? 'style="display: none;"' : '' ?> id="produk2" class="row">
+                          <div <?= $display = $rowedit['jenis_produk_order'] == "Custom" && $rowedit['kategori_produk_order'] == "Other" ? 'style="display: block;"' : 'style="display: none;"' ?> id="produk2" class="row">
                             <div class="col-md-6">
                               <label for="" class="form-label">Nama Produk</label>
                               <input type="text" value="<?= $rowedit['produk_order'] ?>" name="produk2" id="" class="form-control">

@@ -423,7 +423,7 @@ if(isset($_POST['edit_send'])){
                         <label for="" class="form-label">Status Pengiriman</label>
                         <select name="send_status" id="" onchange="detailPengiriman(this.value)" class="form-select">
                           <?php  
-                          $options = array("0",$roworder['id_order']);
+                          $options = array("Ya","Tidak");
                           foreach($options as $ops){
                             $select = $ops == $roworder['status_pengiriman_order'] ? 'selected="selected"' : '';
                           ?>

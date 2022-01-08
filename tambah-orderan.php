@@ -1718,7 +1718,7 @@ if(isset($_POST['create_spk'])){
                               while($rowcs=mysqli_fetch_assoc($cs)){
                                 $select = $val == $rowcs['id_customer'] ? 'selected="selected"' : '';
                             ?>
-                            <option value="<?= $rowcs['id_customer'] ?>" <?= $select ?>><?= $db->nameFormater($rowcs['username_customer']) ?></option>
+                            <option value="<?= $rowcs['id_customer'] ?>" <?= $select ?>><?= $db->nameFormater($rowcs['name_customer']) ?></option>
                             <?php } ?>
                           </select>
                         </div>

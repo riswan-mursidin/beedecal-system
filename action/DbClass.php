@@ -316,28 +316,31 @@
             }
         }
 
-        public function createSpk($owner){
-            $date = date("m");
-            $cek_spk = "SELECT * FROM data_pemesanan WHERE month(tgl_order)='$date' AND id_owner='$owner' ORDER BY code_order DESC LIMIT 1";
+        public function createSpk($owner,$date){
+            $array_date = explode("-",$date);
+            $day = $array_date[2];
+            $month = $array_date[1];
+            $year = $array_date[0];
+            $cek_spk = "SELECT * FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$owner' ORDER BY code_order DESC LIMIT 1";
             $result = mysqli_query($this->conn, $cek_spk);
             if(mysqli_num_rows($result) > 0){
                 $row = mysqli_fetch_assoc($result);
                 $spkdb = $row['code_order'];
                 $spk = substr($spkdb, -3) + 1;
-                $year = substr(date("Y"),-2);
+                $year = substr($year,-2);
                 if($spk < 10){
-                    return "SPK-".date("d").date("m").$year."00".$spk;
+                    return "SPK-".$day.$month.$year."00".$spk;
                     // return substr_replace($spkdb,"00".$spk,10,3);
                 }elseif($spk < 100){
-                    return "SPK-".date("d").date("m").$year."0".$spk;
+                    return "SPK-".$day.$month.$year."0".$spk;
                     // return substr_replace($spkdb,"0".$spk,10,3);
                 }else{
-                    return "SPK-".date("d").date("m").$year.$spk;
+                    return "SPK-".$day.$month.$year.$spk;
                     // return substr_replace($spkdb,$spk,10,3);
                 }
             }else{
-                $year = substr(date("Y"),-2);
-                return "SPK-".date("d").date("m").$year."001";
+                $year = substr($year,-2);
+                return "SPK-".$day.$month.$year."001";
             }
 
         }

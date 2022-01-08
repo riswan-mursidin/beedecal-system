@@ -61,8 +61,9 @@ if($edit != ""){
 }
 
 if(isset($_POST['create_spk'])){
+  $date = $_POST['date_order'];
   // create spk
-  $spk = $db->createSpk($id);
+  $spk = $db->createSpk($id,$date);
 
   $user = $_SESSION['login_stiker_id'];
   
@@ -72,6 +73,7 @@ if(isset($_POST['create_spk'])){
   $array_varian = explode(" - ",$varian);
   $varian_harga = $array_varian[0];
   $varian_model = end(explode(" - ",$varian));
+
 
   // informasi Pemesanan
   $kategori_produk = $_POST['kategori_produk'];
@@ -113,7 +115,7 @@ if(isset($_POST['create_spk'])){
   $satuan_potongan = $_POST['satuan_potongan'];
   $diskon = $_POST['diskon'];
   $sumber = $_POST['sumber'];
-  $order_date = date("Y-m-d");
+  $order_date = $date;
   $status_pengiriman = $pemasangan_status == "Ya" ? "Tidak" : $_POST['pengiriman'];
 
   // detail pengiriman
@@ -189,6 +191,8 @@ if(isset($_POST['create_spk'])){
   }else{
     $status_order = "Selesai Dicetak";
   }
+
+  
 
   if($edit != ""){
     $fotocontoh = $db->selectTable("contoh_desain","code_order",$rowedit['coder_order'],"id_owner",$id);
@@ -1765,7 +1769,7 @@ if(isset($_POST['create_spk'])){
                         <div class="col-sm-10">
                           <!-- <div class="input-group"> -->
                             <!-- <span class="input-group-text" id="basic-addon1"><i class="ri-calendar-todo-fill"></i></span> -->
-                            <input type="<?= $edit != "" ? 'text' : 'date' ?>" class="form-control" <?= $edit != "" ? 'disabled' : '' ?> value="<?= $edit != "" ? $db->dateFormatter($rowedit['tgl_order']) : $db->dateFormatter(date("Y-m-d")) ?>">
+                            <input name="date_order" type="<?= $edit != "" ? 'text' : 'date' ?>" class="form-control" <?= $edit != "" ? 'disabled' : '' ?> value="<?= $edit != "" ? $db->dateFormatter($rowedit['tgl_order']) : '' ?>">
                           <!-- </div> -->
                         </div>
                         <label for="pengiriman" class="col-sm-2 col-form-label">Pengiriman</label>

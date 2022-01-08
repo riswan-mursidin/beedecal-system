@@ -310,10 +310,10 @@ if(isset($_POST['edit_send'])){
       function detailPengiriman(str){
         var detail = document.getElementById("detailpengiriman");
         if(str == "Ya"){
-          var id_order = document.getElementById("id_order");
-          var prov = document.getElementById("prov");
-          var kab = document.getElementById("kab");
-          var kec = document.getElementById("kec");
+          var id_order = document.getElementById("id_order").value;
+          var prov = document.getElementById("prov").value;
+          var kab = document.getElementById("kab").value;
+          var kec = document.getElementById("kec").value;
           $.ajax({
             type:'post',
             url:'adreess_pengiriman.php?id_order='+id_order+'&prov='+prov+'&kab='+kab+'&kec='+kec,
@@ -322,7 +322,7 @@ if(isset($_POST['edit_send'])){
             }
           })
         }else{
-          detail.style.display = "none";
+          $("div[id=detailpengiriman]").html("");
         }
       }
     </script>

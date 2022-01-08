@@ -662,9 +662,9 @@ if(isset($_POST['edit_send'])){
                                   <i class="ri-check-line"></i>
                                 </a>
                             <?php } ?>
-                              <a href="#editpengiriman<?= $roworder['id_order'] ?>" data-bs-toggle="modal" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Pengiriman">
+                              <!-- <a href="#editpengiriman<?= $roworder['id_order'] ?>" data-bs-toggle="modal" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Pengiriman">
                                 <i class="ri-pencil-line"></i>
-                              </a>
+                              </a> -->
                               <a target="_blank" href="print_note?spk=<?= $roworder['code_order'] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Note"><i class="ri-printer-line"></i></a>
                             </div>
                           </td>

@@ -218,14 +218,14 @@
                         Ambil ditoko
                       </a>
                     </li>
-                    <li>
+                    <!-- <li>
                       <a href="pengiriman">
                       <?php if($jumlogistik_kirim != 0){ ?>
                         <span class="badge rounded-pill bg-danger float-end"><?= $jumlogistik_kirim ?></span>
                       <?php } ?>
                         Pengiriman
                       </a>
-                    </li>
+                    </li> -->
                   </ul>
                 </li>
                 <li class="menu-title">Laporan</li>
@@ -249,12 +249,12 @@
                   </a>
                   <ul class="sub-menu" aria-expanded="false">
                     <li><a href="bahan-produksi">Bahan Produksi</a></li>
-                    <li><a href="#">Gagal Produksi</a></li>
+                    <!-- <li><a href="#">Gagal Produksi</a></li> -->
                   </ul>
                 </li>
                 <li class="menu-title">Pemasangan</li>
                 <!-- Laporan Pemasangan -->
-                <li>
+                <!-- <li>
                   <a href="javascript: void(0);" class="has-arrow waves-effect">
                     <i class="ri-brush-4-fill"></i>
                     <span>Data Pemasangan</span>
@@ -267,9 +267,9 @@
                       <a href="pengaturan-pemasangan.html">Pengaturan</a>
                     </li>
                   </ul>
-                </li>
+                </li> -->
                 <!-- Laporan Pegawai Bebas -->
-                <li class="menu-title">Relasi</li>
+                <!-- <li class="menu-title">Relasi</li>
                 <li>
                   <a href="javascript: void(0);" class="has-arrow waves-effect">
                     <i class="ri-team-fill"></i>
@@ -289,7 +289,7 @@
                       <a href="pegawailepas-agen.html">Agen</a>
                     </li>
                   </ul>
-                </li>
+                </li> -->
                 <!-- Relasi Toko -->
                 <li>
                   <a href="javascript: void(0);" class="has-arrow waves-effect">

@@ -1809,7 +1809,7 @@ if(isset($_POST['create_spk'])){
 
                         <!-- kurir -->
                         <div class="col-sm-10">
-                          <select name="kurir" id="kurir" class="form-select">
+                          <select name="kurir" id="kurir" class="form-select" required>
                               <option value="" hidden>PILIH KURIR</option>
                               <?php 
                               function nameKurir($kode){
@@ -1897,7 +1897,7 @@ if(isset($_POST['create_spk'])){
                         <label for="" class="col-sm-2 col-form-label">Berat</label>
                         <div class="col-sm-10">
                           <div class="input-group">
-                            <input type="number" name="berat" step="0.01" id="berat" class="form-control" value="<?= $rowedit['berat_send_order'] ?>">
+                            <input type="number" name="berat" step="0.01" id="berat" class="form-control" value="<?= $rowedit['berat_send_order'] ?>" required>
                             <span class="input-group-text">gram</span>
                           </div>
                         </div>
@@ -1906,7 +1906,7 @@ if(isset($_POST['create_spk'])){
                           <div class="row">
                             <div class="col-sm-12">
                               <div class="input-group">
-                                <select name="resultcost" id="resut_pengiriman" onchange="showFee4(this.value)" class="form-control">
+                                <select name="resultcost" id="resut_pengiriman" onchange="showFee4(this.value)" class="form-control" required>
                                   <option value="">PILIH PAKET</option>
                                   <?php  
                                   require_once "action/rajaOngkir.php";

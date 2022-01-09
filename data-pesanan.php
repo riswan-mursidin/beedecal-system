@@ -75,17 +75,15 @@ function resultDiskon($owner,$spk,$harga,$disk,$satuan){
     $result['hasil'] = ($harga + $count) - $diskon;
     $result['tamby'] = $count;
     if($satuan == "rupiah"){
-      $result['tamby'] = $count;
       $result['hasil'] = ($harga + $count) - $disk;
     }
     return $result;
   }else{
     $diskon = $harga * ($disk/100);
     $result['hasil'] = $harga - $diskon;
-    $result['tamby'] = $count;
+    $result['tamby'] = 0;
     if($satuan == "rupiah"){
       $result['hasil'] = $harga - $disk;
-      $result['tamby'] = 0;
     }
     return $result;
   }

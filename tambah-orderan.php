@@ -1428,7 +1428,7 @@ if(isset($_POST['create_spk'])){
                                 if($edit != ""){
                                   $val = $rowedit['model_stiker_order'];
                                   if($rowedit['jenis_produk_order'] == "Custom" && $rowedit['kategori_produk_order'] != "Other"){
-                                    $views = $db->selectTable("type_galeri","id_type",$rowedit['id_type'],"id_owner",$id);
+                                    $views = $db->selectTable("type_galeri","id_type",$rowedit['produk_order'],"id_owner",$id);
                                     $row=mysqli_fetch_assoc($views);
                                     $type = array("fulldash","fullbody","lite");
                                     echo '<option value="">PILIH</option>';

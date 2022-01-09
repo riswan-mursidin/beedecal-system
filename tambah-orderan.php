@@ -92,22 +92,24 @@ if(isset($_POST['create_spk'])){
 
   // detail desain
   $dbfoto = array();
-  if($desain_status == "Ya"){
+  if($desain_status == "Ya" && count($_FILES['contoh_desain']['name']) != 0){
     for($index = 0; $index < count($_FILES['contoh_desain']['name']); $index++){
-      $foto_path = $_FILES['contoh_desain']['tmp_name'][$index];
-      $foto_name = basename($_FILES['contoh_desain']['name'][$index]);
-      $folder = "assets/images/contoh_desain";
-      $save_file = $db->saveFoto2($folder, $foto_name, $foto_path);
-      array_push($dbfoto,$save_file);
+      if($_FILES['contoh_desain']['name'] != ""){
+        $foto_path = $_FILES['contoh_desain']['tmp_name'][$index];
+        $foto_name = basename($_FILES['contoh_desain']['name'][$index]);
+        $folder = "assets/images/contoh_desain";
+        $save_file = $db->saveFoto2($folder, $foto_name, $foto_path);
+        array_push($dbfoto,$save_file);
+      }
     }
   }
   
   $desk_desain = $desain_status == "Ya" ? $_POST['desk_desain'] : '';
 
   // detail pasang
-  $harga_pasang = $pemasangan_status == "Ya" ? $_POST['harga_pasang'] : '0';
-  $status_bayar_pasang = $_POST['status_bayar_pasang'];
-  $kategori_pemasang = $pemasangan_status == "Ya" ? $_POST['kategori_pemasang'] : '';
+  // $harga_pasang = $pemasangan_status == "Ya" ? $_POST['harga_pasang'] : '0';
+  // $status_bayar_pasang = $_POST['status_bayar_pasang'];
+  // $kategori_pemasang = $pemasangan_status == "Ya" ? $_POST['kategori_pemasang'] : '';
 
   // detail pemesanan
   $customer_id = $_POST['pelanggan'];
@@ -195,6 +197,7 @@ if(isset($_POST['create_spk'])){
   
 
   if($edit != ""){
+
     $fotocontoh = $db->selectTable("contoh_desain","code_order",$rowedit['coder_order'],"id_owner",$id);
     while($rowcontoh=mysqli_fetch_assoc($fotocontoh)){
       if($_FILES['foto'.$rowcontoh['id_contoh']]['name'] != ""){
@@ -225,8 +228,6 @@ if(isset($_POST['create_spk'])){
         $laminating,
         $pemasangan_status,
         $desk_desain,
-        $kategori_pemasang,
-        $harga_pasang,
         $keterangan,
         $diskon,  
         $status_pengiriman,
@@ -243,15 +244,16 @@ if(isset($_POST['create_spk'])){
         $sisabayar,
         $sumber,
         $satuan_potongan,
-        $status_bayar_pasang,
         $total_pembayaran,
         $cod
     );
     if($query){
       if(count($dbfoto) > 0){
         for($index = 0; $index < count($dbfoto); $index++){
-          $query = "INSERT INTO contoh_desain (foto_contoh,code_order,id_owner) VALUES('$dbfoto[$index]','$edit','$id')";
-          $result = mysqli_query($db->conn, $query);
+          if($dbfoto[$index] != ""){
+            $query = "INSERT INTO contoh_desain (foto_contoh,code_order,id_owner) VALUES('$dbfoto[$index]','$edit','$id')";
+            $result = mysqli_query($db->conn, $query);
+          }
         }
       }
 
@@ -259,10 +261,12 @@ if(isset($_POST['create_spk'])){
 
       if(count($ket_biaya_tambahan) > 0 && $tr){
         foreach($ket_biaya_tambahan as $index => $ket){
-          $keterangan = $ket;
-          $biaya = $biaya_tambahan[$index];
-          $query = "INSERT INTO biaya_tambahan_order (keterangan_biaya,harga_ketbiaya,id_owner,code_order) VALUES('$keterangan','$biaya','$id','$edit')";
-          $result = mysqli_query($db->conn, $query);
+          if($biaya_tambahan[$index] != ""){
+            $keterangan = $ket;
+            $biaya = $biaya_tambahan[$index];
+            $query = "INSERT INTO biaya_tambahan_order (keterangan_biaya,harga_ketbiaya,id_owner,code_order) VALUES('$keterangan','$biaya','$id','$spk')";
+            $result = mysqli_query($db->conn, $query);
+          }
         }
       }
 
@@ -297,8 +301,6 @@ if(isset($_POST['create_spk'])){
         $laminating,
         $pemasangan_status,
         $desk_desain,
-        $kategori_pemasang,
-        $harga_pasang,
         $keterangan,
         $diskon,
         $status_pengiriman,
@@ -316,7 +318,6 @@ if(isset($_POST['create_spk'])){
         $sumber,
         $user,
         $satuan_potongan,
-        $status_bayar_pasang,
         $total_pembayaran,
         $cod
     );
@@ -324,16 +325,20 @@ if(isset($_POST['create_spk'])){
     if($query){
       if(count($dbfoto) > 0){
         for($index = 0; $index < count($dbfoto); $index++){
-          $query = "INSERT INTO contoh_desain (foto_contoh,code_order,id_owner) VALUES('$dbfoto[$index]','$spk','$id')";
-          $result = mysqli_query($db->conn, $query);
+          if($dbfoto[$index] != ""){
+            $query = "INSERT INTO contoh_desain (foto_contoh,code_order,id_owner) VALUES('$dbfoto[$index]','$edit','$id')";
+            $result = mysqli_query($db->conn, $query);
+          }
         }
       }
       if(count($ket_biaya_tambahan) > 0){
         foreach($ket_biaya_tambahan as $index => $ket){
-          $keterangan = $ket;
-          $biaya = $biaya_tambahan[$index];
-          $query = "INSERT INTO biaya_tambahan_order (keterangan_biaya,harga_ketbiaya,id_owner,code_order) VALUES('$keterangan','$biaya','$id','$spk')";
-          $result = mysqli_query($db->conn, $query);
+          if($biaya_tambahan[$index] != ""){
+            $keterangan = $ket;
+            $biaya = $biaya_tambahan[$index];
+            $query = "INSERT INTO biaya_tambahan_order (keterangan_biaya,harga_ketbiaya,id_owner,code_order) VALUES('$keterangan','$biaya','$id','$spk')";
+            $result = mysqli_query($db->conn, $query);
+          }
         }
       }
       if($total_pembayaran != ""){
@@ -460,6 +465,9 @@ if(isset($_POST['create_spk'])){
         var id = document.getElementById("pelanggan").value;
         if(str == "Ya"){
           detail.style.display = "block";
+          $("#kurir").attr("required","");
+          $("#berat").attr("required","");
+          $("#resut_pengiriman").attr("required","");
           if(id != ""){
             $.ajax({
               type:'post',
@@ -471,6 +479,9 @@ if(isset($_POST['create_spk'])){
           }
         }else{
           detail.style.display = "none";
+          $("#kurir").removeAttr("required","");
+          $("#berat").removeAttr("required","");
+          $("#resut_pengiriman").removeAttr("required","");
         }
       }
     </script>
@@ -1115,23 +1126,18 @@ if(isset($_POST['create_spk'])){
         if(kategori != "" && jenis != ""){
           if(kategori == "Other" && jenis == "Custom"){
             document.getElementById("produk").style.display = "none";
+            document.getElementById("kategori_type").removeAttribute("required");
+            document.getElementById("harga").removeAttribute("required");
             document.getElementById("produk2").style.display = "";
-
-            // $('#custmview').append(
-            //   '<div class="row">\
-            //     <div class="col-md-6">\
-            //       <label for="" class="form-label">Pesanan</label>\
-            //       <input type="text" name="produk" id="" class="form-control">\
-            //     </div>\
-            //     <div class="col-md-6">\
-            //       <label for="" class="form-label">Harga</label>\
-            //       <input type="number" name="varian_harga"  id="harga" class="form-control" onkeyup="showFee(this.value)">\
-            //     </div>\
-            //   </div>'
-            // );
+            $("#kategori_type2").attr("required", "");
+            $("#harga2").attr("required", "");
           }else{
             document.getElementById("produk").style.display = "";
+            $("#kategori_type").attr("required", "");
+            $("#harga").attr("required", "");
             document.getElementById("produk2").style.display = "none";
+            document.getElementById("kategori_type2").removeAttribute("required");
+            document.getElementById("harga2").removeAttribute("required");
             // $('#cus').remove();
             $.ajax({
               type:'post',
@@ -1150,22 +1156,18 @@ if(isset($_POST['create_spk'])){
         if(kategori != "" && jenis != ""){
           if(kategori == "Other" && jenis == "Custom"){
             document.getElementById("produk").style.display = "none";
+            document.getElementById("kategori_type").removeAttribute("required");
+            document.getElementById("harga").removeAttribute("required");
             document.getElementById("produk2").style.display = "";
-            // $('#custmview').append(
-            //   '<div class="row" id="cus">\
-            //     <div class="col-md-6">\
-            //       <label for="" class="form-label">Pesanan</label>\
-            //       <input type="text" name="produk" id="" class="form-control">\
-            //     </div>\
-            //     <div class="col-md-6">\
-            //       <label for="" class="form-label">Harga</label>\
-            //       <input type="number" onkeyup="showFee(this.value)" id="harga" class="form-control" name="varian_harga" id="harga" class="form-control">\
-            //     </div>\
-            //   </div>'
-            // );
+            $("#kategori_type2").attr("required", "");
+            $("#harga2").attr("required", "");
           }else{
             document.getElementById("produk").style.display = "";
+            $("#kategori_type").attr("required", "");
+            $("#harga").attr("required", "");
             document.getElementById("produk2").style.display = "none";
+            document.getElementById("kategori_type2").removeAttribute("required");
+            document.getElementById("harga2").removeAttribute("required");
             // $('#cus').remove();
             $.ajax({
               type:'post',
@@ -1212,7 +1214,6 @@ if(isset($_POST['create_spk'])){
     <!-- show input detail pemasangan -->
     <script>
       function showDetailPasang(str){
-        var detailPasang = document.getElementById("pasang_detail");
         var pengiriman = document.getElementById("pengiriman_statuss");
         var pengirimandetail = document.getElementById("detailpengiriman");
         if(str == "Ya"){
@@ -1220,11 +1221,9 @@ if(isset($_POST['create_spk'])){
           pengiriman.value = "Tidak";
           pengiriman.style.cursor = "not-allowed";
           pengirimandetail.style.display = "none";
-          detailPasang.style.display = "block";
         }else{
           pengiriman.disabled = false;
           pengiriman.style.cursor = "";
-          detailPasang.style.display = "none";
         }
       }
     </script>
@@ -1288,6 +1287,7 @@ if(isset($_POST['create_spk'])){
       <div class="main-content">
         <div class="page-content">
           <div class="container-fluid">
+
             <!-- start page title -->
             <div class="row">
               <div class="col-12">
@@ -1312,14 +1312,19 @@ if(isset($_POST['create_spk'])){
               </div>
             </div>
             <!-- end page title -->
-            <!-- card order -->
+
+            <!-- form -->
             <form action="" method="post" enctype="multipart/form-data">
               <div class="row">
+
+                <!-- informasi pemesanan -->
                 <div class="col-12">
                   <div class="card">
                     <div class="card-body">
                       <div class="card-title">Informasi Pemesanan</div>
                       <div class="row g-3 mt-3">
+
+                        <!-- kategori produk -->
                         <div class="col-md-3">
                           <label for="jenisp" class="form-label">Kategori Produk</label>
                           <select name="kategori_produk" onchange="showSubJenis1(this.value)" id="kategori" class="form-select" required>
@@ -1334,6 +1339,9 @@ if(isset($_POST['create_spk'])){
                             <?php } ?>
                           </select>
                         </div>
+                        <!-- end kategori produk -->
+
+                        <!-- jenis produk -->
                         <div class="col-md-3">
                           <label for="jenispr" class="form-label">Jenis Produk</label>
                           <select name="jenis_produk" onchange="showSubJenis2(this.value)" id="jenis" class="form-select" required>
@@ -1348,27 +1356,39 @@ if(isset($_POST['create_spk'])){
                             <?php } ?>
                           </select>
                         </div>
-                        <div id="custmview" class="col-md-6">
+                        <!-- end jenis produk -->
+
+                        <!-- produk -->
+                        <div class="col-md-6">
                           <?php  
+                          // jika edit
                           if($edit != ""){
+                            // jika jenis custom dan ketegori other
                             if($rowedit['jenis_produk_order'] == "Custom" && $rowedit['kategori_produk_order'] == "Other"){
 
                           ?>
+
                           <div id="produk2" class="row">
                             <div class="col-md-6">
                               <label for="" class="form-label">Nama Produk</label>
-                              <input type="text" value="<?= $rowedit['produk_order'] ?>" name="produk2" id="" class="form-control">
+                              <input type="text" value="<?= $rowedit['produk_order'] ?>" id="kategori_type2" name="produk2" class="form-control" required>
                             </div>
                             <div class="col-md-6">
                               <label for="" class="form-label">Harga</label>
-                              <input type="number" value="<?= $rowedit['harga_produk_order'] ?>" name="varian_harga2" id="harga2" class="form-control" onkeyup="showFee(this.value)">
+                              <input type="number" value="<?= $rowedit['harga_produk_order'] ?>" name="varian_harga2" id="harga2" class="form-control" onkeyup="showFee(this.value)" required>
                             </div>
                           </div>
-                          <?php }else{ ?>
+
+                          <?php 
+                            }
+                            // jika buka custom dan other
+                            else{ 
+                          ?>
+
                           <div class="row" id="produk">
                             <div class="col-md-6">
                               <label for="kategori_type" class="form-label">Produk Tersedia</label>
-                              <select onchange="showVarian()" name="produk" id="kategori_type" class="form-control js-example-basic-single" >
+                              <select onchange="showVarian()" name="produk" id="kategori_type" class="form-control js-example-basic-single" required>
                                 <?php 
                                 if($edit != ""){ 
                                   if($rowedit['jenis_produk_order'] == "Custom"){
@@ -1403,7 +1423,7 @@ if(isset($_POST['create_spk'])){
                             </div>
                             <div class="col-md-6">
                               <label for="harga" class="form-label">Harga/Varian Produk</label>
-                              <select name="varian_harga" id="harga" class="form-select" onchange="showFee(this.value)">
+                              <select name="varian_harga" id="harga" class="form-select" onchange="showFee(this.value)" required>
                                 <?php  
                                 if($edit != ""){
                                   $val = $rowedit['model_stiker_order'];
@@ -1427,12 +1447,19 @@ if(isset($_POST['create_spk'])){
                                 <?php } ?>
                               </select>
                             </div>
-                          </div> <?php } ?>
-                          <?php }else{ ?>
+                          </div> 
+
+                          <?php 
+                            }
+                          }
+                          // bukan edit
+                          else{
+                          ?>
+                          
                           <div class="row" id="produk">
                             <div class="col-md-6">
                               <label for="kategori_type" class="form-label">Produk Tersedia</label>
-                              <select onchange="showVarian()" name="produk" id="kategori_type" class="form-control js-example-basic-single" >
+                              <select onchange="showVarian()" name="produk" id="kategori_type" class="form-control js-example-basic-single" required>
                                 <?php 
                                 if($edit != ""){ 
                                   if($rowedit['jenis_produk_order'] == "Custom"){
@@ -1468,7 +1495,7 @@ if(isset($_POST['create_spk'])){
                             </div>
                             <div class="col-md-6">
                               <label for="harga" class="form-label">Harga/Varian Produk</label>
-                              <select name="varian_harga" id="harga" class="form-select" onchange="showFee(this.value)">
+                              <select name="varian_harga" id="harga" class="form-select" onchange="showFee(this.value)" required>
                                 <?php  
                                 if($edit != ""){
                                   $val = $rowedit['model_stiker_order'];
@@ -1493,19 +1520,24 @@ if(isset($_POST['create_spk'])){
                               </select>
                             </div>
                           </div>
+
                           <div style="display: none;" id="produk2" class="row">
                             <div class="col-md-6">
                               <label for="" class="form-label">Nama Produk</label>
-                              <input type="text" name="produk2" id="" class="form-control">
+                              <input type="text" name="produk2" id="kategori_type2" class="form-control">
                             </div>
                             <div class="col-md-6">
                               <label for="" class="form-label">Harga</label>
                               <input type="number" name="varian_harga2" id="harga2" class="form-control" onkeyup="showFee(this.value)">
                             </div>
                           </div>
-                          <?php } ?>
+                          <?php 
+                          } 
+                          ?>
                         </div>
+                        <!-- end produk -->
 
+                        <!-- status desain -->
                         <div class="col-md-3">
                           <label for="desain_status" class="form-label">Desain</label>
                           <select name="desain_status" id="desain_status" class="form-select" onchange="showDetailDesain(this.value)">
@@ -1519,6 +1551,9 @@ if(isset($_POST['create_spk'])){
                             <?php } ?>
                           </select>
                         </div>
+                        <!-- end status desain -->
+
+                        <!-- status cetak -->
                         <div class="col-md-3">
                           <label for="cetak_status" class="form-label">Cetak</label>
                           <select name="cetak_status" id="cetak_status" class="form-select">
@@ -1532,6 +1567,9 @@ if(isset($_POST['create_spk'])){
                             <?php } ?>
                           </select>
                         </div>
+                        <!-- end status cetak -->
+
+                        <!-- bahan laminating -->
                         <div class="col-md-3">
                           <label for="laminating" class="form-label">Laminating</label>
                           <select name="laminating" id="" class="form-select">
@@ -1546,9 +1584,12 @@ if(isset($_POST['create_spk'])){
                             <?php } ?>
                           </select>
                         </div>
+                        <!-- end bahan laminating -->
+
+                        <!-- status pemasangan -->
                         <div class="col-md-3">
                           <label for="pemasangan_status" class="form-label">Pemasangan</label>
-                          <select name="pemasangan_status" id="pemasangan_status" class="form-select" onchange="showDetailPasang(this.value)">
+                          <select name="pemasangan_status" id="pemasangan_status" onchange="showDetailPasang(this.value)" class="form-select">
                           <?php
                             $v = $edit != "" ? $rowedit['status_pasang_order'] : "Tidak";  
                             $d = array("Ya","Tidak");
@@ -1559,21 +1600,29 @@ if(isset($_POST['create_spk'])){
                             <?php } ?>
                           </select>
                         </div>
+                        <!-- end status pemasangan -->
+                        
+
                       </div>
                     </div>
                   </div>
                 </div>
+                <!-- end informasi pemesanan -->
+
                 <?php  
                 if($edit != ""){
                 ?>
+                <!-- detail desain -->
                 <div class="col-12" id="desain_detail" <?= $rowedit['status_desain_order'] == "Tidak" ? 'style="display: none;"' : 'style="display: block;"' ?>>
                   <div class="card">
                     <div class="card-body">
                       <div class="card-title">Detail Desain</div>
+
                       <div class="row g-3">
                         <label for="" class="col-sm-2 col-form-label">
                           Upload Contoh Desain 
                         </label>
+                        
                         <div class="col-sm-10">
                           <div class="row">
                             
@@ -1600,55 +1649,13 @@ if(isset($_POST['create_spk'])){
                           <textarea name="desk_desain" id="" rows="3" class="form-control"><?= $rowedit['desk_desain_order'] ?></textarea>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-12" id="pasang_detail" <?= $rowedit['status_pasang_order'] == "Tidak" ? 'style="display: none;"' : 'style="display: block;"' ?>>
-                  <div class="card">
-                    <div class="card-body">
-                      <div class="card-title">Detail Pemasangan</div>
-                      <div class="row g-3">
-                        <label for="" class="col-sm-2 col-form-label">Harga Pasang</label>
-                        <div class="col-sm-7">
-                          <div class="input-group">
-                            <span class="input-group-text">Rp.</span>
-                            <input type="number" name="harga_pasang" value="<?= $rowedit['harga_pasang_order'] ?>" id="feepemasang" placeholder="0.00" onkeyup="showFee2(this.value)" class="form-control">
-                          </div>
-                        </div>
-                        <div class="col-sm-3">
-                          <div class="input-group">
-                            <span class="input-group-text">Lunas:</span>
-                            <select name="status_bayar_pasang" id="" class="form-select">
-                              <?php  
-                              $val = $edit != "" ? $rowedit['status_bayar_pasang'] : '';
-                              $options = array("Ya","Tidak");
-                              foreach($options as $ops){
-                                $select = $val == $ops ? 'selected="selected"' : '';
-                              ?>
-                              <option value="<?= $ops ?>" <?= $select ?> ><?= $ops ?></option>
-                              <?php } ?>
-                            </select>
-                          </div>
-                        </div>
-                        <label for="" class="col-sm-2 col-form-label">Kategori Pemasang</label>
-                        <div class="col-sm-10">
-                          <select name="kategori_pemasang" id="" class="form-select">
-                            <?php  
-                            $v = $edit != "" ? $rowedit['kategori_pemasang_order'] : "" ;
-                            $p = array("Freelance & Karyawan","Freelance","Karyawan");
-                            foreach($p as $i){
-                              $select = $i == $v ? 'selected="selected"' : '';
-                            ?>
-                            <option value="<?= $i ?>" <?= $select ?>><?= $i ?></option>
-                            <?php } ?>
-                          </select>
-                        </div>
-                      </div>
+
                     </div>
                   </div>
                 </div>
                 <?php  
-                }else{
+                }
+                else{
                 ?>
                 <div class="col-12" id="desain_detail" style="display: none;">
                   <div class="card">
@@ -1667,54 +1674,24 @@ if(isset($_POST['create_spk'])){
                     </div>
                   </div>
                 </div>
-                <div class="col-12" id="pasang_detail" style="display: none;">
-                  <div class="card">
-                    <div class="card-body">
-                      <div class="card-title">Detail Pemasangan</div>
-                      <div class="row g-3">
-                        <label for="" class="col-sm-2 col-form-label">Harga Pasang</label>
-                        <div class="col-sm-7">
-                          <div class="input-group">
-                            <span class="input-group-text">Rp.</span>
-                            <input type="number" name="harga_pasang" id="feepemasang" placeholder="0.00" onkeyup="showFee2(this.value)" class="form-control">
-                          </div>
-                        </div>
-                        <div class="col-sm-3">
-                          <div class="input-group">
-                            <span class="input-group-text">Lunas:</span>
-                            <select name="status_bayar_pasang" id="" class="form-select">
-                              <?php  
-                              $val = $edit != "" ? $rowedit['status_bayar_pasang'] : '';
-                              $options = array("Ya","Tidak");
-                              foreach($options as $ops){
-                                $select = $val == $ops ? 'selected="selected"' : '';
-                              ?>
-                              <option value="<?= $ops ?>" <?= $select ?> ><?= $ops ?></option>
-                              <?php } ?>
-                            </select>
-                          </div>
-                        </div>
-                        <label for="" class="col-sm-2 col-form-label">Kategori Pemasang</label>
-                        <div class="col-sm-10">
-                          <select name="kategori_pemasang" id="" class="form-select">
-                            <option value="Freelance & Karyawan">Freelance & Karyawan</option>
-                            <option value="Freelance">Freelance</option>
-                            <option value="Karyawan">Karyawan</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <?php } ?>
+                <!-- end detail desain -->
+                <?php 
+                } 
+                ?>
+
+                <!-- detail pemesanan -->
                 <div class="col-12">
                   <div class="card">
                     <div class="card-body">
                       <div class="card-title">Detail Pemesanan</div>
                       <div class="row g-3">
+
+                        <!-- label pelanggan -->
                         <label for="select2" class="col-sm-2 col-form-label">Pelanggan</label>
+
+                        <!-- pelanggan -->
                         <div class="col-sm-4">
-                          <select name="pelanggan" onchange="addressCustomer(this.value)" class="form-control js-example-basic-single" id="pelanggan" style="width: 100%;">
+                          <select name="pelanggan" onchange="addressCustomer(this.value)" class="form-control js-example-basic-single" id="pelanggan" style="width: 100%;" required>
                             <option value="" hidden>PILIH PELANGGAN</option>
                             <?php  
                               $val = $edit != "" ? $rowedit['id_customer'] : '';
@@ -1726,10 +1703,15 @@ if(isset($_POST['create_spk'])){
                             <?php } ?>
                           </select>
                         </div>
+                        <!-- endpelanggan -->
+
+                        <!-- keterangan -->
                         <div class="col-sm-3">
                           <input type="text" name="keterangan" value="<?= $edit != "" ? $rowedit['keterangan_order'] : ''; ?>" placeholder="Keterangan" id="" class="form-control">
                         </div>
+                        <!-- end keterangan -->
 
+                        <!-- diskon -->
                         <div class="col-sm-3">
                           <div class="row">
                             <div class="col-sm-6">
@@ -1754,10 +1736,14 @@ if(isset($_POST['create_spk'])){
                             </div>
                           </div>
                         </div>
+                        <!-- end diskon -->
 
+                        <!-- label suber -->
                         <label for="" class="col-sm-2 col-form-label">Sumber</label>
+
+                        <!-- sumber -->
                         <div class="col-sm-10">
-                          <select name="sumber" id="" class="form-select" required>
+                          <select name="sumber" class="form-select" required>
                             <option value="" hidden>PILIH SUMBER</option>
                             <?php
                             $v = $edit != "" ? $rowedit['id_sumber'] : '' ;
@@ -1769,16 +1755,26 @@ if(isset($_POST['create_spk'])){
                             <?php } ?>
                           </select>
                         </div>
+                        <!-- end sumber -->
+
+                        <!-- tgl pemesanan label -->
                         <label for="" class="col-sm-2 col-form-label">Tanggal Pemesanan</label>
+                        
+                        <!-- tanggal order -->
                         <div class="col-sm-10">
                           <!-- <div class="input-group"> -->
                             <!-- <span class="input-group-text" id="basic-addon1"><i class="ri-calendar-todo-fill"></i></span> -->
-                            <input name="date_order" type="<?= $edit != "" ? 'text' : 'date' ?>" class="form-control" <?= $edit != "" ? 'disabled' : '' ?> value="<?= $edit != "" ? $db->dateFormatter($rowedit['tgl_order']) : '' ?>">
+                            <input name="date_order" type="date" class="form-control" value="<?= $edit != "" ? date('Y-m-d',strtotime($rowedit["tgl_order"])) : '' ?>" required>
                           <!-- </div> -->
                         </div>
+                        <!-- end tanggal order -->
+                        
+                        <!-- label pengiriman -->
                         <label for="pengiriman" class="col-sm-2 col-form-label">Pengiriman</label>
+
+                        <!-- status pengiriman -->
                         <div class="col-sm-10">
-                          <select name="pengiriman" id="pengiriman_statuss" onchange="detailPengiriman(this.value)" id="pengiriman" class="form-select" >
+                          <select name="pengiriman" id="pengiriman_statuss" onchange="detailPengiriman(this.value)" id="pengiriman" class="form-select" required>
                           <?php
                             $v = $edit != "" ? $rowedit['status_pengiriman_order'] : "Tidak";  
                             $d = array("Ya","Tidak");
@@ -1789,10 +1785,15 @@ if(isset($_POST['create_spk'])){
                           <?php } ?>
                           </select>
                         </div>
+                        <!-- end status pengiriman -->
+
                       </div>
                     </div>
                   </div>
                 </div>
+                <!-- enddetail pemesanan -->
+
+                <!-- detail pengiriman -->
                 <?php  
                 if($edit != ""){
                 ?>
@@ -1800,11 +1801,16 @@ if(isset($_POST['create_spk'])){
                   <div class="card">
                     <div class="card-body">
                       <div class="card-title">Detail Pengiriman</div>
+                      
+                      <!-- kurir -->
                       <div class="row g-3 mb-3">
+                        <!-- label kurir -->
                         <label for="" class="col-sm-2 col-form-label">Kurir</label>
+
+                        <!-- kurir -->
                         <div class="col-sm-10">
                           <select name="kurir" id="kurir" class="form-select">
-                            <optgroup label="PILIH KURIR">
+                              <option value="" hidden>PILIH KURIR</option>
                               <?php 
                               function nameKurir($kode){
                                 switch($kode){
@@ -1828,10 +1834,13 @@ if(isset($_POST['create_spk'])){
                               ?>
                               <option value="<?= $k ?>" <?= $select ?>><?= nameKurir($k) ?></option>
                               <?php } ?>
-                            </optgroup>
                           </select>
                         </div>
+                        <!-- end kurir -->
                       </div>
+                      <!-- end kurir -->
+                      
+                      <!-- data customer -->
                       <div class="row g-3 mb-3" id="data_customer">
                           <label for="" class="col-sm-2 col-form-label">Tujuan Pengiriman</label>
                           <div class="col-sm-3">
@@ -1881,11 +1890,16 @@ if(isset($_POST['create_spk'])){
                             <textarea name="alamat_lengkap" id="" rows="3" class="form-control"><?= $rowedit['alamat_lengkap_send_order'] ?></textarea>
                           </div>
                       </div>
+                      <!-- end data customer -->
 
+                      <!-- raja ongkir -->
                       <div class="row g-3 mb-3">
                         <label for="" class="col-sm-2 col-form-label">Berat</label>
                         <div class="col-sm-10">
-                          <input type="number" name="berat" step="0.01" id="berat" class="form-control" value="<?= $rowedit['berat_send_order'] ?>">
+                          <div class="input-group">
+                            <input type="number" name="berat" step="0.01" id="berat" class="form-control" value="<?= $rowedit['berat_send_order'] ?>">
+                            <span class="input-group-text">gram</span>
+                          </div>
                         </div>
                         <label for="" class="col-sm-2 col-form-label">Ongkos Kirim</label>
                         <div class="col-sm-10">
@@ -1905,6 +1919,7 @@ if(isset($_POST['create_spk'])){
                                   }
                                   ?>
                                 </select>
+                                
                                 <button class="btn btn-warning" type="button" id="button-addon2" onclick="showOngkir()">Cek</button>
                                 
                               </div>
@@ -1923,64 +1938,89 @@ if(isset($_POST['create_spk'])){
                           </div>
                         </div>
                       </div>
+                      <!-- end raja ongkir -->
+
                     </div>
                   </div>
                 </div>
-                <?php }else{ ?>
+                <?php 
+                }else{ 
+                ?>
                 <div class="col-12" id="detailpengiriman" style="display: none;">
                   <div class="card">
                     <div class="card-body">
                       <div class="card-title">Detail Pengiriman</div>
+
+                      <!-- kurir -->
                       <div class="row g-3 mb-3">
+                        <!-- label kurir -->
                         <label for="" class="col-sm-2 col-form-label">Kurir</label>
+
+                        <!-- kurir -->
                         <div class="col-sm-10">
                           <select name="kurir" id="kurir" class="form-select">
-                            <optgroup label="PILIH KURIR">
-                              <option value="pos">POS Indonesia (POS)</option>
-                              <option value="lion">Lion Parcel (LION)</option>
-                              <option value="jne">Jalur Nugraha Ekakurir (JNE)</option>
-                              <option value="jnt">J&T Express (J&T)</option>
-                            </optgroup>
+                            <option value="" hidden>PiLIH KURIR</option>
+                            <option value="pos">POS Indonesia (POS)</option>
+                            <option value="lion">Lion Parcel (LION)</option>
+                            <option value="jne">Jalur Nugraha Ekakurir (JNE)</option>
+                            <option value="jnt">J&T Express (J&T)</option>
                           </select>
                         </div>
+                        <!-- end kurir -->
                       </div>
-                      <div class="row g-3 mb-3" id="data_customer">
-                          <label for="" class="col-sm-2 col-form-label">Tujuan Pengiriman</label>
-                          <div class="col-sm-3">
-                            <select name="prov" id="prov" class="form-select" onchange="viewKab(this.value)">
-                              <option value="" hidden>PROVINSI</option>
-                              <?php  
-                              $provs = $db->dataIndonesia("prov",null);
-                              foreach($provs as $prov){
-                                echo '<option value="'.$prov['province_id'].'">'.$prov['province'].'</option>';
-                              }
-                              ?>
-                            </select>
-                          </div>
-                          <div class="col-sm-3">
-                            <select name="kabkota" id="kabkota" class="form-select" onchange="viewkec(this.value)">
-                              <option value="" hidden>KABUPATEN/KOTA</option>
-                            </select>
-                          </div>
-                          <div class="col-sm-3">
-                            <select name="kec" id="kec" class="form-select">
-                              <option value="" hidden>KECAMATAN</option>
-                            </select>
-                          </div>
-                          <div class="col-sm-1">
-                            <input type="number" name="kode_pos" id="kode_pos" class="form-control" placeholder="Kode Pos">
-                          </div>
-                          <label for="" class="col-sm-2 col-form-label">Alamat Lengkap</label>
-                          <div class="col-sm">
-                            <textarea name="alamat_lengkap" id="" rows="3" class="form-control"></textarea>
-                          </div>
-                      </div>
+                      <!-- end kurir -->
 
+                      <!-- data customer -->
+                      <div class="row g-3 mb-3" id="data_customer">
+                        <label for="" class="col-sm-2 col-form-label">Tujuan Pengiriman</label>
+
+                        <div class="col-sm-3">
+                          <select name="prov" id="prov" class="form-select" onchange="viewKab(this.value)">
+                            <option value="" hidden>PROVINSI</option>
+                            <?php  
+                            $provs = $db->dataIndonesia("prov",null);
+                            foreach($provs as $prov){
+                              echo '<option value="'.$prov['province_id'].'">'.$prov['province'].'</option>';
+                            }
+                            ?>
+                          </select>
+                        </div>
+
+                        <div class="col-sm-3">
+                          <select name="kabkota" id="kabkota" class="form-select" onchange="viewkec(this.value)">
+                            <option value="" hidden>KABUPATEN/KOTA</option>
+                          </select>
+                        </div>
+
+                        <div class="col-sm-3">
+                          <select name="kec" id="kec" class="form-select">
+                            <option value="" hidden>KECAMATAN</option>
+                          </select>
+                        </div>
+
+                        <div class="col-sm-1">
+                          <input type="number" name="kode_pos" id="kode_pos" class="form-control" placeholder="Kode Pos">
+                        </div>
+
+                        <label for="" class="col-sm-2 col-form-label">Alamat Lengkap</label>
+                        <div class="col-sm">
+                          <textarea name="alamat_lengkap" id="" rows="3" class="form-control"></textarea>
+                        </div>
+
+                      </div>
+                      <!-- end data customer -->
+
+                      <!-- raja ongkir -->
                       <div class="row g-3 mb-3">
+
                         <label for="" class="col-sm-2 col-form-label">Berat</label>
                         <div class="col-sm-10">
-                          <input type="number" name="berat" step="0.01" id="berat" class="form-control">
+                          <div class="input-group">
+                            <input type="number" name="berat" step="0.01" id="berat" class="form-control">
+                            <span class="input-group-text">gram</span>
+                          </div>
                         </div>
+                        
                         <label for="" class="col-sm-2 col-form-label">Ongkos Kirim</label>
                         <div class="col-sm-10">
                           <div class="row">
@@ -1989,6 +2029,7 @@ if(isset($_POST['create_spk'])){
                                 <select name="resultcost" id="resut_pengiriman" onchange="showFee4(this.value)" class="form-control">
                                   <option value="">PILIH PAKET</option>
                                 </select>
+                                
                                 <button class="btn btn-warning" type="button" id="button-addon2" onclick="showOngkir()">Cek</button>
                               </div>
                             </div>
@@ -2003,10 +2044,17 @@ if(isset($_POST['create_spk'])){
                           </div>
                         </div>
                       </div>
+                      <!-- end raja ongkir -->
+
                     </div>
                   </div>
                 </div>
-                <?php } ?>
+                <?php 
+                } 
+                ?>
+                <!-- end detail pengiriman -->
+
+                <!-- biaya tambahan -->
                 <div class="col-12">
                   <div class="card">
                     <div class="card-body">
@@ -2016,7 +2064,6 @@ if(isset($_POST['create_spk'])){
                         if($edit != ""){
                           $biayaa = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$edit);
                           if(mysqli_num_rows($biayaa) > 0){
-                            
                             while($rowby=mysqli_fetch_assoc($biayaa)){
                         ?>
                             <div class="row mt-3 hapus">
@@ -2040,6 +2087,9 @@ if(isset($_POST['create_spk'])){
 
                   </div>
                 </div>
+                <!-- end biaya tambahan -->
+
+                <!-- detail pembayaran -->
                 <div class="col-12">
                   <div class="card">
                     <div class="card-body">
@@ -2056,7 +2106,7 @@ if(isset($_POST['create_spk'])){
                         <div class="col-sm-5">
                           <div class="input-group">
                             <span class="input-group-text">Rp.</span>
-                            <input type="number" name="total_pembayaran" id="debit" value="<?= $edit != "" ? $rowedit['pembayaran_customer_order'] : '' ?>" placeholder="Enter Pembayaran" onkeyup="sisaDari(this.value)" class="form-control" >
+                            <input type="number" name="total_pembayaran" id="debit" value="<?= $edit != "" ? $rowedit['pembayaran_customer_order'] : '' ?>" placeholder="Enter Pembayaran" onkeyup="sisaDari(this.value)" class="form-control" required >
                           </div>
                         </div>
                       </div>
@@ -2064,10 +2114,12 @@ if(isset($_POST['create_spk'])){
                     </div>
                   </div>
                 </div>
+                <!-- end detail pembayaran -->
+
               </div>
+              <!-- end row -->
             </form>
-            <input type="hidden" id="jumby">
-            <!-- end card order -->
+            <!-- end form -->
           </div>
           <!-- container-fluid -->
         </div>
@@ -2104,22 +2156,8 @@ if(isset($_POST['create_spk'])){
 
     <!-- Right bar overlay-->
     <div class="rightbar-overlay"></div>
-    <script>
-      $(document).ready(function(){
-        var str = document.getElementById("pemasangan_status").value;
-        var pengiriman = document.getElementById("pengiriman_statuss");
-        var pengirimandetail = document.getElementById("detailpengiriman");
-        if(str == "Ya"){
-          pengiriman.disabled = true;
-          pengiriman.style.cursor = "not-allowed";
-          pengirimandetail.style.display = "none";
-        }else{
-          pengiriman.disabled = false;
-          pengiriman.style.cursor = "";
-        }
-      })
-    </script>
 
+    <!-- biaya tambahan -->
     <script type="text/javascript">
       $(document).ready(function(){
           var maxField = 10; //Input fields increment limitation
@@ -2136,10 +2174,10 @@ if(isset($_POST['create_spk'])){
                   x++; //Increment field counter
                   $(wrapper).append('<div class="row mt-3 hapus">\
                           <div class="col col-md-5">\
-                            <input type="text" name="ket_biaya_tambhahan[]" class="form-control" placeholder="Keterangan">\
+                            <input type="text" name="ket_biaya_tambhahan[]" class="form-control" placeholder="Keterangan" required>\
                           </div>\
                           <div class="col col-md-6">\
-                            <input type="number" id="biaya'+j+'" onkeyup="showfeeby(this.value)" name="biaya_tambahan[]" class="form-control" placeholder="Harga">\
+                            <input type="number" id="biaya'+j+'" onkeyup="showfeeby(this.value)" name="biaya_tambahan[]" class="form-control" placeholder="Harga" required>\
                           </div>\
                           <div class="col col-md-1">\
                             <button id="remove_button" class="btn btn-danger"><i class="mdi mdi-delete-outline"></i></button>\
@@ -2305,8 +2343,9 @@ if(isset($_POST['create_spk'])){
         }
           });
       });
-      </script>
+    </script>
 
+      <!-- select 2 -->
     <script>
       $(document).ready(function() {
           $('#pelanggan').select2({
@@ -2341,15 +2380,6 @@ if(isset($_POST['create_spk'])){
         document.getElementById("batall"+str).style.display = "none";
       }
     </script>
-    <script>
-      function editr(str){
-        document.getElementById("view2"+str).style.display = "none";
-        document.getElementById("view"+str).style.display = "";
-        document.getElementById("editt"+str).style.display = "none";
-        document.getElementById("batall"+str).style.display = "";
-      }
-    </script>
-
     <script src="assets/js/app.js"></script>
     <script>
       var flash = $('#flash').data('flash');

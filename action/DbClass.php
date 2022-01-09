@@ -602,8 +602,6 @@
             string $value12,
             string $value13,
             string $value14,
-            string $value16,
-            string $value17,
             string $value18,
             string $value19,
             string $value20,
@@ -622,11 +620,10 @@
             string $value33,
             string $value34,
             string $value35,
-            string $value36,
             string $value37,
             string $value38
         ){
-            $query = "INSERT INTO data_pemesanan ( jenis_produk_order,code_order,id_customer,status_pay_order,tgl_order,status_order,id_owner,kategori_produk_order,produk_order,harga_produk_order,model_stiker_order,status_desain_order,status_cetak_order,laminating_order,status_pasang_order,desk_desain_order,kategori_pemasang_order,harga_pasang_order,keterangan_order,diskon_order,status_pengiriman_order,kurir_pengiriman_order,prov_send_order,kab_send_order,kec_send_order,kode_pos_send_order,alamat_lengkap_send_order,berat_send_order,ongkir_send_order,nama_paket_send_order,estimasi_send_order,sisa_pembayaran_order,id_sumber,user_editor,satuan_potongan,status_bayar_pasang,pembayaran_customer_order,ongkir_cod_order) VALUES('".$value1."','".$value2."','".$value3."','".$value4."','".$value5."','".$value6."','".$owner."','".$value7."','".$value8."','".$value9."','".$value10."','".$value11."','".$value12."','".$value13."','".$value14."','".$value16."','".$value17."','".$value18."','".$value19."','".$value20."','".$value21."','".$value22."','".$value23."','".$value24."','".$value25."','".$value26."','".$value27."','".$value28."','".$value29."','".$value30."','".$value31."','".$value32."','".$value33."','".$value34."','".$value35."','".$value36."','".$value37."','".$value38."')";
+            $query = "INSERT INTO data_pemesanan ( jenis_produk_order,code_order,id_customer,status_pay_order,tgl_order,status_order,id_owner,kategori_produk_order,produk_order,harga_produk_order,model_stiker_order,status_desain_order,status_cetak_order,laminating_order,status_pasang_order,desk_desain_order,keterangan_order,diskon_order,status_pengiriman_order,kurir_pengiriman_order,prov_send_order,kab_send_order,kec_send_order,kode_pos_send_order,alamat_lengkap_send_order,berat_send_order,ongkir_send_order,nama_paket_send_order,estimasi_send_order,sisa_pembayaran_order,id_sumber,user_editor,satuan_potongan,pembayaran_customer_order,ongkir_cod_order) VALUES('".$value1."','".$value2."','".$value3."','".$value4."','".$value5."','".$value6."','".$owner."','".$value7."','".$value8."','".$value9."','".$value10."','".$value11."','".$value12."','".$value13."','".$value14."','".$value18."','".$value19."','".$value20."','".$value21."','".$value22."','".$value23."','".$value24."','".$value25."','".$value26."','".$value27."','".$value28."','".$value29."','".$value30."','".$value31."','".$value32."','".$value33."','".$value34."','".$value35."','".$value37."','".$value38."')";
             $result = mysqli_query($this->conn, $query);
             if(!$result){
                 return mysqli_error($this->conn);
@@ -650,8 +647,6 @@
             string $laminating,
             string $pemasangan_status,
             string $desk_desain,
-            string $kategori_pemasang,
-            string $harga_pasang,
             string $keterangan,
             string $diskon,
             string $status_pengiriman,
@@ -668,11 +663,10 @@
             string $sisabayar,
             string $sumber,
             string $satuan_potongan,
-            string $status_bayar_pasang,
             string $total_pembayaran,
             string $cod
         ){
-            $query = "UPDATE data_pemesanan SET jenis_produk_order='$jenis_produk', id_customer='$customer_id', status_pay_order='$status_pay', status_order='$status_order', sisa_pembayaran_order='$sisabayar', kategori_produk_order='$kategori_produk', produk_order='$produk_id', harga_produk_order='$varian_harga', model_stiker_order='$varian_model', status_desain_order='$desain_status', status_cetak_order='$cetak_status', laminating_order='$laminating', status_pasang_order='$pemasangan_status',  desk_desain_order='$desk_desain', kategori_pemasang_order='$kategori_pemasang', harga_pasang_order='$harga_pasang', keterangan_order='$keterangan', diskon_order='$diskon', status_pengiriman_order='$status_pengiriman', kurir_pengiriman_order='$kurir', prov_send_order='$prov_desti', kab_send_order='$kabkota_desti', kec_send_order='$kec_desti', kode_pos_send_order='$kode_pos', alamat_lengkap_send_order='$alamat_lengkap', berat_send_order='$berat', ongkir_send_order='$cost', nama_paket_send_order='$name_paket', estimasi_send_order='$etd', id_sumber='$sumber', satuan_potongan='$satuan_potongan', status_bayar_pasang='$status_bayar_pasang', pembayaran_customer_order='$total_pembayaran', ongkir_cod_order='$cod' WHERE code_order ='$spk' AND id_owner='$owner'";
+            $query = "UPDATE data_pemesanan SET jenis_produk_order='$jenis_produk', id_customer='$customer_id', status_pay_order='$status_pay', status_order='$status_order', sisa_pembayaran_order='$sisabayar', kategori_produk_order='$kategori_produk', produk_order='$produk_id', harga_produk_order='$varian_harga', model_stiker_order='$varian_model', status_desain_order='$desain_status', status_cetak_order='$cetak_status', laminating_order='$laminating', status_pasang_order='$pemasangan_status',  desk_desain_order='$desk_desain', keterangan_order='$keterangan', diskon_order='$diskon', status_pengiriman_order='$status_pengiriman', kurir_pengiriman_order='$kurir', prov_send_order='$prov_desti', kab_send_order='$kabkota_desti', kec_send_order='$kec_desti', kode_pos_send_order='$kode_pos', alamat_lengkap_send_order='$alamat_lengkap', berat_send_order='$berat', ongkir_send_order='$cost', nama_paket_send_order='$name_paket', estimasi_send_order='$etd', id_sumber='$sumber', satuan_potongan='$satuan_potongan', pembayaran_customer_order='$total_pembayaran', ongkir_cod_order='$cod' WHERE code_order ='$spk' AND id_owner='$owner'";
             $result = mysqli_query($this->conn, $query);
             return $result;
         }

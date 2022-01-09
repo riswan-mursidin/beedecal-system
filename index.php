@@ -256,7 +256,7 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                               </div>
                           </div>
                           <div class="flex-grow-1 overflow-hidden">
-                              <p class="mb-1">Pemasukan Bulan ini</p>
+                              <p class="mb-1">Pemasukan Hari ini</p>
                               <h5 class="mb-3">Rp.<?= number_format($countincome_d) ?></h5>
                               <p class="text-truncate mb-0">
                                 <span class="text-success me-2">

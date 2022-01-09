@@ -315,6 +315,13 @@ function statusBadge2($txt){
                             <?php } ?>
                             Harga Produk: Rp.<?= number_format($resultdisk['hasil'],2,",",".") ?>
                             <?= statusBadge($roworder['status_pay_order'],$roworder['sisa_pembayaran_order']) ?><br>
+                            <?php  $badge = "";
+                            if($roworder['ongkir_cod_order'] == "COD"){
+                              $badge = "bg-danger";
+                            }else{
+                              $badge = "bg-success";
+                            }
+                            ?>
                             Harga Pengiriman: <?= $roworder['status_pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".").' <h9><span class="badge rounded-pill '.$badge.'">'.$roworder['ongkir_cod_order'].'</span></h9>' : '-,-' ?>
                             
                           </td>

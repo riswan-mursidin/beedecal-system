@@ -264,7 +264,7 @@ if(isset($_POST['create_spk'])){
           if($biaya_tambahan[$index] != ""){
             $keterangan = $ket;
             $biaya = $biaya_tambahan[$index];
-            $query = "INSERT INTO biaya_tambahan_order (keterangan_biaya,harga_ketbiaya,id_owner,code_order) VALUES('$keterangan','$biaya','$id','$spk')";
+            $query = "INSERT INTO biaya_tambahan_order (keterangan_biaya,harga_ketbiaya,id_owner,code_order) VALUES('$keterangan','$biaya','$id','$edit')";
             $result = mysqli_query($db->conn, $query);
           }
         }

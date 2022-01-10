@@ -151,8 +151,6 @@ if(isset($_POST['create_spk'])){
     }
   }
 
-
-
   $alamat_lengkap = $status_pengiriman == "Ya" ? $_POST['alamat_lengkap'] : '';
   $kode_pos = $_POST['kode_pos'];
   $berat = $status_pengiriman == "Ya" ? $_POST['berat'] : '';

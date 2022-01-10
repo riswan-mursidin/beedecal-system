@@ -611,7 +611,7 @@ if(isset($_POST['edit_send'])){
                           </td>
                           <td>
                          
-                             <?= '<a target="_blank" href="'.$roworder['hasil_desain_order'].'">View Desain</a>' ?>
+                            <?= $roworder['hasil_desain_order'] != "" ? '<a target="_blank" href="'.$roworder['hasil_desain_order'].'">View Desain</a>' : 'Tidak ada' ?>
                          
                         </td>
                           <td>
@@ -626,8 +626,6 @@ if(isset($_POST['edit_send'])){
                             <?php } ?>
                             Harga Produk: Rp.<?= number_format($resultdisk['hasil'],2,",",".") ?>
                             <?= statusBadge($roworder['status_pay_order'],$roworder['sisa_pembayaran_order']) ?><br>
-                            Harga Pasang: <?= $roworder['status_pasang_order'] == "Ya" ? ' Rp.'.number_format($roworder['harga_pasang_order'],2,",",".") : 'Tidak Dipasang' ?>
-                            <?= $roworder['status_pasang_order'] == "Ya" ? statusBadge2($roworder['status_bayar_pasang']) : '' ?><br>
                             <?php  $badge = "";
                             if($roworder['ongkir_cod_order'] == "COD"){
                               $badge = "bg-danger";
@@ -662,9 +660,11 @@ if(isset($_POST['edit_send'])){
                                   <i class="ri-check-line"></i>
                                 </a>
                             <?php } ?>
-                              <!-- <a href="#editpengiriman<?= $roworder['id_order'] ?>" data-bs-toggle="modal" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Pengiriman">
+                            <?php if($roworder['status_order'] != "Selesai Dipasang" || $roworder['status_order'] == "Siap Dipasang"){ ?>
+                              <a href="editpengiriman?spk=<?= $roworder['code_order'] ?>&from=ambil_ditoko" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Pengiriman">
                                 <i class="ri-pencil-line"></i>
-                              </a> -->
+                              </a>
+                            <?php } ?>
                               <a target="_blank" href="print_note?spk=<?= $roworder['code_order'] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Note"><i class="ri-printer-line"></i></a>
                             </div>
                           </td>

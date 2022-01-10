@@ -33,7 +33,8 @@ while($roworder=mysqli_fetch_assoc($ordertoday)){
   if($roworder['satuan_potongan'] == "rupiah"){
     $potongan = $roworder['diskon_order'];
   }
-  $total_ordee += ($roworder['harga_produk_order'] + $counttam) - $potongan;
+  $hasil = ($roworder['harga_produk_order'] + $counttam) - $potongan;
+  $total_ordee += $hasil;
   
 }
 // penjualan bulan ini

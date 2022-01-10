@@ -62,18 +62,10 @@ $queribulan = "SELECT * FROM data_pemesanan WHERE month(tgl_order)='$date' AND y
 $orderbulan = mysqli_query($db->conn, $queribulan);
 while($roworder_bulan=mysqli_fetch_assoc($orderbulan)){
   $counttam = 0;
-  $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$roworder['code_order']);
-  if(mysqli_num_rows($tamby)>0){
-    while($rowby=mysqli_fetch_assoc($tamby)){
-      $counttam += $rowby['harga_ketbyaya'];
-    }
-  }
-  $pemasangan_bln += $roworder_bulan['harga_pasang_order'] + $roworder_bulan['biaya_tambah_pemasangan_order'];
-  $potongan =  ($roworder_bulan['harga_produk_order'] + $counttam) * ($roworder_bulan['diskon_order'] / 100);
-  if($roworder_bulan['satuan_potongan'] == "rupiah"){
-    $potongan = $roworder_bulan['diskon_order'];
-  }
-  $total_ordeer_bulan_ini += ($roworder_bulan['harga_produk_order'] + $counttam) - $potongan;
+  $resultdisk = resultDiskon($id,$roworder_bulan['code_order'],$roworder_bulan['harga_produk_order'],$roworder_bulan['diskon_order'],$roworder_bulan['satuan_potongan']);
+  $total_ordeer_bulan_ini += $resultdisk['hasil'];
+
+
   $code_spk = $roworder_bulan['code_order'];
 }
 $rata_rata = $total_ordeer_bulan_ini / intval(date("d"));

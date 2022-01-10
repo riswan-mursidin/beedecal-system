@@ -17,24 +17,41 @@ if($row['id_owner'] == "0"){
   $id = $row['id_user'];
 }
 
+function resultDiskon($owner,$spk,$harga,$disk,$satuan){
+  global $db;
+  $count = 0;
+  $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$owner,"code_order",$spk);
+  if(mysqli_num_rows($tamby) > 0){
+    while($rowtamby=mysqli_fetch_assoc($tamby)){
+      $count += $rowtamby['harga_ketbiaya'];
+    }
+    $diskon = ($harga + $count) * ($disk/100);
+    $result['hasil'] = ($harga + $count) - $diskon;
+    $result['tamby'] = $count;
+    if($satuan == "rupiah"){
+      $result['hasil'] = ($harga + $count) - $disk;
+    }
+    return $result;
+  }else{
+    $diskon = $harga * ($disk/100);
+    $result['hasil'] = $harga - $diskon;
+    $result['tamby'] = 0;
+    if($satuan == "rupiah"){
+      $result['hasil'] = $harga - $disk;
+    }
+    return $result;
+  }
+}
+
 
 // penjualan hari ini
 $total_ordee = 0; $total_by = 0;
 $ordertoday = $db->selectTable("data_pemesanan","id_owner",$id,"tgl_order",date("Y-m-d"));
 while($roworder=mysqli_fetch_assoc($ordertoday)){
   $counttam = 0;
-  $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$roworder['code_order']);
-  if(mysqli_num_rows($tamby)>0){
-    while($rowby=mysqli_fetch_assoc($tamby)){
-      $counttam += $rowby['harga_ketbyaya'];
-    }
-  }
-  $potongan =  ($roworder['harga_produk_order'] + $counttam) * ($roworder['diskon_order'] / 100);
-  if($roworder['satuan_potongan'] == "rupiah"){
-    $potongan = $roworder['diskon_order'];
-  }
-  $hasil = ($roworder['harga_produk_order'] + $counttam) - $potongan;
-  $total_ordee += $hasil;
+  $resultdisk = resultDiskon($id,$roworder['code_order'],$roworder['harga_produk_order'],$roworder['diskon_order'],$roworder['satuan_potongan']);
+  // $hasil = ($roworder['harga_produk_order'] + $counttam) - $potongan;
+  $total_ordee += $resultdisk['hasil'];
   
 }
 // penjualan bulan ini

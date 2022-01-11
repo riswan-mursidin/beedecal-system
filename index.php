@@ -200,7 +200,7 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
 
             <!-- contant -->
             <div class="row">
-              <div class="col col-md-3 md-3">
+              <div class="col col-md-3 col-sm-3">
                 <div class="card">
                   <div class="card-body">
                       <div class="d-flex text-muted">
@@ -227,7 +227,7 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                   <!-- end card-body -->
                 </div>
               </div>
-              <div class="col col-md-3 md-3">
+              <div class="col col-md-3 col-sm-3">
                 <div class="card">
                   <div class="card-body">
                       <div class="d-flex text-muted">
@@ -254,7 +254,7 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                   <!-- end card-body -->
                 </div>
               </div>
-              <div class="col col-md-3 md-3">
+              <div class="col col-md-3 col-sm-3">
                 <div class="card">
                   <div class="card-body">
                       <div class="d-flex text-muted">
@@ -279,7 +279,7 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                   <!-- end card-body -->
                 </div>
               </div>
-              <div class="col col-md-3 md-3">
+              <div class="col col-md-3 col-sm-3">
                 <div class="card">
                   <div class="card-body">
                       <div class="d-flex text-muted">

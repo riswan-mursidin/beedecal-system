@@ -243,10 +243,10 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                               <h5 class="mb-3">Rp.<?= number_format($total_ordeer_bulan_ini) ?></h5>
                               <p class="text-truncate mb-0">
                                 <span class="text-success me-2">
-                                  0 - <?= number_format($target) ?>
+                                  <?= number_format($target - $total_ordeer_bulan_ini) ?> - <?= number_format($target) ?>
                                   <i class="ri-arrow-right-up-line align-bottom ms-1"></i>
                                 </span> 
-                                Prediksi Penjualan
+                                Target
                               </p>
                           </div>
                       </div>
@@ -270,7 +270,7 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                               <h5 class="mb-3">Rp.<?= number_format($countincome_d) ?></h5>
                               <p class="text-truncate mb-0">
                                 <span class="text-success me-2">
-                                  Jumlah uang yang masuk Hari ini
+                                  Dompet
                                 </span> 
                               </p>
                           </div>

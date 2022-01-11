@@ -186,32 +186,7 @@ function showCetakan($id_order, $owner){
   return $result;
 }
 
-if(isset($_POST['edit_send'])){
-  $id_order = $_POST['id_order'];
-  $status_pengiriman = $_POST['send_status'];
-  $kurir = $status_pengiriman == "Ya" ? $_POST['kurir'] : '';
-  $prov_desti = $status_pengiriman == "Ya" ? $_POST['prov'] : '';
-  $kabkota_desti = $status_pengiriman == "Ya" ? $_POST['kabkota'] : '';
-  $kec_desti = $status_pengiriman == "Ya" ? $_POST['kec'] : '';
-  $alamat_lengkap = $status_pengiriman == "Ya" ? $_POST['alamat_lengkap'] : '';
-  $kode_pos = $status_pengiriman == "Ya" ? $_POST['kode_pos'] : '';
-  $berat = $status_pengiriman == "Ya" ? $_POST['berat'] : '';
-  $paket_ongkir = explode(" - ",$_POST['resultcost']);
 
-  // detail pengiriman
-  $cost = $status_pengiriman == "Ya" ? $paket_ongkir[0] : '';
-  $name_paket = $status_pengiriman == "Ya" ? $paket_ongkir[1] : '';
-  $etd = $status_pengiriman == "Ya" ? $paket_ongkir[2] : '';
-
-  $query = "UPDATE data_pemesanan SET status_pengiriman_order='$status_pengiriman', kurir_pengiriman_order='$kurir', prov_send_order='$prov_desti', kab_send_order='$kabkota_desti', kec_send_order='$kec_desti', kode_pos_send_order='$kode_pos', alamat_lengkap_send_order='$alamat_lengkap', berat_send_order='$berat', ongkir_send_order='$cost', nama_paket_send_order='$name_paket', estimasi_send_order='$etd' WHERE id_order='$id_order'";
-
-  $result = mysqli_query($db->conn, $query);
-  if($result){
-    $_SESSION['alert'] = "1";
-    header('Location: ambil-ditoko');
-    exit();
-  }
-}
 
 
 ?> 
@@ -445,42 +420,6 @@ if(isset($_POST['edit_send'])){
                   </form>
                 </div>
               </div>
-              <div class="modal fade" id="detailsby<?= $roworder['id_order'] ?>" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="exampleModalLabel">Biaya Tambahan</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>Keterangan</th>
-                            <th>Biaya</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <?php  
-                          $byytam = $db->selectTable("biaya_tambahan_order","id_owner",$id,"code_order",$codee);
-                          while($rowbyy=mysqli_fetch_assoc($byytam)){
-                          ?>
-                          <tr>
-                            <td><?= $rowbyy['keterangan_biaya'] ?></td>
-                            <td><?= $rowbyy['harga_ketbiaya'] ?></td>
-                          </tr>
-                          <?php } ?>
-                        </tbody>
-                      </table>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
-                    </div>
-                  </div>
-                </div>
-              </div>
               <div class="modal fade" id="pelunasan<?= $roworder['id_order'] ?>" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                   <form action="" method="post" class="modal-content">
@@ -660,12 +599,12 @@ if(isset($_POST['edit_send'])){
                                   <i class="ri-check-line"></i>
                                 </a>
                             <?php } ?>
-                            <?php if($roworder['status_order'] != "Selesai Dipasang" || $roworder['status_order'] == "Siap Dipasang"){ ?>
+                            <?php if($roworder['status_pasang_order'] != "Ya"){ ?>
                               <a href="editpengiriman?spk=<?= $roworder['code_order'] ?>&from=ambil_ditoko" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Pengiriman">
                                 <i class="ri-pencil-line"></i>
                               </a>
                             <?php } ?>
-                              <a target="_blank" href="print_note?spk=<?= $roworder['code_order'] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Note"><i class="ri-printer-line"></i></a>
+                              <a target="_blank" href="print_note?spk=<?= $roworder['code_order'] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Shipping"><i class="ri-printer-line"></i></a>
                             </div>
                           </td>
                         </tr>

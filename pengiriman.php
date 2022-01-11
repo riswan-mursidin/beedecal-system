@@ -20,6 +20,7 @@ if($row['id_owner'] == "0"){
 $store = $db->selectTable("store_galeri","id_owner",$id);
 $rowstore = mysqli_fetch_assoc($store);
 $asal = $rowstore['kab_id'];
+
 $alert = $_SESSION['alert'];
 
 if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row['level_user'] == "Pemasang"){
@@ -35,39 +36,31 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
   }
 }
 
+if(isset($_POST['aksi_tr'])){
+  $date = date("Y-m-d");
+  $id_edit = $_POST['id'];
+  $code_spk = $_POST['code'];
+  $sisa = $_POST['sisa'];
+  $pembayaran = $_POST['pembayaran'];
+  $status_pay = $sisa > 0 ? "Belum Lunas" : "Lunas";
+
+  $query_r = "UPDATE data_pemesanan SET status_pay_order='$status_pay', sisa_pembayaran_order='$sisa' WHERE id_order='$id_edit'";
+  $result_r = mysqli_query($db->conn, $query_r);
+  if($result_r){
+    $query_t = "INSERT INTO detail_transaksi (code_order,tgl_transaksi,jumlah_transaksi,id_owner) VALUES('$code_spk','$date','$pembayaran','$id')";
+    $result_t = mysqli_query($db->conn, $query_t);
+    if($result_t){
+      $alert = "1";
+    }
+  }
+}
+
 if(isset($_POST['input_resi'])){
   $resi = $_POST['resi'];
   $id_order = $_POST['id_order'];
 
   $resi = "UPDATE data_pemesanan SET resi_pengiriman='$resi' WHERE id_order='$id_order'";
   $resultt = mysqli_query($db->conn, $resi);
-}
-
-if(isset($_POST['edit_send'])){
-    $id_order = $_POST['id_order'];
-    $status_pengiriman = $_POST['send_status'];
-    $kurir = $status_pengiriman == "Ya" ? $_POST['kurir'] : '';
-    $prov_desti = $status_pengiriman == "Ya" ? $_POST['prov'] : '';
-    $kabkota_desti = $status_pengiriman == "Ya" ? $_POST['kabkota'] : '';
-    $kec_desti = $status_pengiriman == "Ya" ? $_POST['kec'] : '';
-    $alamat_lengkap = $status_pengiriman == "Ya" ? $_POST['alamat_lengkap'] : '';
-    $kode_pos = $status_pengiriman == "Ya" ? $_POST['kode_pos'] : '';
-    $berat = $status_pengiriman == "Ya" ? $_POST['berat'] : '';
-    $paket_ongkir = explode(" - ",$_POST['resultcost']);
-
-    // detail pengiriman
-    $cost = $status_pengiriman == "Ya" ? $paket_ongkir[0] : '';
-    $name_paket = $status_pengiriman == "Ya" ? $paket_ongkir[1] : '';
-    $etd = $status_pengiriman == "Ya" ? $paket_ongkir[2] : '';
-
-    $query = "UPDATE data_pemesanan SET status_pengiriman_order='$status_pengiriman', kurir_pengiriman_order='$kurir', prov_send_order='$prov_desti', kab_send_order='$kabkota_desti', kec_send_order='$kec_desti', kode_pos_send_order='$kode_pos', alamat_lengkap_send_order='$alamat_lengkap', berat_send_order='$berat', ongkir_send_order='$cost', nama_paket_send_order='$name_paket', estimasi_send_order='$etd' WHERE id_order='$id_order'";
-
-    $result = mysqli_query($db->conn, $query);
-    if($result){
-      $_SESSION['alert'] = "1";
-      header('Location: pengiriman');
-      exit();
-    }
 }
 
 // pelanggan
@@ -144,8 +137,6 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
   return $result;
 }
 
-
-
 function statusBadge($txt,$sisa){
   
   if($txt == "Belum Lunas"){
@@ -194,6 +185,25 @@ function showCetakan($id_order, $owner){
   $result['percetakan'] = showPercetakan($id_cetakan,$owner);
   return $result;
 }
+
+function formatKurir($kurir){
+  switch($kurir){
+    case "pos":
+      return "POS Indonesia (POS)";
+      break;
+    case "lion":
+      return "Lion Parcel (LION)";
+      break;
+    case "jne":
+      return "Jalur Nugraha Ekakurir (JNE)";
+      break;
+    case "jnt":
+      return "J&T Express (J&T)";
+      break;
+  }
+}
+
+
 ?> 
 
 <!DOCTYPE html>
@@ -235,36 +245,11 @@ function showCetakan($id_order, $owner){
     <link href="assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
 
     <!-- Responsive datatable examples -->
-    <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />     
+    <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />    
 
-    <script>
-      function detailPengiriman(str){
-        var detail = document.getElementById("detailpengiriman");
-        if(str == "Ya"){
-          detail.style.display = "block";
-        }else{
-          detail.style.display = "none";
-        }
-      }
-    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 
-    <!-- ongkir -->
-    <script>
-      function showOngkir(){
-        var kurir = document.getElementById("kurir").value;
-        var asal = "<?= $asal ?>";
-        var tujuan = document.getElementById("kec").value;
-        var berat = document.getElementById("berat").value;
-        $.ajax({
-          type:'post',
-          url:'count_ongkir.php?kurir='+kurir+'&asal='+asal+'&tujuan='+tujuan+'&berat='+berat,
-          success:function(hasil_costs){
-            $("select[name=resultcost]").html(hasil_costs);
-          }
-        })
-      }
-    </script>
-    <!-- end ongkir -->
+    
 
     <script type="text/javascript">
             function showTime() {
@@ -330,7 +315,7 @@ function showCetakan($id_order, $owner){
                     justify-content-between
                   "
                 >
-                  <h4 class="mb-sm-0">Data Logistik (Yang Dikirim)</h4>
+                  <h4 class="mb-sm-0">Data Logistik (Pengiriman)</h4>
 
                   <div class="page-title-right">
                   <ol class="breadcrumb m-0">
@@ -342,12 +327,122 @@ function showCetakan($id_order, $owner){
                 </div>
               </div>
             </div>
+            <?php  
+              $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_pengiriman_order","Tidak");
+              while($roworder=mysqli_fetch_assoc($order)){
+                if($roworder['status_order'] == "Selesai Finishing" || $roworder['status_order'] == "Selesai Dicetak" || $roworder['status_order'] == "Selesai Dipasang" || $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang"){
+                  $codee = $roworder['code_order'];
+                  $customer = showCustomer($roworder['id_customer'],$roworder['status_pengiriman_order'],$roworder['id_order']);
+            ?>
+              <!-- Modal -->
+              <div class="modal fade" id="editpengiriman<?= $roworder['id_order'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <form action="" method="post" class="modal-content" enctype="multipart/form-data">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Edit Pengiriman</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <input type="hidden" name="id_order" value="<?= $roworder['id_order'] ?>">
+                      <div class="mb-3">
+                        <label for="" class="form-label">Status Pengiriman</label>
+                        <select name="send_status" id="" onchange="detailPengiriman(this.value)" class="form-select">
+                          <?php  
+                          $options = array("Ya","Tidak");
+                          foreach($options as $ops){
+                            $select = $ops == $roworder['status_pengiriman_order'] ? 'selected="selected"' : '';
+                          ?>
+                          <option value="<?= $ops ?>" <?= $select ?>><?= $ops ?></option>
+                          <?php } ?>
+                        </select>
+                      </div>
+                      <div class="" id="detailpengiriman">
+                        <input type="hidden" value="<?= $codee ?>" id="id_order">
+                        <input type="hidden" value="<?= $customer['prov'] ?>" id="prov">
+                        <input type="hidden" value="<?= $customer['kab'] ?>" id="kab">
+                        <input type="hidden" value="<?= $customer['kec'] ?>" id="kec">
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                      <button type="submit" name="edit_send" class="btn btn-primary">Simpan</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="modal fade" id="pelunasan<?= $roworder['id_order'] ?>" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <form action="" method="post" class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Pelunasan Pembayaran</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label for="" class="form-label">Sisa Pembayaran</label>
+                        <div class="input-group">
+                          <span class="input-group-text">Rp.</span>
+                          <input type="number" class="form-control" id="sisa" step="0.01" value="<?= $roworder['sisa_pembayaran_order'] ?>" readonly name="sisa">
+                        </div>
+                      </div>
+                      <script>
+                        function hitungSisa(pem){
+                          var sisa = "<?= $roworder['sisa_pembayaran_order'] ?>";
+                          if(pem != ""){
+                            var hasil = parseFloat(sisa) - parseFloat(pem);
+                            document.getElementById("sisa").value = parseFloat(hasil);
+                          }else{
+                            document.getElementById("sisa").value = parseFloat(sisa);
+                          }
+                        }
+                      </script>
+                      <div class="mb-3">
+                        <label class="form-label">Pembayaran</label>
+                        <div class="input-group">
+                          <span class="input-group-text">Rp.</span>
+                          <input type="number" name="pembayaran" onkeyup="hitungSisa(this.value)" class="form-control">
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <h6>Jejak Transaksi</h6>
+                        <hr>
+                      </div>
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Tanggal</th>
+                            <th>Nominal</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <?php  
+                          $tr = $db->selectTable("detail_transaksi","id_owner",$id,"code_order",$codee);
+                          while($rowtr=mysqli_fetch_assoc($tr)){
+                          ?>
+                          <tr>
+                            <td><?= $rowtr['tgl_transaksi'] ?></td>
+                            <td>Rp.<?= number_format($rowtr['jumlah_transaksi'],2,",",".") ?></td>
+                          </tr>
+                          <?php } ?>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="modal-footer">
+                      <input type="hidden" name="id" value="<?= $roworder['id_order'] ?>">
+                      <input type="hidden" name="code" value="<?= $roworder['code_order'] ?>">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="submit" name="aksi_tr" class="btn btn-primary">Simpan</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            <?php }} ?>
             <!-- page card -->
             <div class="row">
               <div class="col-12">
                 <div class="card">
                   <div class="card-body">
-                    <table id="datatable" class="table table-bordered table-hover dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                    <table id="datatable" class="table table-bordered table-hover dt-responsive nowrap table-sm" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                       <thead>
                         <tr>
                           <th>ID</th>
@@ -356,9 +451,9 @@ function showCetakan($id_order, $owner){
                           <th>Desain</th>
                           <th>Percetakan</th>
                           <th>Pembayaran</th>
+                          <th>Detail Pengiriman</th>
                           <th>Produksi</th>
                           <th>Tanggal Pesan</th>
-                          <th>Pengiriman</th>
                           <th>Status</th>
                           <th>Aksi</th>
                         </tr>
@@ -367,7 +462,7 @@ function showCetakan($id_order, $owner){
                         <?php  
                         $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_pengiriman_order","Ya");
                         while($roworder=mysqli_fetch_assoc($order)){
-                          if($roworder['status_order'] == "Selesai Finishing" || $roworder['status_order'] == "Selesai Dicetak"){
+                          if($roworder['status_order'] == "Selesai Finishing" || $roworder['status_order'] == "Selesai Dicetak" || $roworder['status_order'] == "Selesai Dipasang" || $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang"){
                         ?>
                         <tr>
                           <td>
@@ -388,7 +483,7 @@ function showCetakan($id_order, $owner){
                             ?>
                             <?php
                               if($roworder['status_pengiriman_order'] == "Ya"){
-                                echo 'Prov: '.$roworder['	prov_send_order'].'<br>';
+                                echo 'Prov: '.$roworder['prov_send_order'].'<br>';
                                 echo 'Kab/Kota: '.$roworder['kab_send_order'].'<br>';
                                 echo 'Kec: '.$roworder['kec_send_order'].'<br>';
                                 echo 'Kode Pos: '.$roworder['kode_pos_send_order'].'<br>';
@@ -401,11 +496,13 @@ function showCetakan($id_order, $owner){
                             ?>
                           </td>
                           <td>
-                            <?= showDesigner($roworder['id_designer']); ?>
+                            <?= $roworder['id_designer'] != "" ? showDesigner($roworder['id_designer']) : '' ?>
                           </td>
                           <td>
-                            <?= '<a target="_blank" href="'.$roworder['hasil_desain_order'].'">View Desain</a>' ?>
-                          </td>
+                         
+                            <?= $roworder['hasil_desain_order'] != "" ? '<a target="_blank" href="'.$roworder['hasil_desain_order'].'">View Desain</a>' : 'Tidak ada' ?>
+                         
+                        </td>
                           <td>
                             <?= showCetakan($roworder['code_order'],$id)['percetakan'] ?>
                           </td>
@@ -418,8 +515,6 @@ function showCetakan($id_order, $owner){
                             <?php } ?>
                             Harga Produk: Rp.<?= number_format($resultdisk['hasil'],2,",",".") ?>
                             <?= statusBadge($roworder['status_pay_order'],$roworder['sisa_pembayaran_order']) ?><br>
-                            Harga Pasang: <?= $roworder['status_pasang_order'] == "Ya" ? ' Rp.'.number_format($roworder['harga_pasang_order'],2,",",".") : 'Tidak Dipasang' ?>
-                            <?= $roworder['status_pasang_order'] == "Ya" ? statusBadge2($roworder['status_bayar_pasang']) : '' ?><br>
                             <?php  $badge = "";
                             if($roworder['ongkir_cod_order'] == "COD"){
                               $badge = "bg-danger";
@@ -430,6 +525,14 @@ function showCetakan($id_order, $owner){
                             Harga Pengiriman: <?= $roworder['status_pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".").' <h9><span class="badge rounded-pill '.$badge.'">'.$roworder['ongkir_cod_order'].'</span></h9>' : '-,-' ?>
                             
                           </td>
+                          
+                          <td>
+                            Kurir: <?= formatKurir($roworder['kurir_pengiriman_order']) ?><br>
+                            Paket: <?= $roworder['nama_paket_send_order'] ?><br>
+                            Estimasi: <?= $roworder['estimasi_send_order'] ?><br>
+                            Resi: <?= $roworder['resi_pengiriman'] != "" ? $roworder['resi_pengiriman'] : '-,-' ?>
+                          </td>
+
                           <td>
                             Desain: <b><?= $roworder['status_desain_order'] ?></b><br>
                             Cetak: <b><?= $roworder['status_cetak_order'] ?></b><br>
@@ -437,35 +540,40 @@ function showCetakan($id_order, $owner){
                             Pasang: <b><?= $roworder['status_pasang_order'] ?></b><br>
                           </td>
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
-                          <td>
-                            Kurir: <?= strtoupper($roworder['kurir_pengiriman_order']) ?><br>
-                            Paket: <?= $roworder['nama_paket_send_order'] ?><br>
-                            Estimasi: <?= $roworder['estimasi_send_order'] ?><br>
-                            Ongkir: Rp.<?= number_format($roworder['ongkir_send_order']) ?>
-                          </td>
                           <td><?= '<h5><span class="badge bg-success">'.$roworder['status_order'].'</span></h5>' ?></td>
                           <td>
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                              <a href="#editpengiriman<?= $roworder['id_order'] ?>" data-bs-toggle="modal" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Pengiriman">
-                                <i class="ri-pencil-line"></i>
-                              </a>
-                              <a href="#inputresiorder<?= $roworder['id_order'] ?>" data-bs-toggle="modal" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Masukkan Resi Pengiriman">
-                                <i class="ri-send-plane-line"></i>
-                              </a>
-                              <?php  
-                              if($roworder['status_pay_order'] == "Belum Lunas"){
-                              ?>
+                            <?php  
+                            if($roworder['status_pay_order'] == "Belum Lunas"){
+                            ?>
                               <a data-bs-toggle="modal" href="#pelunasan<?= $roworder['id_order'] ?>" class="btn btn-info btn-sm">
                                 <i class="ri-currency-line"></i>
                               </a>
-                              <?php }else{ ?>
-                              <a id="doneorder" href="action/get-done-order?id=<?= $roworder['id_order'] ?>" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Selesai">
-                                <i class="ri-check-line"></i>
+                            <?php 
+                            }else{ 
+                              if($roworder['resi_pengiriman'] != ""){
+                            ?>
+                              <?php $idd = $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang" ? "warnig_status" : "doneorder" ?>
+                              
+                                <a id="<?= $idd ?>" href="action/get-done-order?id=<?= $roworder['id_order'] ?>&param=Ya" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim">
+                                  <i class="ri-flight-takeoff-line"></i>
+                                </a>
+                            <?php 
+                              }else{ 
+                            ?>
+                                <a href="#resil_input<?= $roworder['id_order'] ?>" data-bs-toggle="modal" class="btn btn-light btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Input Resi">
+                                  <i class="ri-truck-line"></i>
+                                </a>
+                            <?php  
+                              }
+                            }
+                            ?>
+                            <?php if($roworder['status_pasang_order'] != "Ya"){ ?>
+                              <a href="editpengiriman?spk=<?= $roworder['code_order'] ?>&from=pengiriman" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Pengiriman">
+                                <i class="ri-pencil-line"></i>
                               </a>
-                              <?php } ?>
-                              <a target="_blank" href="print_note?spk=<?= $roworder['code_order'] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Note"><i class="ri-printer-line"></i></a>
-                              <!-- <a href="<?= $roworder[''] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Details"><i class="ri-eye-line"></i></a>
-                              <a href="data-pesanan.php?order=" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" id="delete"><i class="ri-delete-bin-line"></i></a> -->
+                            <?php } ?>
+                              <a target="_blank" href="print_note?spk=<?= $roworder['code_order'] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Shipping"><i class="ri-printer-line"></i></a>
                             </div>
                           </td>
                         </tr>
@@ -486,162 +594,29 @@ function showCetakan($id_order, $owner){
         <?php  
         $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_pengiriman_order","Ya");
         while($roworder=mysqli_fetch_assoc($order)){
+          if($roworder['status_order'] == "Selesai Finishing" || $roworder['status_order'] == "Selesai Dicetak" || $roworder['status_order'] == "Selesai Dipasang" || $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang"){
         ?>
-        <div class="modal fade" id="inputresiorder<?= $roworder['id_order'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="resil_input<?= $roworder['id_order'] ?>" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered">
-            <form action="" method="post" class="modal-content" enctype="multipart/form-data">
+            <form action="" method="post" class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Masukkan Resi Pengiriman</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Input Resi Pengiriman</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
+                <input type="text" name="resi" id="" class="form-control">
                 <input type="hidden" name="id_order" value="<?= $roworder['id_order'] ?>">
-                <input type="text" name="resi" value="<?= $roworder['resi_pengiriman'] ?>" id="" class="form-control">
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="submit" name="input_resi" class="btn btn-primary">Simpan</button>
               </div>
             </form>
           </div>
         </div>
-        <div class="modal fade" id="editpengiriman<?= $roworder['id_order'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <form action="" method="post" class="modal-content" enctype="multipart/form-data">
-              <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Edit Pengiriman</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <input type="hidden" name="id_order" value="<?= $roworder['id_order'] ?>">
-                <div class="mb-3">
-                  <label for="" class="form-label">Status Pengiriman</label>
-                  <select name="send_status" id="" onchange="detailPengiriman(this.value)" class="form-select">
-                    <?php  
-                    $options = array("Ya","Tidak");
-                    foreach($options as $ops){
-                      $select = $ops == $roworder['status_pengiriman_order'] ? 'selected="selected"' : '';
-                    ?>
-                    <option value="<?= $ops ?>" <?= $select ?>><?= $ops ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-                <div class="" id="detailpengiriman">
-                  <div class="mb-3">
-                    <label for="" class="form-label">Kurir</label>
-                    <select name="kurir" id="kurir" class="form-select">
-                      <optgroup label="PILIH KURIR">
-                        <?php 
-                        function nameKurir($kode){
-                          switch($kode){
-                            case "pos":
-                              return "POS Indonesia (POS)";
-                              break;
-                            case "lion":
-                              return "Lion Parcel (LION)";
-                              break;
-                            case "jne":
-                              return "Jalur Nugraha Ekakurir (JNE)";
-                              break;
-                            case "jnt":
-                              return "J&T Express (J&T)";
-                              break;
-                          }
-                        }
-                        $kur = array("pos","lion","jne","jnt");
-                        foreach($kur as $k){
-                          $select = $k == $roworder['kurir_pengiriman_order'] ? 'selected="selected"' : '';
-                        ?>
-                        <option value="<?= $k ?>" <?= $select ?>><?= nameKurir($k) ?></option>
-                        <?php } ?>
-                      </optgroup>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label for="" class="form-label">Provinsi</label>
-                    <select name="prov" id="prov" class="form-select" onchange="viewKab(this.value)">
-                      <option value="" hidden>PROVINSI</option>
-                      <?php  
-                      $idprov = "";
-                      $provs = $db->dataIndonesia("prov",null);
-                      foreach($provs as $prov){
-                        $select = $roworder['prov_send_order'] == $prov['province'] ? 'selected="selected"' : '';
-                        $idprov .= $roworder['prov_send_order'] == $prov['province'] ? $prov["province_id"] : ""; 
-                        echo '<option value="'.$prov['province_id'].'" '.$select.'>'.$prov['province'].'</option>';
-                      }
-                      ?>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label for="" class="form-label">KABUPATEN/KOTA</label>
-                    <select name="kabkota" id="kabkota" class="form-select" onchange="viewkec(this.value)" >
-                      <option value="" hidden>KABUPATEN/KOTA</option>
-                      <?php $idkab = "";
-                      $kab_kota = $db->dataIndonesia("kab_kota",$idprov);
-                      foreach ($kab_kota as $key => $kab){
-                        $select = $kab['city_name'] == $roworder['kab_send_order'] ? 'selected="selected"' : '';
-                        $idkab .= $roworder['kab_send_order'] == $kab["city_name"] ? $kab["city_id"] : "";
-                        echo '<option value="'.$kab["city_id"].'" '.$select.'>'.$kab["city_name"].'</option>';
-                      }
-                      ?>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label for="" class="form-label">KECAMATAN</label>
-                    <select name="kec" id="kec" class="form-select" >
-                      <option value="" hidden>KECAMATAN</option>
-                      <?php  
-                      $kecamatan = $db->dataIndonesia("kec",$idkab);
-                      foreach ($kecamatan as $key => $kec){
-                        $select = $kec["subdistrict_name"] == $roworder['kec_send_order'] ? 'selected="selected"' : '';
-                        echo '<option value="'.$kec["subdistrict_id"].'" '.$select.'>'.$kec["subdistrict_name"].'</option>';
-                      }
-                      ?>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label for="" class="form-label">Kode Pos</label>
-                    <input type="number" name="kode_pos" id="kode_pos" class="form-control" placeholder="Kode Pos" value="<?= $roworder['kode_pos_send_order'] ?>">
-                  </div>
-                  <div class="mb-3">
-                    <label for="" class="form-label">Alamat Lengkap</label>
-                    <textarea name="alamat_lengkap" id="" rows="3" class="form-control"><?= $roworder['alamat_lengkap_send_order'] ?></textarea>
-                  </div>
-                  <div class="mb-3">
-                    <label for="" class="form-label">Berat</label>
-                    <input type="number" name="berat" step="0.01" id="berat" class="form-control" value="<?= $roworder['berat_send_order'] ?>">
-                  </div>
-                  <div class="mb-3">
-                    <label for="" class="form-label">Ongkir</label>
-                    <div class="input-group ">
-                      <select name="resultcost" id="resut_pengiriman" class="form-control">
-                        <option value="">PILIH PAKET</option>
-                        <?php  
-                        require_once "action/rajaOngkir.php";
-                        $rajaongkir = new RajaOngkir();
-  
-                        $data = $rajaongkir->checkOngkir($roworder['kurir_pengiriman_order'], $asal, $roworder['kec_send_order'], $roworder['berat_send_order']);
-                        foreach($data->costs as $d){
-                          $select = $d->service == $roworder['nama_paket_send_order'] ? 'selected="selected"' : '' ;
-                          echo '<option '.$select.' value="'.$d->cost[0]->value.' - '.$d->service.' - '.$d->cost[0]->etd.'">Rp.'.number_format($d->cost[0]->value,2,",",".").' (Paket: '.$d->service.' Estimasi: '.$d->cost[0]->etd. ')</option>';
-                        }
-                        ?>
-                      </select>
-                      <button class="btn btn-warning" type="button" id="button-addon2" onclick="showOngkir()">Cek</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" name="edit_send" class="btn btn-primary">Simpan</button>
-              </div>
-            </form>
-          </div>
-        </div>
-        <?php } ?>
-        <!-- End Modal upload hasil desan -->
-
+        <?php }else{continue;}} ?>
+        <!-- end modal -->
+      
         <!-- Footer -->
         <footer class="footer">
           <div class="container-fluid">
@@ -738,7 +713,7 @@ function showCetakan($id_order, $owner){
         var link = $(this).attr('href');
         Swal.fire({
           title:"Selesai!",
-          text:"Apakah Barang Sudah Sampai?",
+          text:"Apakah Anda yakin?",
           icon:"success",
           showCancelButton: true,
           confirmButtonColor: '#00a65a',
@@ -749,6 +724,20 @@ function showCetakan($id_order, $owner){
             window.location = link;
           }
         });
+      });
+    </script>
+    <script>
+      $(document).on('click', '#warnig_status', function(e){
+        e.preventDefault();
+        var link = $(this).attr('href');
+        Swal.fire({
+          title:"Peringatan!",
+          text:"Proses Masih Berjalan!",
+          icon:"warning",
+          showCancelButton: true,
+          showConfirmButton: false,
+          cancelButtonColor: '#d33'
+        })
       });
     </script>
   </body>

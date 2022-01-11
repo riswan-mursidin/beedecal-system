@@ -36,8 +36,6 @@ function showCustomer($id_customer, $pengiriman=null, $id_order=null){
   $rowdb=mysqli_fetch_assoc($querydb);
 
   // alamat customer
-  
-  $result['name'] = $rowdb['name_customer'];
   $result['prov'] = $rowdb['prov_customer'];
   $result['kab'] = $rowdb['kota_kab_customer'];
   $result['kec'] = $rowdb['kec_customer'];
@@ -50,8 +48,8 @@ function showCustomer($id_customer, $pengiriman=null, $id_order=null){
 
 if(isset($_POST['save_pengiriman'])){
   $id_orderr = $_POST['id_orderr'];
-  $status_pengiriman = $_POST['status_pengiriman'] == "on" ? "Ya"  : "Tidak";
-  $pemasangan_status = $_POST['status_pasang'];
+  $status_pengiriman = $_POST['status_pengiriman'] == "on" ? "Ya" : "Tidak";
+  $pemasangan_status = $status_pengiriman == "Ya" ? "Tidak" : $_POST['status_pasang'];
 
   // detail pengiriman
   $kurir = $status_pengiriman == "Ya" ? $_POST['kurir'] : '';
@@ -85,7 +83,7 @@ if(isset($_POST['save_pengiriman'])){
   }
 
   $alamat_lengkap = $status_pengiriman == "Ya" ? $_POST['alamat_lengkap'] : '';
-  $kode_pos = $_POST['kode_pos'];
+  $kode_pos = $status_pengiriman == "Ya" ? $_POST['kode_pos'] : '';
   $berat = $status_pengiriman == "Ya" ? $_POST['berat'] : '';
   $paket_ongkir = explode(" - ",$_POST['resultcost']);
 
@@ -101,12 +99,33 @@ if(isset($_POST['save_pengiriman'])){
       $cod = "Cash";
     }
   }
-  $updatesend = mysqli_query($db->conn, "UPDATE data_pemesanan SET status_pasang_order='$pemasangan_status',status_pengiriman_order='$status_pengiriman', kurir_pengiriman_order='$kurir', prov_send_order='$prov_desti', kab_send_order='$kabkota_desti', kec_send_order='$kec_desti', kode_pos_send_order='$kode_pos', alamat_lengkap_send_order='$alamat_lengkap', berat_send_order='$berat', ongkir_send_order='$cost', nama_paket_send_order='$name_paket', estimasi_send_order='$etd', ongkir_cod_order='$cod' WHERE id_order='$id_orderr'"); 
+
+  if($pemasangan_status == "Ya"){
+    $status_order = $_POST['status_order'];
+    $next = $status_order == "Selesai Finishing" ? "Siap Dipasang" : $status_order;
+    $updatesend = mysqli_query($db->conn, "UPDATE data_pemesanan SET status_pasang_order='$pemasangan_status',status_pengiriman_order='$status_pengiriman', kurir_pengiriman_order='$kurir', prov_send_order='$prov_desti', kab_send_order='$kabkota_desti', kec_send_order='$kec_desti', kode_pos_send_order='$kode_pos', alamat_lengkap_send_order='$alamat_lengkap', berat_send_order='$berat', ongkir_send_order='$cost', nama_paket_send_order='$name_paket', estimasi_send_order='$etd', ongkir_cod_order='$cod', status_order='$status_order' WHERE id_order='$id_orderr'"); 
+    
+    if($updatesend){
+      $_SESSION['alert'] = "1";
+      header('Location: ambil-ditoko');
+      if($from == "pengiriman"){
+        header('Location: pengiriman');
   
-  if($updatesend){
-    $_SESSION['alert'] = "1";
-    header('Location: ambil-ditoko');
-    exit();
+      }
+      exit();
+    }
+  }else{
+    $updatesend = mysqli_query($db->conn, "UPDATE data_pemesanan SET status_pasang_order='$pemasangan_status',status_pengiriman_order='$status_pengiriman', kurir_pengiriman_order='$kurir', prov_send_order='$prov_desti', kab_send_order='$kabkota_desti', kec_send_order='$kec_desti', kode_pos_send_order='$kode_pos', alamat_lengkap_send_order='$alamat_lengkap', berat_send_order='$berat', ongkir_send_order='$cost', nama_paket_send_order='$name_paket', estimasi_send_order='$etd', ongkir_cod_order='$cod' WHERE id_order='$id_orderr'"); 
+    
+    if($updatesend){
+      $_SESSION['alert'] = "1";
+      header('Location: ambil-ditoko');
+      if($from == "pengiriman"){
+        header('Location: pengiriman');
+  
+      }
+      exit();
+    }
   }
 }
 
@@ -272,7 +291,16 @@ if(isset($_POST['save_pengiriman'])){
               $order = $db->selectTable("data_pemesanan","code_order",$spk,"id_owner",$id);
               $roworder = mysqli_fetch_assoc($order); 
               $customer = $roworder['id_customer'];
-              $showcustomer = showCustomer($customer)
+              $showcustomer =  showCustomer($customer);
+              if($from == "pengiriman"){
+                $showcustomer = [
+                  'prov' => $roworder['prov_send_order'],
+                  'kab' => $roworder['kab_send_order'],
+                  'kec' => $roworder['kec_send_order'],
+                  'kodepos' => $roworder['kode_pos_send_order'],
+                  'alamat' => $roworder['alamat_lengkap_send_order']
+                ];
+              }
               ?>
               <div class="row">
                 <div class="col-12">
@@ -284,9 +312,10 @@ if(isset($_POST['save_pengiriman'])){
                       <div class="row g-3 mt-3">
                         <label for="" class="col-sm-2 col-form-label">Pemasangan</label>
                         <div class="col-sm-10">
-                          <select name="status_pasang" id="status_pasang" class="form-select">
+                          <?php $disabled = $from == "pengiriman" ? "disabled" : "" ?>
+                          <select name="status_pasang" id="status_pasang" class="form-select" <?= $disabled ?>>
                             <?php 
-                            $v = $roworder['status_pasang_order'];
+                            $v = $from == "pengiriman" ? "Tidak" : $roworder['status_pasang_order'];
                             $option = array("Ya","Tidak");
                             foreach($option as $ops){
                               $select = $v == $ops ? 'selected="selected"' : '';
@@ -315,10 +344,29 @@ if(isset($_POST['save_pengiriman'])){
                           <div class="col-sm-10">
                             <select name="kurir" id="kurir" class="form-select">
                               <option value="" hidden>PiLIH KURIR</option>
-                              <option value="pos">POS Indonesia (POS)</option>
-                              <option value="lion">Lion Parcel (LION)</option>
-                              <option value="jne">Jalur Nugraha Ekakurir (JNE)</option>
-                              <option value="jnt">J&T Express (J&T)</option>
+                              <?php 
+                              function nameKurir($kode){
+                                switch($kode){
+                                  case "pos":
+                                    return "POS Indonesia (POS)";
+                                    break;
+                                  case "lion":
+                                    return "Lion Parcel (LION)";
+                                    break;
+                                  case "jne":
+                                    return "Jalur Nugraha Ekakurir (JNE)";
+                                    break;
+                                  case "jnt":
+                                    return "J&T Express (J&T)";
+                                    break;
+                                }
+                              }
+                              $kur = array("pos","lion","jne","jnt");
+                              foreach($kur as $k){
+                                $select = $k == $roworder['kurir_pengiriman_order'] ? 'selected="selected"' : '';
+                              ?>
+                              <option value="<?= $k ?>" <?= $select ?>><?= nameKurir($k) ?></option>
+                              <?php } ?>
                             </select>
                           </div>
                           <!-- end kurir -->
@@ -372,7 +420,7 @@ if(isset($_POST['save_pengiriman'])){
                           </div>
     
                           <div class="col-sm-1">
-                            <input type="number" name="kode_pos" id="kode_pos" class="form-control" placeholder="Kode Pos" value="<?= $showcustomer['kode_pos_customer'] ?>">
+                            <input type="number" name="kode_pos" id="kode_pos" class="form-control" placeholder="Kode Pos" value="<?= $showcustomer['kodepos'] ?>">
                           </div>
     
                           <label for="" class="col-sm-2 col-form-label">Alamat Lengkap</label>
@@ -389,7 +437,7 @@ if(isset($_POST['save_pengiriman'])){
                           <label for="" class="col-sm-2 col-form-label">Berat</label>
                           <div class="col-sm-10">
                             <div class="input-group">
-                              <input type="number" name="berat" step="0.01" id="berat" class="form-control">
+                              <input type="number" name="berat" step="0.01" id="berat" class="form-control" value="<?= $roworder['berat_send_order'] ?>">
                               <span class="input-group-text">gram</span>
                             </div>
                           </div>
@@ -401,6 +449,16 @@ if(isset($_POST['save_pengiriman'])){
                                 <div class="input-group">
                                   <select name="resultcost" id="resut_pengiriman" onchange="showFee4(this.value)" class="form-control">
                                     <option value="">PILIH PAKET</option>
+                                    <?php  
+                                    require_once "action/rajaOngkir.php";
+                                    $rajaongkir = new RajaOngkir();
+      
+                                    $data = $rajaongkir->checkOngkir($roworder['kurir_pengiriman_order'], $asal, $idkec, $roworder['berat_send_order']);
+                                    foreach($data->costs as $d){
+                                      $select = $d->service == $roworder['nama_paket_send_order'] ? 'selected="selected"' : '' ;
+                                      echo '<option '.$select.' value="'.$d->cost[0]->value.' - '.$d->service.' - '.$d->cost[0]->etd.'">Rp.'.number_format($d->cost[0]->value,2,",",".").' (Paket: '.$d->service.' Estimasi: '.$d->cost[0]->etd. ')</option>';
+                                    }
+                                    ?>
                                   </select>
     
                                   <button class="btn btn-warning" type="button" id="button-addon2" onclick="showOngkir()">Cek</button>
@@ -408,7 +466,10 @@ if(isset($_POST['save_pengiriman'])){
                               </div>
                               <div class="col-sm-12 mt-2">
                                 <div class="form-check">
-                                  <input class="form-check-input" name="cod" type="checkbox" value="on" id="flexCheckChecked">
+                                  <?php  
+                                  $checked = $roworder['ongkir_cod_order'] == "COD" ? "checked" : '';
+                                  ?>
+                                  <input class="form-check-input" name="cod" type="checkbox" value="on" <?= $checked ?> id="flexCheckChecked">
                                   <label class="form-check-label" for="flexCheckChecked">
                                     Cash on delivery
                                   </label>
@@ -419,6 +480,7 @@ if(isset($_POST['save_pengiriman'])){
                         </div>
                         <!-- end raja ongkir -->
                       </div>
+                      <input type="hidden" name="status_order" value="<?= $roworder['status_order'] ?>">
                       <input type="hidden" name="id_orderr" value="<?= $roworder['id_order'] ?>">
                       <button type="submit" name="save_pengiriman" class="btn btn-success">Simpan</button>
                     </div>
@@ -487,7 +549,7 @@ if(isset($_POST['save_pengiriman'])){
           $("#resut_pengiriman").attr("required","");
         }else{
           detail.style.display = "none";
-          $("#status_pasang").val("<?= $roworder['status_pasang_order'] ?>");
+          $("#status_pasang").val("Ya");
           $("#status_pasang").removeAttr("disabled","true")
           $("#kurir").removeAttr("required","");
           $("#berat").removeAttr("required","");

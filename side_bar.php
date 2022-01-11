@@ -218,14 +218,14 @@
                         Ambil ditoko
                       </a>
                     </li>
-                    <!-- <li>
+                    <li>
                       <a href="pengiriman">
                       <?php if($jumlogistik_kirim != 0){ ?>
                         <span class="badge rounded-pill bg-danger float-end"><?= $jumlogistik_kirim ?></span>
                       <?php } ?>
                         Pengiriman
                       </a>
-                    </li> -->
+                    </li>
                   </ul>
                 </li>
                 <li class="menu-title">Laporan</li>
@@ -327,6 +327,7 @@
                     <li>
                       <a href="konfigurasistiker-custom">Stiker Custom</a>
                     </li>
+                    <li>
                       <a href="konfigurasiproduk-produk">Produk </a>
                     </li>
                     <li>

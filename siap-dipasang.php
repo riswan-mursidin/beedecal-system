@@ -30,11 +30,14 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi"){
 
 if(isset($_POST['aksi_edit_pemasangan'])){
   $i = $_POST['id_edit'];
-  $harga_pasang = $_POST['harga_pasang'];
-  $kategori_pemasang = $_POST['kategori_pemasang'];
-  $biaya_tambah = $_POST['biaya_tambah'];
+  $status_pasang = $_POST['status_pasang'];
+  $harga_pasang = $status_pasang == "Ya" ? $_POST['harga_pasang'] : '';
+  $kategori_pemasang = $status_pasang == "Ya" ? $_POST['kategori_pemasang'] : '';
+  $biaya_tambah = $status_pasang == "Ya" ? $_POST['biaya_tambah'] : '';
 
-  $query = "UPDATE data_pemesanan SET biaya_tambah_pemasangan_order='$biaya_tambah', kategori_pemasang_order='$kategori_pemasang', harga_pasang_order='$harga_pasang' WHERE id_order='$i'";
+  $next = "Menunggu Finishing";
+
+  $query = "UPDATE data_pemesanan SET biaya_tambah_pemasangan_order='$biaya_tambah', kategori_pemasang_order='$kategori_pemasang', harga_pasang_order='$harga_pasang', status_pasang_order='$status_pasang', status_order='$next' WHERE id_order='$i'";
   $result = mysqli_query($db->conn, $query);
   if($result){
     $alert = '1';
@@ -133,7 +136,20 @@ function showDesigner($id){
 
     <!-- Responsive datatable examples -->
     <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />     
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script>
+      function hideDetailpasang(str){
+        var detail = document.getElementById("detailpasang");
+        if(str == "Ya"){
+          detail.style.display = "";
+          $("#harga_pasang").attr("required","");
+        }else{
+          detail.style.display = "none"
+          $("#harga_pasang").removeAttr("required");
+        }
+      }
+    </script>
+    
     <script type="text/javascript">
             function showTime() {
                 var a_p = "";
@@ -239,7 +255,11 @@ function showDesigner($id){
 
                           <td>
                             <?= $roworder['code_order'] ?><br>
-                            <?= $roworder['jenis_produk_order'] == 'Custom' ? $db->nameFormater(showProduk($roworder['produk_order'])) : '' ?><br>
+                            <?= 
+                            $roworder['jenis_produk_order'] == 'Custom' && $roworder['kategori_produk_order'] == "Other" ? 
+                              $db->nameFormater($roworder['produk_order']) : 
+                                $db->nameFormater(showProduk($roworder['produk_order'])) 
+                            ?><br>
                             <?= $roworder['model_stiker_order'] ?><br>
                             <?= $roworder['laminating_order'] ?>
                           </td>
@@ -326,29 +346,38 @@ function showDesigner($id){
               </div>
               <div class="modal-body">
                 <div class="mb-3">
-                  <label for="" class="form-label">Harga Pasang</label>
-                  <div class="input-group mb-3">
-                    <span class="input-group-text" id="basic-addon1">Rp.</span>
-                    <input required type="number" name="harga_pasang" id="" class="form-control" value="<?= $roworder['harga_pasang_order'] ?>">
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label for="" class="form-label">Kategori Pemasang</label>
-                  <select required name="kategori_pemasang" id="" class="form-select">
-                    <?php  
-                    $options = array("Freelance & Karyawan","Karyawan","Freelance");
-                    foreach($options as $ops){
-                      $select = $ops == $roworder['kategori_pemasang_order'] ? 'selected="selected"' : '';
-                    ?>
-                    <option value="<?= $ops ?>" <?= $select ?>><?= $ops ?></option>
-                    <?php } ?>
+                  <label for="" class="form-label">Status Pasang</label>
+                  <select name="status_pasang" id="" class="form-select" onchange="hideDetailpasang(this.value)">
+                    <option value="Ya" selected="selected">Ya</option>
+                    <option value="Tidak">Tidak</option>
                   </select>
                 </div>
-                <div class="mb-3">
-                  <label for="" class="form-label">Biaya Tambahan</label>
-                  <div class="input-group mb-3">
-                    <span class="input-group-text" id="basic-addon1">Rp.</span>
-                    <input required type="number" value="<?= $roworder['biaya_tambah_pemasangan_order'] ?>" name="biaya_tambah" id="" class="form-control">
+                <div id="detailpasang">
+                  <div class="mb-3">
+                    <label for="" class="form-label">Harga Pasang</label>
+                    <div class="input-group mb-3">
+                      <span class="input-group-text" id="basic-addon1">Rp.</span>
+                      <input required type="number" name="harga_pasang" id="harga_pasang" class="form-control" value="<?= $roworder['harga_pasang_order'] ?>">
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="" class="form-label">Kategori Pemasang</label>
+                    <select required name="kategori_pemasang" id="" class="form-select">
+                      <?php  
+                      $options = array("Freelance & Karyawan","Karyawan","Freelance");
+                      foreach($options as $ops){
+                        $select = $ops == $roworder['kategori_pemasang_order'] ? 'selected="selected"' : '';
+                      ?>
+                      <option value="<?= $ops ?>" <?= $select ?>><?= $ops ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="" class="form-label">Biaya Tambahan</label>
+                    <div class="input-group mb-3">
+                      <span class="input-group-text" id="basic-addon1">Rp.</span>
+                      <input type="number" value="<?= $roworder['biaya_tambah_pemasangan_order'] ?>" name="biaya_tambah" id="" class="form-control">
+                    </div>
                   </div>
                 </div>
               </div>

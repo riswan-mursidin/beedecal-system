@@ -88,6 +88,27 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
 
 // pemasangan bulan ini
 
+function produkStaff($param,$owner){
+  global $db; $jum = "";
+  $month = date("m");
+  $year = date("Y");
+  if($param == "selesai"){
+    $queryselesai = mysqli_query($db->conn,"SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND status_order='Selesai' AND id_owner='$owner'");
+    $jum = mysqli_num_rows($queryselesai);
+    
+  }elseif($param == "pending"){
+    $queryselesai = mysqli_query($db->conn,"SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND produksi_status='Tidak' AND id_owner='$owner'");
+    $jum = mysqli_num_rows($queryselesai);
+  }elseif($param == "proses"){
+    $queryselesai = mysqli_query($db->conn,"SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND produksi_status='Ya' AND status_order<>'Selesai' AND id_owner='$owner'");
+    $jum = mysqli_num_rows($queryselesai);
+  }
+  $query = mysqli_query($db->conn,"SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$owner'");
+  $total = mysqli_num_rows($query);
+  $result = ($jum/$total) * 100; 
+  return $result;
+}
+
 
 ?>
 <!DOCTYPE html>
@@ -312,106 +333,109 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
             </div>
             <div class="row">
               <div class="col-md-6 col-sm-12">
-              <h5>Produksi</h5>
-              <hr>
-              <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Order Stats</h5>
-                                        <div>
-                                            <ul class="list-unstyled">
-                                                <li class="py-3">
-                                                    <div class="d-flex">
-                                                        <div class="avatar-xs align-self-center me-3">
-                                                            <div class="avatar-title rounded-circle bg-light text-primary font-size-18">
-                                                                <i class="ri-checkbox-circle-line"></i>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex-grow-1">
-                                                            <p class="text-muted mb-2">Completed</p>
-                                                            <div class="progress progress-sm animated-progess">
-                                                                <div class="progress-bar bg-success" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                <li class="py-3">
-                                                    <div class="d-flex">
-                                                        <div class="avatar-xs align-self-center me-3">
-                                                            <div class="avatar-title rounded-circle bg-light text-primary font-size-18">
-                                                                <i class="ri-calendar-2-line"></i>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex-grow-1">
-                                                            <p class="text-muted mb-2">Pending</p>
-                                                            <div class="progress progress-sm animated-progess">
-                                                                <div class="progress-bar bg-warning" role="progressbar" style="width: 45%" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                <li class="py-3">
-                                                    <div class="d-flex">
-                                                        <div class="avatar-xs align-self-center me-3">
-                                                            <div class="avatar-title rounded-circle bg-light text-primary font-size-18">
-                                                                <i class="ri-close-circle-line"></i>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex-grow-1">
-                                                            <p class="text-muted mb-2">Cancel</p>
-                                                            <div class="progress progress-sm animated-progess">
-                                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 19%" aria-valuenow="19" aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-
-                                        <hr>
-                                        
-                                        <div class="text-center">
-                                            <div class="row">
-                                                <div class="col-4">
-                                                    <div class="mt-2">
-                                                        <p class="text-muted mb-2">Completed</p>
-                                                        <h5 class="font-size-16 mb-0">70</h5>
-                                                    </div>
-                                                </div>
-                                                <div class="col-4">
-                                                    <div class="mt-2">
-                                                        <p class="text-muted mb-2">Pending</p>
-                                                        <h5 class="font-size-16 mb-0">45</h5>
-                                                    </div>
-                                                </div>
-                                                <div class="col-4">
-                                                    <div class="mt-2">
-                                                        <p class="text-muted mb-2">Cancel</p>
-                                                        <h5 class="font-size-16 mb-0">19</h5>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- end card-body -->
+                <h5>Produksi</h5>
+                <hr>
+                <div class="card">
+                  <div class="card-body">
+                    <?php 
+                      $selesai = produkStaff("selesai",$id); 
+                      $proses = produkStaff("proses",$id); 
+                      $pending = produkStaff("pending",$id); 
+                    ?>
+                    <div class="card-title">Presentasi Produksi</div>
+                    <div>
+                      <ul class="list-unstyled">
+                          <li class="py-3">
+                              <div class="d-flex">
+                                  <div class="avatar-xs align-self-center me-3">
+                                      <div class="avatar-title rounded-circle bg-light text-primary font-size-18">
+                                          <i class="ri-checkbox-circle-line"></i>
+                                      </div>
+                                  </div>
+                                  <div class="flex-grow-1">
+                                      <p class="text-muted mb-2">Selesai</p>
+                                      <div class="progress progress-sm animated-progess">
+                                          <div class="progress-bar bg-success" role="progressbar" style="width: <?= number_format($selesai) ?>%" aria-valuenow="<?= number_format($selesai) ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </li>
+                          <li class="py-3">
+                              <div class="d-flex">
+                                  <div class="avatar-xs align-self-center me-3">
+                                      <div class="avatar-title rounded-circle bg-light text-primary font-size-18">
+                                          <i class="ri-loader-2-line"></i>
+                                      </div>
+                                  </div>
+                                  <div class="flex-grow-1">
+                                      <p class="text-muted mb-2">Proses</p>
+                                      <div class="progress progress-sm animated-progess">
+                                          <div class="progress-bar bg-warning" role="progressbar" style="width: <?= number_format($proses) ?>%" aria-valuenow="<?= number_format($proses)?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </li>
+                          <li class="py-3">
+                              <div class="d-flex">
+                                  <div class="avatar-xs align-self-center me-3">
+                                      <div class="avatar-title rounded-circle bg-light text-primary font-size-18">
+                                          <i class="ri-close-circle-line"></i>
+                                      </div>
+                                  </div>
+                                  <div class="flex-grow-1">
+                                      <p class="text-muted mb-2">Pending</p>
+                                      <div class="progress progress-sm animated-progess">
+                                          <div class="progress-bar bg-danger" role="progressbar" style="width: <?= number_format($pending) ?>%" aria-valuenow="<?= number_format($pending) ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </li>
+                      </ul>
+                    </div>
+                    <hr>
+                      
+                    <div class="text-center">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="mt-2">
+                                    <p class="text-muted mb-2">Selesai</p>
+                                    <h5 class="font-size-16 mb-0"><?= number_format($selesai) ?>%</h5>
                                 </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="mt-2">
+                                    <p class="text-muted mb-2">Proses</p>
+                                    <h5 class="font-size-16 mb-0"><?= number_format($proses)?>%</h5>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="mt-2">
+                                    <p class="text-muted mb-2">Pending</p>
+                                    <h5 class="font-size-16 mb-0"><?= number_format($pending) ?>%</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="col col-md-6 col-sm-12">
                 <h5 class="mb-sm-0">Sumber</h5>
                 <hr>
                 <div class="row">
-              <?php  
-              $sumber = $db->selectTable("sumber_pemesanan","id_owner",$id);
-              while($rowsumber=mysqli_fetch_assoc($sumber)){
-                $date = date("m");
-                $year = date("Y");
-                $orderan = mysqli_query($db->conn,"SELECT * FROM data_pemesanan WHERE month(tgl_order)='$date' AND year(tgl_order)='$year' AND id_owner='$id' AND id_sumber='".$rowsumber['id_sumber']."'");
-                $countorder = mysqli_num_rows($orderan);
-                $fee = 0;
-                while($rowworder=mysqli_fetch_assoc($orderan)){
-                  $resultdisk = resultDiskon($id,$rowworder['code_order'],$rowworder['harga_produk_order'],$rowworder['diskon_order'],$rowworder['satuan_potongan']);
-                  $fee += $resultdisk['hasil'];
-                }
-              ?>
+                  <?php  
+                  $sumber = $db->selectTable("sumber_pemesanan","id_owner",$id);
+                  while($rowsumber=mysqli_fetch_assoc($sumber)){
+                    $date = date("m");
+                    $year = date("Y");
+                    $orderan = mysqli_query($db->conn,"SELECT * FROM data_pemesanan WHERE month(tgl_order)='$date' AND year(tgl_order)='$year' AND id_owner='$id' AND id_sumber='".$rowsumber['id_sumber']."'");
+                    $countorder = mysqli_num_rows($orderan);
+                    $fee = 0;
+                    while($rowworder=mysqli_fetch_assoc($orderan)){
+                      $resultdisk = resultDiskon($id,$rowworder['code_order'],$rowworder['harga_produk_order'],$rowworder['diskon_order'],$rowworder['satuan_potongan']);
+                      $fee += $resultdisk['hasil'];
+                    }
+                  ?>
                   <div class="col-md-6 col-sm-6">
                     <div class="card">
                       <div class="card-body">
@@ -429,12 +453,12 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                       <!-- end card-body -->
                       </div>
                   </div>
-              <?php } ?>
+                  <?php } ?>
                   </div>
                 </div>
-            </div>
+              </div>
             <!-- end contant -->
-
+            </div>
           </div>
           <!-- container-fluid -->
         </div>

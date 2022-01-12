@@ -1,0 +1,31 @@
+/* card home */
+
+.green {
+    background: rgb(2,0,36);
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(8,157,20,1) 0%, rgba(0,176,1,1) 100%);
+    
+}
+
+.orange {
+    background: rgb(2,0,36);
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(252,134,1,1) 0%, rgb(245, 188, 1) 100%);
+
+}
+
+.blue {
+    background: rgb(2,0,36);
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,106,198,1) 0%, rgba(2,154,224,1) 100%);
+}
+
+.purple {
+    background: rgb(2,0,36);
+background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(137,0,198,1) 0%, rgba(193,2,224,1) 100%);
+}
+
+.text-blue {
+    color: rgb(0, 88, 220);
+}
+
+.text-purple {
+    color: #8900c6 ;
+}

@@ -121,6 +121,9 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
       type="text/css"
     />
 
+    <!-- card-home -->
+    <link href="assets/css/card-home.css" rel="stylesheet" type="text/css" />
+
     <script type="text/javascript">
             function showTime() {
                 var a_p = "";
@@ -200,10 +203,10 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
 
             <!-- contant -->
             <div class="row">
-              <div class="col col-md-3 col-sm-3">
-                <div class="card">
+              <div class="col-sm-6 col-12">
+                <div class="card green">
                   <div class="card-body">
-                      <div class="d-flex text-muted">
+                      <div class="d-flex text-white">
                           <div class="flex-shrink-0  me-3 align-self-center">
                               <div class="avatar-sm">
                                   <div class="avatar-title bg-light rounded-circle text-primary font-size-20">
@@ -212,14 +215,14 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                               </div>
                           </div>
                           <div class="flex-grow-1 overflow-hidden">
-                              <p class="mb-1">Pesanan Hari ini</p>
-                              <h5 class="mb-3">Rp.<?= number_format($total_ordee,0,".",",") ?></h5>
+                              <p class="mb-1">Pesanan /Hari</p>
+                              <h5 class="mb-3 text-white">Rp.<?= number_format($total_ordee,0,".",",") ?></h5>
                               <p class="text-truncate mb-0">
-                                <span class="text-success me-2">
+                                <span class="text-white me-2">
                                   <?= number_format($rata_rata) ?>
                                   <i class="ri-arrow-right-up-line align-bottom ms-1"></i>
                                 </span> 
-                                Rata - rata
+                                Avg
                               </p>
                           </div>
                       </div>
@@ -227,22 +230,22 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                   <!-- end card-body -->
                 </div>
               </div>
-              <div class="col col-md-3 col-sm-3">
-                <div class="card">
+              <div class="col-sm-6 col-12">
+                <div class="card orange">
                   <div class="card-body">
-                      <div class="d-flex text-muted">
+                      <div class="d-flex text-white">
                           <div class="flex-shrink-0  me-3 align-self-center">
                               <div class="avatar-sm">
-                                  <div class="avatar-title bg-light rounded-circle text-primary font-size-20">
+                                  <div class="avatar-title bg-light rounded-circle text-warning font-size-20">
                                       <i class="ri-calendar-todo-fill"></i>
                                   </div>
                               </div>
                           </div>
                           <div class="flex-grow-1 overflow-hidden">
-                              <p class="mb-1">Pesanan Bulan ini</p>
-                              <h5 class="mb-3">Rp.<?= number_format($total_ordeer_bulan_ini) ?></h5>
+                              <p class="mb-1">Pesanan /Bulan</p>
+                              <h5 class="mb-3 text-white">Rp.<?= number_format($total_ordeer_bulan_ini) ?></h5>
                               <p class="text-truncate mb-0">
-                                <span class="text-success me-2">
+                                <span class="text-white me-2" >
                                   <?= number_format($target - $total_ordeer_bulan_ini) ?> - <?= number_format($target) ?>
                                   <i class="ri-arrow-right-up-line align-bottom ms-1"></i>
                                 </span> 
@@ -254,22 +257,22 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                   <!-- end card-body -->
                 </div>
               </div>
-              <div class="col col-md-3 col-sm-3">
-                <div class="card">
+              <div class="col-sm-6 col-12">
+                <div class="card blue">
                   <div class="card-body">
-                      <div class="d-flex text-muted">
+                      <div class="d-flex text-white">
                           <div class="flex-shrink-0  me-3 align-self-center">
                               <div class="avatar-sm">
-                                  <div class="avatar-title bg-light rounded-circle text-primary font-size-20">
+                                  <div class="avatar-title bg-light rounded-circle text-blue font-size-20">
                                       <i class="ri-money-euro-box-line"></i>
                                   </div>
                               </div>
                           </div>
                           <div class="flex-grow-1 overflow-hidden">
-                              <p class="mb-1">Pemasukan Hari ini</p>
-                              <h5 class="mb-3">Rp.<?= number_format($countincome_d) ?></h5>
+                              <p class="mb-1">Pemasukan /Hari</p>
+                              <h5 class="mb-3 text-white">Rp.<?= number_format($countincome_d) ?></h5>
                               <p class="text-truncate mb-0">
-                                <span class="text-success me-2">
+                                <span class="text-white me-2">
                                   Dompet
                                 </span> 
                               </p>
@@ -279,26 +282,26 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                   <!-- end card-body -->
                 </div>
               </div>
-              <div class="col col-md-3 col-sm-3">
-                <div class="card">
+              <div class="col-sm-6 col-12">
+                <div class="card purple ">
                   <div class="card-body">
-                      <div class="d-flex text-muted">
+                      <div class="d-flex text-white">
                           <div class="flex-shrink-0  me-3 align-self-center">
                               <div class="avatar-sm">
-                                  <div class="avatar-title bg-light rounded-circle text-primary font-size-20">
+                                  <div class="avatar-title bg-light rounded-circle text-purple font-size-20">
                                       <i class="ri-list-settings-fill"></i>
                                   </div>
                               </div>
                           </div>
                           <div class="flex-grow-1 overflow-hidden">
-                              <p class="mb-1">Pemasangan Bulan ini</p>
-                              <h5 class="mb-3">Rp.<?= number_format($pemasangan_bln) ?></h5>
+                              <p class="mb-1">Pemasangan /Bulan</p>
+                              <h5 class="mb-3 text-white">Rp.<?= number_format($pemasangan_bln) ?></h5>
                               <p class="text-truncate mb-0">
-                                <span class="text-success me-2">
+                                <span class="text-white me-2">
                                   0 - <?= number_format($target_pasang) ?>
                                   <i class="ri-arrow-right-up-line align-bottom ms-1"></i>
                                 </span> 
-                                Prediksi Pemasangan
+                                Prediksi
                               </p>
                           </div>
                       </div>
@@ -307,8 +310,95 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                 </div>
               </div>
             </div>
-
             <div class="row">
+              <div class="col-md-6 col-sm-12">
+              <h5>Produksi</h5>
+              <hr>
+              <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Order Stats</h5>
+                                        <div>
+                                            <ul class="list-unstyled">
+                                                <li class="py-3">
+                                                    <div class="d-flex">
+                                                        <div class="avatar-xs align-self-center me-3">
+                                                            <div class="avatar-title rounded-circle bg-light text-primary font-size-18">
+                                                                <i class="ri-checkbox-circle-line"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <p class="text-muted mb-2">Completed</p>
+                                                            <div class="progress progress-sm animated-progess">
+                                                                <div class="progress-bar bg-success" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li class="py-3">
+                                                    <div class="d-flex">
+                                                        <div class="avatar-xs align-self-center me-3">
+                                                            <div class="avatar-title rounded-circle bg-light text-primary font-size-18">
+                                                                <i class="ri-calendar-2-line"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <p class="text-muted mb-2">Pending</p>
+                                                            <div class="progress progress-sm animated-progess">
+                                                                <div class="progress-bar bg-warning" role="progressbar" style="width: 45%" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li class="py-3">
+                                                    <div class="d-flex">
+                                                        <div class="avatar-xs align-self-center me-3">
+                                                            <div class="avatar-title rounded-circle bg-light text-primary font-size-18">
+                                                                <i class="ri-close-circle-line"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <p class="text-muted mb-2">Cancel</p>
+                                                            <div class="progress progress-sm animated-progess">
+                                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 19%" aria-valuenow="19" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <hr>
+                                        
+                                        <div class="text-center">
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="mt-2">
+                                                        <p class="text-muted mb-2">Completed</p>
+                                                        <h5 class="font-size-16 mb-0">70</h5>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="mt-2">
+                                                        <p class="text-muted mb-2">Pending</p>
+                                                        <h5 class="font-size-16 mb-0">45</h5>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="mt-2">
+                                                        <p class="text-muted mb-2">Cancel</p>
+                                                        <h5 class="font-size-16 mb-0">19</h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- end card-body -->
+                                </div>
+              </div>
+              <div class="col col-md-6 col-sm-12">
+                <h5 class="mb-sm-0">Sumber</h5>
+                <hr>
+                <div class="row">
               <?php  
               $sumber = $db->selectTable("sumber_pemesanan","id_owner",$id);
               while($rowsumber=mysqli_fetch_assoc($sumber)){
@@ -322,24 +412,26 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                   $fee += $resultdisk['hasil'];
                 }
               ?>
-              <div class="col col-md-3 col-sm-3">
-                <div class="card">
-                  <div class="card-body">
-                      <div class="d-flex">
-                          <div class="flex-shrink-0 me-3 align-self-center">
-                              <div id="radialchart-<?= $rowsumber['id_sumber'] ?>" class="apex-charts" dir="ltr"></div>
-                          </div>
-                          <div class="flex-grow-1 overflow-hidden">
-                              <p class="mb-1"><?= $rowsumber['name_sumber'] ?></p>
-                              <h5 class="mb-3"><?= $countorder ?> Pesanan</h5>
-                              <p class="text-truncate mb-0"><span class="text-success me-2"> Rp.<?= number_format($fee) ?> <i class="ri-arrow-right-up-line align-bottom ms-1"></i></span> Pendapatan</p>
+                  <div class="col-md-6 col-sm-6">
+                    <div class="card">
+                      <div class="card-body">
+                          <div class="d-flex">
+                              <div class="flex-shrink-0 me-3 align-self-center">
+                                  <div id="radialchart-<?= $rowsumber['id_sumber'] ?>" class="apex-charts" dir="ltr"></div>
+                              </div>
+                              <div class="flex-grow-1 overflow-hidden">
+                                  <p class="mb-1"><?= $rowsumber['name_sumber'] ?></p>
+                                  <h5 class="mb-3"><?= $countorder ?> Pesanan</h5>
+                                  <p class="text-truncate mb-0"><span class="text-success me-2"> Rp.<?= number_format($fee) ?> <i class="ri-arrow-right-up-line align-bottom ms-1"></i></span> Pendapatan</p>
+                              </div>
                           </div>
                       </div>
+                      <!-- end card-body -->
+                      </div>
                   </div>
-                  <!-- end card-body -->
-                  </div>
-              </div>
               <?php } ?>
+                  </div>
+                </div>
             </div>
             <!-- end contant -->
 

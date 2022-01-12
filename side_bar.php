@@ -298,7 +298,7 @@
                   </a>
                   <ul class="sub-menu" aria-expanded="false">
                     <li>
-                      <a href="relasi-percetakan.html">Percetakan</a>
+                      <a href="relasi-percetakan">Percetakan</a>
                     </li>
                     <li>
                       <a href="relasi-penyediabahan.html">Penyedia Bahan</a>

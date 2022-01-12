@@ -149,7 +149,7 @@ function resultDiskon($owner,$spk,$harga,$disk,$satuan){
                     justify-content-between
                   "
                 >
-                  <h4 class="mb-sm-0">Grafik Pemesanan</h4>
+                  <h4 class="mb-sm-0">Grafik</h4>
 
                   <div class="page-title-right">
                   <ol class="breadcrumb m-0">

@@ -306,7 +306,33 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                   <!-- end card-body -->
                 </div>
               </div>
-              
+            </div>
+
+            <div class="row">
+              <?php  
+              $sumber = $db->selectTable("sumber_pemesanan","id_owner",$id);
+              while($rowsumber=mysqli_fetch_assoc($sumber)){
+                $orderan = $db->selectTable("data_pemesanan","id_sumber",$rowsumber['id_sumber']);
+                $countorder = mysqli_num_rows($orderan);
+              ?>
+              <div class="col col-md col-sm">
+                <div class="card">
+                  <div class="card-body">
+                      <div class="d-flex">
+                          <div class="flex-shrink-0 me-3 align-self-center">
+                              <div id="radialchart-<?= $rowsumber['id_sumber'] ?>" class="apex-charts" dir="ltr"></div>
+                          </div>
+                          <div class="flex-grow-1 overflow-hidden">
+                              <p class="mb-1"><?= $rowsumber['name_sumber'] ?></p>
+                              <h5 class="mb-3"><?= $countorder ?></h5>
+                              <p class="text-truncate mb-0"><span class="text-success me-2"> 1.7% <i class="ri-arrow-right-up-line align-bottom ms-1"></i></span> Pendapatan</p>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- end card-body -->
+                  </div>
+              </div>
+              <?php } ?>
             </div>
             <!-- end contant -->
 
@@ -353,6 +379,66 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
     <script src="assets/libs/metismenu/metisMenu.min.js"></script>
     <script src="assets/libs/simplebar/simplebar.min.js"></script>
     <script src="assets/libs/node-waves/waves.min.js"></script>
+
+    <!-- apexcharts js -->
+    <script src="assets/libs/apexcharts/apexcharts.min.js"></script>
+
+    <!-- jquery.vectormap map -->
+    <script src="assets/libs/jqvmap/jquery.vmap.min.js"></script>
+    <script src="assets/libs/jqvmap/maps/jquery.vmap.usa.js"></script>
+
+    <?php  
+    
+    $allorder = $db->selectTable("data_pemesanan","id_owner",$id);
+    $countall = mysqli_num_rows($allorder);
+    $sumber = $db->selectTable("sumber_pemesanan","id_owner",$id);
+    while($rowsumber=mysqli_fetch_assoc($sumber)){
+      $orderan = $db->selectTable("data_pemesanan","id_sumber",$rowsumber['id_sumber']);
+      $countorder = mysqli_num_rows($orderan);
+      $persen = ($countorder/$countall) * 100;
+    ?>
+    <script>
+      var persen = parseInt("<?= $persen ?>");
+      radialoptions={
+        series:[persen],
+        chart:{
+            type:"radialBar",
+            width:72,
+            height:72,
+            sparkline:{
+                enabled:!0
+            }
+        },
+        dataLabels:{
+            enabled:!1
+        },
+        colors:["#0ab39c"],
+        stroke:{
+            lineCap:"round"
+        },
+        plotOptions:{
+            radialBar:{
+                hollow:{
+                    margin:0,size:"70%"
+                },
+                track:{
+                    margin:0
+                },
+                dataLabels:{
+                    name:{
+                        show:!1
+                    },
+                    value:{
+                        offsetY:5,
+                        show:!0
+                    }
+                }
+            }
+        }
+      };
+      (radialchart=new ApexCharts(document.querySelector("#radialchart-<?= $rowsumber['id_sumber'] ?>"),radialoptions)).render();
+    </script>
+    <?php } ?>
 
     <script src="assets/js/app.js"></script>
   </body>

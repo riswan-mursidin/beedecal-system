@@ -312,10 +312,17 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
               <?php  
               $sumber = $db->selectTable("sumber_pemesanan","id_owner",$id);
               while($rowsumber=mysqli_fetch_assoc($sumber)){
-                $orderan = $db->selectTable("data_pemesanan","id_sumber",$rowsumber['id_sumber']);
+                $date = date("m");
+                $year = date("Y");
+                $orderan = mysqli_query($db->conn,"SELECT * FROM data_pemesanan WHERE month(tgl_order)='$date' AND year(tgl_order)='$year' AND id_owner='$id' AND id_sumber='".$rowsumber['id_sumber']."'");
                 $countorder = mysqli_num_rows($orderan);
+                $fee = 0;
+                while($rowworder=mysqli_fetch_assoc($orderan)){
+                  $resultdisk = resultDiskon($id,$rowworder['code_order'],$rowworder['harga_produk_order'],$rowworder['diskon_order'],$rowworder['satuan_potongan']);
+                  $fee += $resultdisk['hasil'];
+                }
               ?>
-              <div class="col col-md col-sm">
+              <div class="col col-md-3 col-sm-3">
                 <div class="card">
                   <div class="card-body">
                       <div class="d-flex">
@@ -324,8 +331,8 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
                           </div>
                           <div class="flex-grow-1 overflow-hidden">
                               <p class="mb-1"><?= $rowsumber['name_sumber'] ?></p>
-                              <h5 class="mb-3"><?= $countorder ?></h5>
-                              <p class="text-truncate mb-0"><span class="text-success me-2"> 1.7% <i class="ri-arrow-right-up-line align-bottom ms-1"></i></span> Pendapatan</p>
+                              <h5 class="mb-3"><?= $countorder ?> Pesanan</h5>
+                              <p class="text-truncate mb-0"><span class="text-success me-2"> Rp.<?= number_format($fee) ?> <i class="ri-arrow-right-up-line align-bottom ms-1"></i></span> Pendapatan</p>
                           </div>
                       </div>
                   </div>
@@ -388,12 +395,13 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
     <script src="assets/libs/jqvmap/maps/jquery.vmap.usa.js"></script>
 
     <?php  
-    
-    $allorder = $db->selectTable("data_pemesanan","id_owner",$id);
+    $date = date("m");
+    $year = date("Y");
+    $allorder = mysqli_query($db->conn,"SELECT * FROM data_pemesanan WHERE month(tgl_order)='$date' AND year(tgl_order)='$year' AND id_owner='$id'");
     $countall = mysqli_num_rows($allorder);
     $sumber = $db->selectTable("sumber_pemesanan","id_owner",$id);
     while($rowsumber=mysqli_fetch_assoc($sumber)){
-      $orderan = $db->selectTable("data_pemesanan","id_sumber",$rowsumber['id_sumber']);
+      $orderan = mysqli_query($db->conn,"SELECT * FROM data_pemesanan WHERE month(tgl_order)='$date' AND year(tgl_order)='$year' AND id_owner='$id' AND id_sumber='".$rowsumber['id_sumber']."'");
       $countorder = mysqli_num_rows($orderan);
       $persen = ($countorder/$countall) * 100;
     ?>

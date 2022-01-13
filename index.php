@@ -97,7 +97,7 @@ function produkStaff($param,$owner){
     $jum = mysqli_num_rows($queryselesai);
     
   }elseif($param == "pending"){
-    $queryselesai = mysqli_query($db->conn,"SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND produksi_status='Tidak' AND id_owner='$owner'");
+    $queryselesai = mysqli_query($db->conn,"SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND produksi_status='Tidak' AND id_owner='$owner' AND status_order<>'Selesai'");
     $jum = mysqli_num_rows($queryselesai);
   }elseif($param == "proses"){
     $queryselesai = mysqli_query($db->conn,"SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND produksi_status='Ya' AND status_order<>'Selesai' AND id_owner='$owner'");
@@ -376,7 +376,7 @@ function showClossing($id_user,$lvl,$owner){
                                   <div class="flex-grow-1">
                                       <p class="text-muted mb-2">Selesai</p>
                                       <div class="progress progress-sm animated-progess">
-                                          <div class="progress-bar bg-success" role="progressbar" style="width: <?= number_format($selesai) ?>%" aria-valuenow="<?= number_format($selesai) ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                          <div class="progress-bar bg-success" role="progressbar" style="width: <?= number_format($selesai,2) ?>%" aria-valuenow="<?= number_format($selesai,2) ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                       </div>
                                   </div>
                               </div>
@@ -391,7 +391,7 @@ function showClossing($id_user,$lvl,$owner){
                                   <div class="flex-grow-1">
                                       <p class="text-muted mb-2">Proses</p>
                                       <div class="progress progress-sm animated-progess">
-                                          <div class="progress-bar bg-warning" role="progressbar" style="width: <?= number_format($proses) ?>%" aria-valuenow="<?= number_format($proses)?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                          <div class="progress-bar bg-warning" role="progressbar" style="width: <?= number_format($proses,2) ?>%" aria-valuenow="<?= number_format($proses,2)?>" aria-valuemin="0" aria-valuemax="100"></div>
                                       </div>
                                   </div>
                               </div>
@@ -406,7 +406,7 @@ function showClossing($id_user,$lvl,$owner){
                                   <div class="flex-grow-1">
                                       <p class="text-muted mb-2">Pending</p>
                                       <div class="progress progress-sm animated-progess">
-                                          <div class="progress-bar bg-danger" role="progressbar" style="width: <?= number_format($pending) ?>%" aria-valuenow="<?= number_format($pending) ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                          <div class="progress-bar bg-danger" role="progressbar" style="width: <?= number_format($pending,2) ?>%" aria-valuenow="<?= number_format($pending,2) ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                       </div>
                                   </div>
                               </div>
@@ -420,19 +420,19 @@ function showClossing($id_user,$lvl,$owner){
                             <div class="col-4">
                                 <div class="mt-2">
                                     <p class="text-muted mb-2">Selesai</p>
-                                    <h5 class="font-size-16 mb-0"><?= number_format($selesai) ?>%</h5>
+                                    <h5 class="font-size-16 mb-0"><?= number_format($selesai,2) ?>%</h5>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="mt-2">
                                     <p class="text-muted mb-2">Proses</p>
-                                    <h5 class="font-size-16 mb-0"><?= number_format($proses)?>%</h5>
+                                    <h5 class="font-size-16 mb-0"><?= number_format($proses,2)?>%</h5>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="mt-2">
                                     <p class="text-muted mb-2">Pending</p>
-                                    <h5 class="font-size-16 mb-0"><?= number_format($pending) ?>%</h5>
+                                    <h5 class="font-size-16 mb-0"><?= number_format($pending,2) ?>%</h5>
                                 </div>
                             </div>
                         </div>

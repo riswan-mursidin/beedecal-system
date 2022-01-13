@@ -156,6 +156,9 @@ function statusBadge2($txt){
       type="text/css"
     />
 
+    <!-- card-home -->
+    <link href="assets/css/card-home.css" rel="stylesheet" type="text/css" />
+
     <!-- Sweet Alert-->
     <link href="assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
 
@@ -244,6 +247,62 @@ function statusBadge2($txt){
             </div>
             <!-- end page title -->
             <!-- page card -->
+            <div class="row">
+              <div class="col-sm-12 col-12">
+                <div class="card green">
+                  <div class="card-body">
+                      <div class="d-flex text-white">
+                          <div class="flex-shrink-0  me-3 align-self-center">
+                              <div class="avatar-sm">
+                                  <div class="avatar-title bg-light rounded-circle text-primary font-size-20">
+                                      <i class="mdi mdi-cart-outline"></i>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="flex-grow-1 overflow-hidden">
+                              <p class="mb-1">Pesanan /Hari</p>
+                              <?php  
+                              // penjualan hari ini
+                                $total_ordee = 0; $total_by = 0;
+                                $ordertoday = $db->selectTable("data_pemesanan","id_owner",$id,"tgl_order",date("Y-m-d"));
+                                while($roworder=mysqli_fetch_assoc($ordertoday)){
+                                  $counttam = 0;
+                                  $resultdisk = resultDiskon($id,$roworder['code_order'],$roworder['harga_produk_order'],$roworder['diskon_order'],$roworder['satuan_potongan']);
+                                  // $hasil = ($roworder['harga_produk_order'] + $counttam) - $potongan;
+                                  $total_ordee += $resultdisk['hasil'];
+                                  
+                                }
+                                // penjualan bulan ini
+                                $total_ordeer_bulan_ini = 0; $pemasangan_bln = 0;
+                                $date = date("m");
+                                $year = date("Y");
+                                $queribulan = "SELECT * FROM data_pemesanan WHERE month(tgl_order)='$date' AND year(tgl_order)='$year' AND id_owner='$id'";
+                                $orderbulan = mysqli_query($db->conn, $queribulan);
+                                while($roworder_bulan=mysqli_fetch_assoc($orderbulan)){
+                                  $counttam = 0;
+                                  $resultdisk = resultDiskon($id,$roworder_bulan['code_order'],$roworder_bulan['harga_produk_order'],$roworder_bulan['diskon_order'],$roworder_bulan['satuan_potongan']);
+                                  $total_ordeer_bulan_ini += $resultdisk['hasil'];
+
+
+                                  $code_spk = $roworder_bulan['code_order'];
+                                }
+                                $rata_rata = $total_ordeer_bulan_ini / intval(date("d"));
+                              ?>
+                              <h5 class="mb-3 text-white">Rp.<?= number_format($total_ordee,0,".",",") ?></h5>
+                              <p class="text-truncate mb-0">
+                                <span class="text-white me-2">
+                                  <?= number_format($rata_rata) ?>
+                                  <i class="ri-arrow-right-up-line align-bottom ms-1"></i>
+                                </span> 
+                                Avg
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- end card-body -->
+                </div>
+              </div>
+            </div>
             <div class="row">
               <div class="col-12">
                 <div class="card">

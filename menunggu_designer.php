@@ -202,6 +202,7 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
                                 $db->nameFormater(showProduk($roworder['produk_order'])) 
                             ?><br>
                             <?= $roworder['model_stiker_order'] ?><br>
+                            <?= $roworder['laminating_order'] ?>
                           </td>
                           <td>
                             <?php 
@@ -218,7 +219,7 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
                           </td>
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
                           <td><?= $roworder['desk_desain_order'] ?></td>
-                          <td><?= $roworder['kategori_produk_order'] ?></td>
+                          <td><?= $roworder['kategori_produk_order'] == "Other" ? "SK" : $roworder['kategori_produk_order'] ?></td>
                           <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>
                           <?php if($role == "Desainer"){ ?>
                           <td>

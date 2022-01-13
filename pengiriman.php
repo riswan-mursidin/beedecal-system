@@ -553,9 +553,9 @@ function formatKurir($kurir){
                             }else{ 
                               if($roworder['resi_pengiriman'] != ""){
                             ?>
-                              <?php $idd = $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang" ? "warnig_status" : "doneorder" ?>
+                              <?php $idd = $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang" ? "warnig_status" : "" ?>
                               
-                                <a id="<?= $idd ?>" href="action/get-done-order?id=<?= $roworder['id_order'] ?>&param=Ya" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim">
+                                <a id="<?= $idd ?>" href="#get-selesai<?= $roworder['id_order'] ?>" data-bs-toggle="modal" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim">
                                   <i class="ri-flight-takeoff-line"></i>
                                 </a>
                             <?php 
@@ -610,6 +610,25 @@ function formatKurir($kurir){
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="submit" name="input_resi" class="btn btn-primary">Simpan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="modal fade" id="get-selesai<?= $roworder['id_order'] ?>" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <form action="action/get-done-order.php" method="post" class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Input Penerima</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <input type="text" name="nama_penerima" id="" class="form-control">
+                <input type="hidden" name="id_order" value="<?= $roworder['id_order'] ?>">
+                <input type="hidden" name="param" value="Tidak">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Selesai</button>
               </div>
             </form>
           </div>

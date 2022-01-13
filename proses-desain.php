@@ -329,6 +329,7 @@ function showDesigner($id){
                                 $db->nameFormater(showProduk($roworder['produk_order'])) 
                             ?><br>
                             <?= $roworder['model_stiker_order'] ?><br>
+                            <?= $roworder['laminating_order'] ?>
                           </td>
                           <td>
                             <?php 
@@ -342,7 +343,7 @@ function showDesigner($id){
                           </td>
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
                           <td><?= $roworder['desk_desain_order'] ?></td>
-                          <td><?= $roworder['kategori_produk_order'] ?></td>
+                          <td><?= $roworder['kategori_produk_order'] == "Other" ? "SK" : $roworder['kategori_produk_order'] ?></td>
                           <td>
                             <?php  
                               $no = 0; $spasi = 1;

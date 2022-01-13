@@ -247,9 +247,12 @@ function statusBadge2($txt){
                         <tr>
                           <th>ID</th>
                           <th>Pelanggan</th>
+                          <th>Designer</th>
+                          <th>Keterangan Desain</th>
                           <th>Pembayaran</th>
                           <th>Produksi</th>
                           <th>Tanggal Pesan</th>
+                          <th>Detail</th>
                           <th>Status</th>
                         </tr>
                       </thead>
@@ -290,6 +293,16 @@ function statusBadge2($txt){
                             ?>
                           </td>
                           <td>
+                            <?php  
+                              if($roworder['hasil_desain_order'] == ""){
+                              ?>
+                              <a href="#">Tidak Didesain</a>
+                              <?php }else{ ?>
+                              <a target="_blank" href="<?= $roworder['hasil_desain_order'] ?>">View Desain</a>
+                              <?php } ?>
+                          </td>
+                          <td><?= $roworder['desk_desain_order'] ?></td>
+                          <td>
                             <?php $resultdisk = resultDiskon($id,$roworder['code_order'],$roworder['harga_produk_order'],$roworder['diskon_order'],$roworder['satuan_potongan']);
                             if($roworder['satuan_potongan'] == "persen"){ ?>
                             <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format(($roworder['harga_produk_order']+$resultdisk['tamby']),2,",",".").'" class="badge bg-secondary">Diskon '.$roworder['diskon_order'].'%</span><br>' : '' ?>
@@ -317,7 +330,19 @@ function statusBadge2($txt){
                             Pasang: <b><?= $roworder['status_pasang_order'] ?></b><br>
                           </td>
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
-                          <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>
+                          <td>
+                            <?= $roworder["tgl_selesai"] ?><br>
+                            Penerima <?= $db->nameFormater($roworder["nama_penerima"]) ?><br>
+                            <?php if($roworder['status_pengiriman_order'] == "Ya"){ ?>
+                            Dikirim Via <?= $db->nameFormater($roworder["kurir_pengiriman_order"]) ?><br>
+                            Estimasi <?= $roworder["estimasi_send_order"] ?><br>
+                            <?php }else{ ?>
+                            Ambil Ditoko
+                            <?php } ?>
+                          </td>
+                          <td>
+                            <?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?>
+                          </td>
                         </tr>
                         <?php } ?>
                       </tbody>

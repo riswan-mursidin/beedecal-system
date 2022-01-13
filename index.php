@@ -110,6 +110,27 @@ function produkStaff($param,$owner){
 }
 
 
+function showClossing($id_user,$lvl,$owner){
+  global $db;
+  $count = 0;
+  $month = date("m");
+  $year = date("Y");
+  if($lvl == "Admin"){
+    $check = mysqli_query($db->conn,"SELECT user_editor FROM data_pemesanan WHERE id_owner='$owner' AND month(tgl_order)='$month' AND year(tgl_order)='$year' AND user_editor='$id_user'");
+    $count = mysqli_num_rows($check);
+  }elseif($lvl == "Desainer"){
+    $check = mysqli_query($db->conn,"SELECT user_editor FROM data_pemesanan WHERE id_owner='$owner' AND month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_designer='$id_user'");
+    $count = mysqli_num_rows($check);
+  }elseif($lvl == "Pemasanng"){
+    $check = mysqli_query($db->conn,"SELECT user_editor FROM data_pemesanan WHERE id_owner='$owner' AND month(tgl_order)='$month' AND year(tgl_order)='$year' AND pemasang_order='$id_user'");
+    $count = mysqli_num_rows($check);
+  }elseif($lvl == "Produksi"){
+    $check = mysqli_query($db->conn,"SELECT user_editor FROM data_pemesanan WHERE id_owner='$owner' AND month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_produksi='$id_user'");
+    $count = mysqli_num_rows($check);
+  }
+  return $count;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -415,6 +436,43 @@ function produkStaff($param,$owner){
                                 </div>
                             </div>
                         </div>
+                    </div>
+                  </div>
+                </div>
+                <h5>Aktivitas Karyawan</h5>
+                <hr>
+                <div class="card">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-centered table-nowrap mb-0">
+                          <thead>
+                              <tr>
+                                  <th scope="col"  style="width: 60px;"></th>
+                                  <th scope="col">Nama</th>
+                                  <th scope="col">Level</th>
+                                  <th scope="col">Closing</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                            <?php  
+                            $karya = $db->selectTable("user_galeri","id_owner",$id);
+                            while($rowkarya=mysqli_fetch_assoc($karya)){
+                            ?>
+                              <tr>
+                                  <td>
+                                      <img src="<?= $rowkarya["foto_user"] != "" ? $rowkarya["foto_user"] : "assets/images/users/avatar-2.png" ?>" alt="user" class="avatar-xs rounded-circle" />
+                                  </td>
+                                  <td>
+                                      <h5 class="font-size-15 mb-0"><?= $db->nameFormater($rowkarya["fullname_user"]) ?></h5>
+                                  </td>
+                                  <td><?= strtoupper($rowkarya["level_user"]) ?></td>
+                                  <td>
+                                    <?= showClossing($rowkarya["id_user"],$rowkarya["level_user"],$id) ?>
+                                  </td>
+                              </tr>
+                            <?php } ?>
+                          </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>

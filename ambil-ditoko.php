@@ -486,6 +486,25 @@ function showCetakan($id_order, $owner){
                   </form>
                 </div>
               </div>
+              <div class="modal fade" id="get-selesai<?= $roworder['id_order'] ?>" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <form action="action/get-done-order.php" method="post" class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Input Penerima</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <input type="text" name="nama_penerima" id="" class="form-control">
+                      <input type="hidden" name="id_order" value="<?= $roworder['id_order'] ?>">
+                      <input type="hidden" name="param" value="Ya">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                      <button type="submit" class="btn btn-primary">Selesai</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             <?php }} ?>
             <!-- page card -->
             <div class="row">
@@ -514,100 +533,98 @@ function showCetakan($id_order, $owner){
                         while($roworder=mysqli_fetch_assoc($order)){
                           if($roworder['status_order'] == "Selesai Finishing" || $roworder['status_order'] == "Selesai Dicetak" || $roworder['status_order'] == "Selesai Dipasang" || $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang"){
                         ?>
-                        <tr>
-                          <td>
-                            <?= $roworder['code_order'] ?><br>
-                            <?= 
-                            $roworder['jenis_produk_order'] == 'Custom' && $roworder['kategori_produk_order'] == "Other" ? 
-                              $db->nameFormater($roworder['produk_order']) : 
-                                $db->nameFormater(showProduk($roworder['produk_order'])) 
-                            ?><br>
-                            <?= $roworder['model_stiker_order'] ?><br>
-                            <?= $roworder['laminating_order'] ?>
-                          </td>
-                          <td>
-                            <?php 
-                              $status = $roworder['jenis_produk_order'] == 'Custom' ? '<span class="badge bg-light">Custom</span>' : 'No Custom';
-                              $customer = showCustomer($roworder['id_customer'],$roworder['status_pengiriman_order'],$roworder['id_order']);
-                              echo "<b>".$db->nameFormater($customer['name'])."</b>"." ".$status."<br>"; 
-                            ?>
-                            <?php
-                              if($roworder['status_pengiriman_order'] == "Ya"){
-                                echo 'Prov: '.$roworder['	prov_send_order'].'<br>';
-                                echo 'Kab/Kota: '.$roworder['kab_send_order'].'<br>';
-                                echo 'Kec: '.$roworder['kec_send_order'].'<br>';
-                                echo 'Kode Pos: '.$roworder['kode_pos_send_order'].'<br>';
+                          <tr>
+                            <td>
+                              <?= $roworder['code_order'] ?><br>
+                              <?= 
+                              $roworder['jenis_produk_order'] == 'Custom' && $roworder['kategori_produk_order'] == "Other" ? 
+                                $db->nameFormater($roworder['produk_order']) : 
+                                  $db->nameFormater(showProduk($roworder['produk_order'])) 
+                              ?><br>
+                              <?= $roworder['model_stiker_order'] ?><br>
+                              <?= $roworder['laminating_order'] ?>
+                            </td>
+                            <td>
+                              <?php 
+                                $status = $roworder['jenis_produk_order'] == 'Custom' ? '<span class="badge bg-light">Custom</span>' : 'No Custom';
+                                $customer = showCustomer($roworder['id_customer'],$roworder['status_pengiriman_order'],$roworder['id_order']);
+                                echo "<b>".$db->nameFormater($customer['name'])."</b>"." ".$status."<br>"; 
+                              ?>
+                              <?php
+                                if($roworder['status_pengiriman_order'] == "Ya"){
+                                  echo 'Prov: '.$roworder['	prov_send_order'].'<br>';
+                                  echo 'Kab/Kota: '.$roworder['kab_send_order'].'<br>';
+                                  echo 'Kec: '.$roworder['kec_send_order'].'<br>';
+                                  echo 'Kode Pos: '.$roworder['kode_pos_send_order'].'<br>';
+                                }else{
+                                  echo 'Prov: '.$customer['prov'].'<br>';
+                                  echo 'Kab/Kota: '.$customer['kab'].'<br>';
+                                  echo 'Kec: '.$customer['kec'].'<br>';
+                                  echo 'Kode Pos: '.$customer['kodepos'].'<br>';
+                                }
+                              ?>
+                            </td>
+                            <td>
+                              <?= $roworder['id_designer'] != "" ? showDesigner($roworder['id_designer']) : '' ?>
+                            </td>
+                            <td>
+                              <?= $roworder['hasil_desain_order'] != "" ? '<a target="_blank" href="'.$roworder['hasil_desain_order'].'">View Desain</a>' : 'Tidak ada' ?>
+                            </td>
+                            <td>
+                              <?= showCetakan($roworder['code_order'],$id)['percetakan'] ?>
+                            </td>
+                            <td>
+                              <?php $resultdisk = resultDiskon($id,$roworder['code_order'],$roworder['harga_produk_order'],$roworder['diskon_order'],$roworder['satuan_potongan']);
+                              if($roworder['satuan_potongan'] == "persen"){ ?>
+                              <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format(($roworder['harga_produk_order']+$resultdisk['tamby']),2,",",".").'" class="badge bg-secondary">Diskon '.$roworder['diskon_order'].'%</span><br>' : '' ?>
+                              <?php }else{ ?>
+                                <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format(($roworder['harga_produk_order']+$resultdisk['tamby']),2,",",".").'" class="badge bg-secondary">Diskon Rp.'.number_format($roworder['diskon_order'],2,",",".").'</span><br>' : '' ?>
+                              <?php } ?>
+                              Harga Produk: Rp.<?= number_format($resultdisk['hasil'],2,",",".") ?>
+                              <?= statusBadge($roworder['status_pay_order'],$roworder['sisa_pembayaran_order']) ?><br>
+                              <?php  $badge = "";
+                              if($roworder['ongkir_cod_order'] == "COD"){
+                                $badge = "bg-danger";
                               }else{
-                                echo 'Prov: '.$customer['prov'].'<br>';
-                                echo 'Kab/Kota: '.$customer['kab'].'<br>';
-                                echo 'Kec: '.$customer['kec'].'<br>';
-                                echo 'Kode Pos: '.$customer['kodepos'].'<br>';
+                                $badge = "bg-success";
                               }
-                            ?>
-                          </td>
-                          <td>
-                            <?= $roworder['id_designer'] != "" ? showDesigner($roworder['id_designer']) : '' ?>
-                          </td>
-                          <td>
-                         
-                            <?= $roworder['hasil_desain_order'] != "" ? '<a target="_blank" href="'.$roworder['hasil_desain_order'].'">View Desain</a>' : 'Tidak ada' ?>
-                         
-                        </td>
-                          <td>
-                            <?= showCetakan($roworder['code_order'],$id)['percetakan'] ?>
-                          </td>
-                          <td>
-                            <?php $resultdisk = resultDiskon($id,$roworder['code_order'],$roworder['harga_produk_order'],$roworder['diskon_order'],$roworder['satuan_potongan']);
-                            if($roworder['satuan_potongan'] == "persen"){ ?>
-                            <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format(($roworder['harga_produk_order']+$resultdisk['tamby']),2,",",".").'" class="badge bg-secondary">Diskon '.$roworder['diskon_order'].'%</span><br>' : '' ?>
-                            <?php }else{ ?>
-                              <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format(($roworder['harga_produk_order']+$resultdisk['tamby']),2,",",".").'" class="badge bg-secondary">Diskon Rp.'.number_format($roworder['diskon_order'],2,",",".").'</span><br>' : '' ?>
-                            <?php } ?>
-                            Harga Produk: Rp.<?= number_format($resultdisk['hasil'],2,",",".") ?>
-                            <?= statusBadge($roworder['status_pay_order'],$roworder['sisa_pembayaran_order']) ?><br>
-                            <?php  $badge = "";
-                            if($roworder['ongkir_cod_order'] == "COD"){
-                              $badge = "bg-danger";
-                            }else{
-                              $badge = "bg-success";
-                            }
-                            ?>
-                            Harga Pengiriman: <?= $roworder['status_pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".").' <h9><span class="badge rounded-pill '.$badge.'">'.$roworder['ongkir_cod_order'].'</span></h9>' : '-,-' ?>
-                            
-                          </td>
-                          
-                          <td>
-                            Desain: <b><?= $roworder['status_desain_order'] ?></b><br>
-                            Cetak: <b><?= $roworder['status_cetak_order'] ?></b><br>
-                            Laminating: <b><?= $roworder['laminating_order'] ?></b><br>
-                            Pasang: <b><?= $roworder['status_pasang_order'] ?></b><br>
-                          </td>
-                          <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
-                          <td><?= '<h5><span class="badge bg-success">'.$roworder['status_order'].'</span></h5>' ?></td>
-                          <td>
-                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                            <?php  
-                            if($roworder['status_pay_order'] == "Belum Lunas"){
-                            ?>
-                              <a data-bs-toggle="modal" href="#pelunasan<?= $roworder['id_order'] ?>" class="btn btn-info btn-sm">
-                                <i class="ri-currency-line"></i>
-                              </a>
-                            <?php }else{ ?>
-                              <?php $id = $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang" ? "warnig_status" : "doneorder" ?>
+                              ?>
+                              Harga Pengiriman: <?= $roworder['status_pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".").' <h9><span class="badge rounded-pill '.$badge.'">'.$roworder['ongkir_cod_order'].'</span></h9>' : '-,-' ?>
                               
-                                <a id="<?= $id ?>" href="action/get-done-order?id=<?= $roworder['id_order'] ?>&param=Ya" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Selesai">
-                                  <i class="ri-check-line"></i>
+                            </td>
+                            
+                            <td>
+                              Desain: <b><?= $roworder['status_desain_order'] ?></b><br>
+                              Cetak: <b><?= $roworder['status_cetak_order'] ?></b><br>
+                              Laminating: <b><?= $roworder['laminating_order'] ?></b><br>
+                              Pasang: <b><?= $roworder['status_pasang_order'] ?></b><br>
+                            </td>
+                            <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
+                            <td><?= '<h5><span class="badge bg-success">'.$roworder['status_order'].'</span></h5>' ?></td>
+                            <td>
+                              <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                              <?php  
+                              if($roworder['status_pay_order'] == "Belum Lunas"){
+                              ?>
+                                <a data-bs-toggle="modal" href="#pelunasan<?= $roworder['id_order'] ?>" class="btn btn-info btn-sm">
+                                  <i class="ri-currency-line"></i>
                                 </a>
-                            <?php } ?>
-                            <?php if($roworder['status_pasang_order'] != "Ya"){ ?>
-                              <a href="editpengiriman?spk=<?= $roworder['code_order'] ?>&from=ambil_ditoko" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Pengiriman">
-                                <i class="ri-pencil-line"></i>
-                              </a>
-                            <?php } ?>
-                              <a target="_blank" href="print_note?spk=<?= $roworder['code_order'] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Shipping"><i class="ri-printer-line"></i></a>
-                            </div>
-                          </td>
-                        </tr>
+                              <?php }else{ ?>
+                                <?php $id = $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang" ? "warnig_status" : "" ?>
+                                
+                                  <a id="<?= $id ?>" href="#get-selesai<?= $roworder['status_order'] == "Menunggu Finishing" || $roworder['status_order'] == "Siap Dipasang" ? "" : $roworder['id_order'] ?>" data-bs-toggle="modal" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Selesai">
+                                    <i class="ri-check-line"></i>
+                                  </a>
+                              <?php } ?>
+                              <?php if($roworder['status_pasang_order'] != "Ya"){ ?>
+                                <a href="editpengiriman?spk=<?= $roworder['code_order'] ?>&from=ambil_ditoko" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Pengiriman">
+                                  <i class="ri-pencil-line"></i>
+                                </a>
+                              <?php } ?>
+                                <a target="_blank" href="print_note?spk=<?= $roworder['code_order'] ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Shipping"><i class="ri-printer-line"></i></a>
+                              </div>
+                            </td>
+                          </tr>
                         <?php }else{continue;}} ?>
                       </tbody>
                     </table>
@@ -622,7 +639,7 @@ function showCetakan($id_order, $owner){
         <!-- End Page-content -->
 
         
-       
+            
         
         <!-- Footer -->
         <footer class="footer">

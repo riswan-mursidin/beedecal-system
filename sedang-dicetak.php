@@ -311,7 +311,13 @@ if(isset($_POST['edit_cetak'])){
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
 
                           <td>
-                            <a target="_blank" href="<?= $roworder['hasil_desain_order'] ?>">View Desain</a>
+                            <?php  
+                              if($roworder['hasil_desain_order'] == ""){
+                              ?>
+                              <a href="#">Tidak Didesain</a>
+                              <?php }else{ ?>
+                              <a target="_blank" href="<?= $roworder['hasil_desain_order'] ?>">View Desain</a>
+                              <?php } ?>
                           </td>
 
                           <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>

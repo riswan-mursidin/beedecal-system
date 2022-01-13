@@ -240,7 +240,13 @@ function showPemasang($id){
                           <td>Rp.<?= number_format($roworder['harga_pasang_order'],2,",",".") ?></td>
                           <td>Rp.<?= number_format($roworder['biaya_tambah_pemasangan_order'],2,",",".") ?></td>
                           <td>
+                          <?php  
+                            if($roworder['hasil_desain_order'] == ""){
+                            ?>
+                            <a href="#">Tidak Didesain</a>
+                            <?php }else{ ?>
                             <a target="_blank" href="<?= $roworder['hasil_desain_order'] ?>">View Desain</a>
+                            <?php } ?>
                           </td>
                           <?php if($role == "Owner" || $role == "Admin"){ ?>
                           <td>

@@ -284,7 +284,13 @@ function showDesigner($id){
                           <td>Rp.<?= number_format($roworder['harga_pasang_order'],2,",",".") ?></td>
                           <td>Rp.<?= number_format($roworder['biaya_tambah_pemasangan_order'],2,",",".") ?></td>
                           <td>
+                          <?php  
+                            if($roworder['hasil_desain_order'] == ""){
+                            ?>
+                            <a href="#">Tidak Didesain</a>
+                            <?php }else{ ?>
                             <a target="_blank" href="<?= $roworder['hasil_desain_order'] ?>">View Desain</a>
+                            <?php } ?>
                           </td>
 
                           <td><?= $roworder['admin_konfirm'] == "Disetujui" ? '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' : '<h5><span class="badge bg-danger">Belum Disetujui</span></h5>' ?></td>

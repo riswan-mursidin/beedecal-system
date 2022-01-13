@@ -41,7 +41,7 @@ if(isset($_POST['aksi_cetak'])){
   
   $next = 'Proses Cetak';
 
-  $updateecetak = "UPDATE data_pemesanan SET status_order='$next', produksi_status='Ya' WHERE id_order='$id_orderr'";
+  $updateecetak = "UPDATE data_pemesanan SET status_order='$next', id_produksi='".$_SESSION['login_stiker_id']."', produksi_status='Ya' WHERE id_order='$id_orderr'";
   $result = mysqli_query($db->conn,$updateecetak);
   if($result){
     $insetcetak = "INSERT INTO data_cetakan (code_order,id_percetakan,id_bahan,lebar_bahan,panjang_bahan,id_owner) VALUES('$spk','$id_percetakan','$id_bahan','$lebar','$panjang',$id)";
@@ -259,7 +259,13 @@ function showDesigner($id){
                           <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
                           
                           <td>
+                            <?php  
+                            if($roworder['hasil_desain_order'] == ""){
+                            ?>
+                            <a href="#">Tidak Didesain</a>
+                            <?php }else{ ?>
                             <a target="_blank" href="<?= $roworder['hasil_desain_order'] ?>">View Desain</a>
+                            <?php } ?>
                           </td>
 
                           <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>

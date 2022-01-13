@@ -310,6 +310,21 @@
                 <!-- konfigurasi Produk -->
                 <li>
                   <a href="javascript: void(0);" class="has-arrow waves-effect">
+                    <i class="dripicons-inbox"></i>
+                    <span>Produk</span>
+                  </a>
+                  <ul class="sub-menu" aria-expanded="false">
+                    <li>
+                      <a href="konfigurasiproduk-tipe">Custom</a>
+                    </li>
+                    <li>
+                    <li>
+                      <a href="konfigurasiproduk-produk">Retail</a>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="javascript: void(0);" class="has-arrow waves-effect">
                     <i class="ri-file-settings-fill"></i>
                     <span>Konfigurasi Produk</span>
                   </a>
@@ -318,18 +333,9 @@
                       <a href="konfigurasiproduk-merek">Merek Kendaraan</a>
                     </li>
                     <li>
-                      <a href="konfigurasiproduk-tipe">Tipe/Harga</a>
-                    </li>
-                    <li>
                       <a href="konfigurasiproduk-kategori">Kategori Produk</a>
                     </li>
                     <li>
-                    <li>
-                      <a href="konfigurasistiker-custom">Stiker Custom</a>
-                    </li>
-                    <li>
-                      <a href="konfigurasiproduk-produk">Produk </a>
-                    </li>
                     <li>
                       <a href="konfigurasiproduk-jenisbahan">Jenis Bahan</a>
                     </li>

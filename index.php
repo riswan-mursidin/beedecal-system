@@ -439,7 +439,7 @@ function showClossing($id_user,$lvl,$owner){
                     </div>
                   </div>
                 </div>
-                <h5>Aktivitas Karyawan</h5>
+                <h5 class="">Aktivitas Karyawan</h5>
                 <hr>
                 <div class="card">
                   <div class="card-body">
@@ -493,6 +493,7 @@ function showClossing($id_user,$lvl,$owner){
                       $resultdisk = resultDiskon($id,$rowworder['code_order'],$rowworder['harga_produk_order'],$rowworder['diskon_order'],$rowworder['satuan_potongan']);
                       $fee += $resultdisk['hasil'];
                     }
+                    if($countorder!=0){
                   ?>
                   <div class="col-md-6 col-sm-6">
                     <div class="card">
@@ -511,7 +512,16 @@ function showClossing($id_user,$lvl,$owner){
                       <!-- end card-body -->
                       </div>
                   </div>
-                  <?php } ?>
+                  <?php }} ?>
+                  <div class="col-md-12 col-sm-12">
+                  <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title mb-4">Donut Chart</h4>
+                                        
+                                        <div id="donut_chart" class="apex-charts"  dir="ltr"></div>
+                                    </div>
+                                </div>
+                  </div>
                   </div>
                 </div>
               </div>
@@ -567,6 +577,55 @@ function showClossing($id_user,$lvl,$owner){
     <!-- jquery.vectormap map -->
     <script src="assets/libs/jqvmap/jquery.vmap.min.js"></script>
     <script src="assets/libs/jqvmap/maps/jquery.vmap.usa.js"></script>
+
+    <!-- Plugin Js-->
+    <script src="assets/libs/apexcharts/apexcharts.min.js"></script>
+
+    <script>
+      var randomColor = [];
+      var colors = [];
+      for(var i = 0; i < 5; i++){
+        colors.push("#"+Math.floor(Math.random()*16777215).toString(16));
+        // randomColor[i] = "#"+Math.floor(Math.random()*16777215).toString(16);
+      }
+      $("#donut_chart").length&&(options={
+        chart:{
+            height:320,type:"donut"
+        },
+        series:[44,55,41,17,15],
+        labels:[
+            "Series 1",
+            "Series 2",
+            "Series 3",
+            "Series 4",
+            "Series 5"
+        ],
+        colors,
+        legend:{
+            show:!0,
+            position:"bottom",
+            horizontalAlign:"center",
+            verticalAlign:"middle",
+            floating:!1,
+            fontSize:"14px",
+            offsetX:0,
+            offsetY:-10
+        },
+        responsive:[
+            {
+                breakpoint:600,
+                options:{
+                    chart:{
+                        height:240
+                    },
+                    legend:{
+                        show:!1
+                    }
+                }
+            }
+        ]
+      },(chart=new ApexCharts(document.querySelector("#donut_chart"),options)).render());
+    </script>
 
     <?php  
     $date = date("m");

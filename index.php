@@ -595,12 +595,7 @@ function showClossing($id_user,$lvl,$owner){
     <script src="assets/libs/simplebar/simplebar.min.js"></script>
     <script src="assets/libs/node-waves/waves.min.js"></script>
 
-    <!-- apexcharts js -->
-    <script src="assets/libs/apexcharts/apexcharts.min.js"></script>
 
-    <!-- jquery.vectormap map -->
-    <script src="assets/libs/jqvmap/jquery.vmap.min.js"></script>
-    <script src="assets/libs/jqvmap/maps/jquery.vmap.usa.js"></script>
 
     <!-- Plugin Js-->
     <script src="assets/libs/apexcharts/apexcharts.min.js"></script>
@@ -608,6 +603,7 @@ function showClossing($id_user,$lvl,$owner){
       var colors = [];
       var labels = [];
       var series = [];
+      parseInt(series);
       <?php $cusord = 0;
       $year = date("Y");
       $month = date("m");  
@@ -624,8 +620,9 @@ function showClossing($id_user,$lvl,$owner){
           ++$jum;
           $cusord += $jumorder;
           $name = $rowcustom['name_type']; 
-      ?>
-          series.push(<?= $jumorder ?>)
+      ?>  
+          var jumorder = parseInt(<?= $jumorder ?>); 
+          series.push(jumorder);
           labels.push("<?= $db->nameFormater($name) ?>");
           colors.push("#"+Math.floor(Math.random()*16777215).toString(16));
       <?php
@@ -633,17 +630,24 @@ function showClossing($id_user,$lvl,$owner){
       } 
       $otherjum = $all - $cusord;
       ?>
+
       colors.push("#"+Math.floor(Math.random()*16777215).toString(16));
       series.push(<?= $otherjum ?>);
       labels.push("Other");
+
+
       
       $("#donut_chart").length&&(options={
         chart:{
-            height:320,type:"donut"
+            height:320,
+            type:"donut"
         },
         series,
         labels,
         colors,
+        dataLabels:{
+          enabled: false
+        },
         legend:{
             show:!0,
             position:"bottom",

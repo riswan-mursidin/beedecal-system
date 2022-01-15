@@ -109,7 +109,7 @@ function showPercetakan($id,$owner){
 
 function showCetakan($id_order, $owner){
   global $db;
-  $data_cetakan = $db->selectTable("data_cetakan","code_order",$id_order,"id_owner",$owner);
+  $data_cetakan = $db->selectTable("data_cetakan","code_order",$id_order,"id_owner",$owner,"status_cetak","Proses");
   $rowdata = mysqli_fetch_assoc($data_cetakan);
   $id_cetakan = $rowdata['id_percetakan'];
   $id_bahan = $rowdata['id_bahan'];
@@ -328,10 +328,13 @@ if(isset($_POST['edit_cetak'])){
                           <td>
                           <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                             <a href="action/selesai-dicetak?id=<?=$roworder['id_order'] ?>" id="selesaicetak" class="btn btn-success btn-sm" data-bs-placement="top" title="Selesai Cetak">
-                              <i class="ri-printer-line"></i>
+                              <i class="mdi mdi-printer-check"></i>
+                            </a>
+                            <a href="action/gagal-dicetak?id=<?=$roworder['id_order'] ?>" id="gagalcetak" class="btn btn-danger btn-sm" data-bs-placement="top" title="Gagal Cetak">
+                              <i class="mdi mdi-printer-alert"></i>
                             </a>
                             <a href="#detail<?=$roworder['id_order'] ?>" data-bs-toggle="modal" class="btn btn-warning btn-sm" data-bs-placement="top" title="Detail Cetak">
-                              <i class="mdi mdi-eye"></i>
+                              <i class="mdi mdi-printer-eye"></i>
                             </a>
                           </div>
                           </td>
@@ -569,6 +572,25 @@ if(isset($_POST['edit_cetak'])){
           title:"Selesai Cetak!",
           text:"Apakah Anda yakin?",
           icon:"success",
+          showCancelButton: true,
+          confirmButtonColor: '#00a65a',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Ya'
+        }).then((result) => {
+          if(result.isConfirmed){
+            window.location = link;
+          }
+        });
+      });
+    </script>
+    <script>
+      $(document).on('click', '#gagalcetak', function(e){
+        e.preventDefault();
+        var link = $(this).attr('href');
+        Swal.fire({
+          title:"Gagal Cetak!",
+          text:"Apakah Anda yakin?",
+          icon:"warning",
           showCancelButton: true,
           confirmButtonColor: '#00a65a',
           cancelButtonColor: '#d33',

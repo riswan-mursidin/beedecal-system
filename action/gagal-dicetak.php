@@ -20,7 +20,6 @@ if(mysqli_num_rows($checkorder) == 0){
 }
 
 $row = mysqli_fetch_assoc($checkorder);
-$status_proses = array($row['laminating_order'],$row['status_pasang_order']);
 
 $update = updateOrder($id_order,$status_proses);
 if($update){
@@ -35,14 +34,7 @@ if($update){
 }
 
 function updateOrder($id,$proses){
-    $next = '';
-    if($proses[1] != ""){
-        $next = "Menunggu Finishing";
-    }elseif($proses[2] == "Ya"){
-        $next = "Siap Dipasang";
-    }else{
-        $next = "Selesai Dicetak";
-    }
+    $next = 'Cetak Ulang';
     global $conn;
     $query = "UPDATE data_pemesanan SET status_order='$next' WHERE id_order='$id'";
     $result = mysqli_query($conn, $query);
@@ -51,7 +43,7 @@ function updateOrder($id,$proses){
 
 function updateCetakan($id_order){
     global $conn;
-    $query = "UPDATE data_cetakan SET status_cetak='Berhasil' WHERE code_order='$id_order' AND status_cetak='Proses'";
+    $query = "UPDATE data_cetakan SET status_cetak='Gagal' WHERE code_order='$id_order' AND status_cetak='Proses'";
     $result = mysqli_query($conn,$query);
     return $result;
 }

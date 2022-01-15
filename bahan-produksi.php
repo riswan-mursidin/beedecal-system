@@ -166,6 +166,7 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                           <th scope="col">Panjang (CM)</th>
                           <th scope="col">Luas (CM)</th>
                           <th scope="col">Meter</th>
+                          <th scope="col">Status</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -180,6 +181,8 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                           <td><?= $rowcetak['panjang_bahan'] ?></td>
                           <td><?= $hasill = $rowcetak['panjang_bahan'] * $rowcetak['lebar_bahan']  ?></td>
                           <td><?= $hasill / 100 ?></td>
+                          <?php $badge = $rowcetak['status_cetak'] == "Proses" ? "warning" : ($rowcetak['status_cetak'] == "Berhasil" ? "success" : "danger") ?>
+                          <td><?= '<h5><span class="badge bg-'.$badge.'">'.$rowcetak['status_cetak'].'</span></h5>' ?></td>
                         </tr>
                         <?php } ?>
                       </tbody>

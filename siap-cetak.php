@@ -44,7 +44,7 @@ if(isset($_POST['aksi_cetak'])){
   $updateecetak = "UPDATE data_pemesanan SET status_order='$next', id_produksi='".$_SESSION['login_stiker_id']."', produksi_status='Ya' WHERE id_order='$id_orderr'";
   $result = mysqli_query($db->conn,$updateecetak);
   if($result){
-    $insetcetak = "INSERT INTO data_cetakan (code_order,id_percetakan,id_bahan,lebar_bahan,panjang_bahan,id_owner) VALUES('$spk','$id_percetakan','$id_bahan','$lebar','$panjang',$id)";
+    $insetcetak = "INSERT INTO data_cetakan (code_order,id_percetakan,id_bahan,lebar_bahan,panjang_bahan,status_cetak,id_owner) VALUES('$spk','$id_percetakan','$id_bahan','$lebar','$panjang','Proses',$id)";
     $resultcetak = mysqli_query($db->conn, $insetcetak);
     if($resultcetak){
       $alert = "1";
@@ -224,7 +224,8 @@ function showDesigner($id){
                       </thead>
                       <tbody>
                         <?php  
-                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Siap Cetak");
+                        $querycet = "SELECT * FROM data_pemesanan WHERE id_owner='$id' AND status_order='Siap Cetak' OR status_order='Cetak Ulang'";
+                        $order = mysqli_query($db->conn, $querycet);
                         while($roworder=mysqli_fetch_assoc($order)){
                         ?>
                         <tr>
@@ -268,7 +269,9 @@ function showDesigner($id){
                             <?php } ?>
                           </td>
 
-                          <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>
+                          <td>
+                            <?= $roworder['status_order'] == "Cetak Ulang" ? '<h5><span class="badge bg-danger">'.$roworder['status_order'].'</span></h5>' :'<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?>
+                          </td>
                           <?php if($role == "Produksi"){ ?>
                           <td>
                           <div class="btn-group" role="group" aria-label="Basic mixed styles example">
@@ -293,7 +296,8 @@ function showDesigner($id){
         <!-- End Page-content -->
         <!-- Modal -->
         <?php  
-        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Siap Cetak");
+        $querycet = "SELECT * FROM data_pemesanan WHERE id_owner='$id' AND status_order='Siap Cetak' OR status_order='Cetak Ulang'";
+        $order = mysqli_query($db->conn, $querycet);
         while($roworder=mysqli_fetch_assoc($order)){
           $spkdb = $roworder['code_order']
         ?>

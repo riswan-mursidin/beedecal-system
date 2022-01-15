@@ -55,7 +55,7 @@ while($roworder=mysqli_fetch_assoc($ordertoday)){
   
 }
 // penjualan bulan ini
-$total_ordeer_bulan_ini = 0; $pemasangan_bln = 0;
+$total_ordeer_bulan_ini = 0; $pemasangan_bln = 0; $belum_lunas=0;
 $date = date("m");
 $year = date("Y");
 $queribulan = "SELECT * FROM data_pemesanan WHERE month(tgl_order)='$date' AND year(tgl_order)='$year' AND id_owner='$id'";
@@ -65,7 +65,7 @@ while($roworder_bulan=mysqli_fetch_assoc($orderbulan)){
   $resultdisk = resultDiskon($id,$roworder_bulan['code_order'],$roworder_bulan['harga_produk_order'],$roworder_bulan['diskon_order'],$roworder_bulan['satuan_potongan']);
   $total_ordeer_bulan_ini += $resultdisk['hasil'];
 
-
+  $belum_lunas += $roworder_bulan['sisa_pembayaran_order'];
   $code_spk = $roworder_bulan['code_order'];
 }
 $rata_rata = $total_ordeer_bulan_ini / intval(date("d"));
@@ -252,7 +252,7 @@ function showClossing($id_user,$lvl,$owner){
                           <div class="flex-shrink-0  me-3 align-self-center">
                               <div class="avatar-sm">
                                   <div class="avatar-title bg-light rounded-circle text-primary font-size-20">
-                                      <i class="mdi mdi-cart-outline"></i>
+                                      <a href="order-hari-ini"><i class="mdi mdi-cart-outline"></i></a>
                                   </div>
                               </div>
                           </div>
@@ -292,6 +292,31 @@ function showClossing($id_user,$lvl,$owner){
                                   <i class="ri-arrow-right-up-line align-bottom ms-1"></i>
                                 </span> 
                                 Target
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- end card-body -->
+                </div>
+              </div>
+              <div class="col-sm-6 col-12">
+                <div class="card blue">
+                  <div class="card-body">
+                      <div class="d-flex text-white">
+                          <div class="flex-shrink-0  me-3 align-self-center">
+                              <div class="avatar-sm">
+                                  <div class="avatar-title bg-light rounded-circle text-blue font-size-20">
+                                      <i class="ri-money-euro-box-line"></i>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="flex-grow-1 overflow-hidden">
+                              <p class="mb-1">Belum Dibayar /Bulan</p>
+                              <h5 class="mb-3 text-white">Rp.<?= number_format($belum_lunas) ?></h5>
+                              <p class="text-truncate mb-0">
+                                <span class="text-white me-2">
+                                  Utang Customer
+                                </span> 
                               </p>
                           </div>
                       </div>
@@ -514,14 +539,13 @@ function showClossing($id_user,$lvl,$owner){
                   </div>
                   <?php }} ?>
                   <div class="col-md-12 col-sm-12">
-                  <div class="card">
-                                    <div class="card-body">
-                                        <h4 class="card-title mb-4">Donut Chart</h4>
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title mb-4">Persentasi Penjualan Produk</h4>
                                         
-                                        <div id="donut_chart" class="apex-charts"  dir="ltr"></div>
-                                    </div>
-                                </div>
-                  </div>
+                            <div id="donut_chart" class="apex-charts"  dir="ltr"></div>
+                        </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -580,26 +604,45 @@ function showClossing($id_user,$lvl,$owner){
 
     <!-- Plugin Js-->
     <script src="assets/libs/apexcharts/apexcharts.min.js"></script>
-
     <script>
-      var randomColor = [];
       var colors = [];
-      for(var i = 0; i < 5; i++){
-        colors.push("#"+Math.floor(Math.random()*16777215).toString(16));
-        // randomColor[i] = "#"+Math.floor(Math.random()*16777215).toString(16);
-      }
+      var labels = [];
+      var series = [];
+      <?php $cusord = 0;
+      $year = date("Y");
+      $month = date("m");  
+      $queryy = "SELECT * FROM data_pemesanan WHERE id_owner='$id' AND month(tgl_order)='$month' AND year(tgl_order)='$year'";
+      $ordery = mysqli_query($db->conn,$queryy);
+      $all = mysqli_num_rows($ordery);
+      $custom = $db->selectTable("type_galeri","id_owner",$id);
+      while($rowcustom = mysqli_fetch_assoc($custom)){
+        $id_tyupe = $rowcustom['id_type'];
+        $order = "SELECT * FROM data_pemesanan WHERE id_owner='$id' AND month(tgl_order)='$month' AND year(tgl_order)='$year' AND produk_order='$id_tyupe' ";
+        $resulty = mysqli_query($db->conn,$order);
+        $jumorder=mysqli_num_rows($resulty);
+        if($jumorder > 0){
+          ++$jum;
+          $cusord += $jumorder;
+          $name = $rowcustom['name_type']; 
+      ?>
+          series.push(<?= $jumorder ?>)
+          labels.push("<?= $db->nameFormater($name) ?>");
+          colors.push("#"+Math.floor(Math.random()*16777215).toString(16));
+      <?php
+        }
+      } 
+      $otherjum = $all - $cusord;
+      ?>
+      colors.push("#"+Math.floor(Math.random()*16777215).toString(16));
+      series.push(<?= $otherjum ?>);
+      labels.push("Other");
+      
       $("#donut_chart").length&&(options={
         chart:{
             height:320,type:"donut"
         },
-        series:[44,55,41,17,15],
-        labels:[
-            "Series 1",
-            "Series 2",
-            "Series 3",
-            "Series 4",
-            "Series 5"
-        ],
+        series,
+        labels,
         colors,
         legend:{
             show:!0,

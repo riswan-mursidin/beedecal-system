@@ -9,7 +9,8 @@
       $jumps = mysqli_num_rows($proses_desain);
 
       // siap cetak
-      $siapp_cetak = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Siap Cetak");
+      $querycet = "SELECT * FROM data_pemesanan WHERE id_owner='$id' AND status_order='Siap Cetak' OR status_order='Cetak Ulang'";
+      $siapp_cetak = mysqli_query($db->conn, $querycet);
       $jumsc = mysqli_num_rows($siapp_cetak);
 
       // proses cetak

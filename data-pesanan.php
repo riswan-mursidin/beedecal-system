@@ -304,6 +304,7 @@ function statusBadge2($txt){
                               echo 'Kode Pos: '.$customer['kodepos'].'<br>';
                             }
                             ?>
+                            <button class="btn btn-success btn-sm mt-2">Whatsapp</button> <button class="btn btn-warning btn-sm mt-2">Telepon</button>
                           </td>
                           <td>
                             <?php $resultdisk = resultDiskon($id,$roworder['code_order'],$roworder['harga_produk_order'],$roworder['diskon_order'],$roworder['satuan_potongan']);

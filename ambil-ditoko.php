@@ -563,6 +563,7 @@ function showCetakan($id_order, $owner){
                                   echo 'Kode Pos: '.$customer['kodepos'].'<br>';
                                 }
                               ?>
+                              <button class="btn btn-success btn-sm mt-2">Whatsapp</button> <button class="btn btn-warning btn-sm mt-2">Telepon</button>
                             </td>
                             <td>
                               <?= $roworder['id_designer'] != "" ? showDesigner($roworder['id_designer']) : '' ?>

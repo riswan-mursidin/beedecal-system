@@ -258,7 +258,7 @@ function showClossing($id_user,$lvl,$owner){
                           </div>
                           <div class="flex-grow-1 overflow-hidden">
                               <p class="mb-1">Pesanan /Hari</p>
-                              <h5 class="mb-3 text-white">Rp.<?= number_format($total_ordee,0,".",",") ?></h5>
+                              <h5 class="mb-3 text-white">Rp <?= number_format($total_ordee,0,".",",") ?></h5>
                               <p class="text-truncate mb-0">
                                 <span class="text-white me-2">
                                   <?= number_format($rata_rata) ?>
@@ -285,7 +285,7 @@ function showClossing($id_user,$lvl,$owner){
                           </div>
                           <div class="flex-grow-1 overflow-hidden">
                               <p class="mb-1">Pesanan /Bulan</p>
-                              <h5 class="mb-3 text-white">Rp.<?= number_format($total_ordeer_bulan_ini) ?></h5>
+                              <h5 class="mb-3 text-white">Rp <?= number_format($total_ordeer_bulan_ini) ?></h5>
                               <p class="text-truncate mb-0">
                                 <span class="text-white me-2" >
                                   <?= number_format($target - $total_ordeer_bulan_ini) ?> - <?= number_format($target) ?>
@@ -312,7 +312,7 @@ function showClossing($id_user,$lvl,$owner){
                           </div>
                           <div class="flex-grow-1 overflow-hidden">
                               <p class="mb-1">Belum Dibayar /Bulan</p>
-                              <h5 class="mb-3 text-white">Rp.<?= number_format($belum_lunas) ?></h5>
+                              <h5 class="mb-3 text-white">Rp <?= number_format($belum_lunas) ?></h5>
                               <p class="text-truncate mb-0">
                                 <span class="text-white me-2">
                                   Piutang
@@ -337,10 +337,10 @@ function showClossing($id_user,$lvl,$owner){
                           </div>
                           <div class="flex-grow-1 overflow-hidden">
                               <p class="mb-1">Pemasukan /Hari</p>
-                              <h5 class="mb-3 text-white">Rp.<?= number_format($countincome_d) ?></h5>
+                              <h5 class="mb-3 text-white">Rp <?= number_format($countincome_d) ?></h5>
                               <p class="text-truncate mb-0">
                                 <span class="text-white me-2">
-                                  Dompet
+                                  Kas dan Bank
                                 </span> 
                               </p>
                           </div>
@@ -362,7 +362,7 @@ function showClossing($id_user,$lvl,$owner){
                           </div>
                           <div class="flex-grow-1 overflow-hidden">
                               <p class="mb-1">Pemasangan /Bulan</p>
-                              <h5 class="mb-3 text-white">Rp.<?= number_format($pemasangan_bln) ?></h5>
+                              <h5 class="mb-3 text-white">Rp <?= number_format($pemasangan_bln) ?></h5>
                               <p class="text-truncate mb-0">
                                 <span class="text-white me-2">
                                   0 - <?= number_format($target_pasang) ?>
@@ -530,7 +530,7 @@ function showClossing($id_user,$lvl,$owner){
                               <div class="flex-grow-1 overflow-hidden">
                                   <p class="mb-1"><?= $rowsumber['name_sumber'] ?></p>
                                   <h5 class="mb-3"><?= $countorder ?> Pesanan</h5>
-                                  <p class="text-truncate mb-0"><span class="text-success me-2"> Rp.<?= number_format($fee) ?> <i class="ri-arrow-right-up-line align-bottom ms-1"></i></span> Pendapatan</p>
+                                  <p class="text-truncate mb-0"><span class="text-success me-2"> Rp <?= number_format($fee) ?> <i class="ri-arrow-right-up-line align-bottom ms-1"></i></span> Pendapatan</p>
                               </div>
                           </div>
                       </div>

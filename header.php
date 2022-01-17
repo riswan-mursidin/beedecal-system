@@ -165,7 +165,7 @@
                     <div class="d-flex">
                       <div class="flex-shrink-0 me-3">
                         <img
-                          src="assets/images/users/avatar-4.jpg"
+                          src="#"
                           class="rounded-circle avatar-xs"
                           alt="user-pic"
                         />

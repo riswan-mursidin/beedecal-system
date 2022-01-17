@@ -300,12 +300,12 @@ function showClossing($id_user,$lvl,$owner){
                 </div>
               </div>
               <div class="col-sm-6 col-12">
-                <div class="card blue">
+                <div class="card magenta">
                   <div class="card-body">
                       <div class="d-flex text-white">
                           <div class="flex-shrink-0  me-3 align-self-center">
                               <div class="avatar-sm">
-                                  <div class="avatar-title bg-light rounded-circle text-blue font-size-20">
+                                  <div class="avatar-title bg-light rounded-circle text-magenta font-size-20">
                                       <i class="ri-money-euro-box-line"></i>
                                   </div>
                               </div>
@@ -315,7 +315,7 @@ function showClossing($id_user,$lvl,$owner){
                               <h5 class="mb-3 text-white">Rp.<?= number_format($belum_lunas) ?></h5>
                               <p class="text-truncate mb-0">
                                 <span class="text-white me-2">
-                                  Utang Customer
+                                  Piutang
                                 </span> 
                               </p>
                           </div>

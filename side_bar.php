@@ -76,12 +76,12 @@
                     <span>Pemesanan</span>
                   </a>
                   <ul class="sub-menu" aria-expanded="false">
-                    <li><a href="javascript: void(0);" class="has-arrow waves-effect">Pesanan Baru</a>
+                    <!-- <li><a href="javascript: void(0);" class="has-arrow waves-effect">Pesanan Baru</a>
                       <ul class="sub-menu" aria-expanded="false">
                         <li><a href="#">Keranjang</a></li>
                         <li><a href="#">Menunggu Konfirmasi</a></li>
                       </ul>
-                    </li>
+                    </li> -->
                     <li><a href="data-pesanan">Data Pesanan</a></li>
                   </ul>
                 </li>

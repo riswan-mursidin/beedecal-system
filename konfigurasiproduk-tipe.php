@@ -57,7 +57,8 @@ if($edit != ""){
 }
 
 if(isset($_POST['edit_harga'])){
-  $persen = $_POST['persen']/100;
+  $satuan = $_POST['satuan']/100;
+  $persen = $_POST['persen'];
   $operator = $_POST['operator'];
   $kategori_harga = $_POST['kategori_harga'];
 
@@ -68,14 +69,27 @@ if(isset($_POST['edit_harga'])){
     $lite = $rowtypee['lite_harga_type'] == "" ? 0 : $rowtypee['lite_harga_type'];
     $id_tyype = $rowtypee['id_type'];
     
-    $hasilfulldash = $fullbodyydashh + ($fullbodyydashh * $persen);
-    $hasilfull = $fullbodyy + ($fullbodyy * $persen);
-    $hasillite = $lite + ($lite * $persen);
+    $hasilfulldash = $fullbodyydashh + ($fullbodyydashh * $satuan);
+    $hasilfull = $fullbodyy + ($fullbodyy * $satuan);
+    $hasillite = $lite + ($lite * $satuan);
 
     if($operator == "kurang"){
-      $hasilfulldash = $fullbodyydashh - ($fullbodyydashh * $persen);
-      $hasilfull = $fullbodyy - ($fullbodyy * $persen);
-      $hasillite = $lite - ($lite * $persen);
+      $hasilfulldash = $fullbodyydashh - ($fullbodyydashh * $satuan);
+      $hasilfull = $fullbodyy - ($fullbodyy * $satuan);
+      $hasillite = $lite - ($lite * $satuan);
+    }
+
+    if(!isset($persen)){
+      $satuan = $_POST['satuan'];
+      $hasilfulldash = $fullbodyydashh != 0 ? $fullbodyydashh + $satuan : $fullbodyydashh;
+      $hasilfull = $fullbodyy != 0 ? $fullbodyy + $satuan : $fullbodyy;
+      $hasillite = $lite != 0 ? $lite + $satuan : $lite;
+
+      if($operator == "kurang"){
+        $hasilfulldash = $fullbodyydashh != 0 ? $fullbodyydashh - $satuan : $fullbodyydashh;
+        $hasilfull = $fullbodyy != 0 ? $fullbodyy - $satuan : $fullbodyy;
+        $hasillite = $lite != 0 ? $lite - $satuan : $lite;
+      }
     }
 
     $resultlt = false;
@@ -93,13 +107,13 @@ if(isset($_POST['edit_harga'])){
       $resultlt = mysqli_query($db->conn,$queryupdate);
     }
 
-    if($resultlt){
-      $_SESSION['alert'] = "1";
-      header('Location: konfigurasiproduk-tipe');
-      exit();
-    }else{
-      $alert = "3";
-    }
+    // if($resultlt){
+    //   $_SESSION['alert'] = "1";
+    //   header('Location: konfigurasiproduk-tipe');
+    //   exit();
+    // }else{
+    //   $alert = "3";
+    // }
   }
 
 }
@@ -359,10 +373,16 @@ if(isset($_POST['add_tipe'])){
                         <form action="" method="post">
                           <div class="row g-3 mb-3">
                             <div class="col-md-4">
-                              <label for="" class="form-label">Persen</label>
+                            <label for="" class="form-label d-flex">
+                                Persen 
+                                <div class="form-check form-switch ml-3">
+                                  <input name="persen" class="form-check-input" type="checkbox" role="switch" value="on" onclick="changeSatuan()" id="persen">
+                                </div>
+                              </label>
                               <div class="input-group">
-                                <input type="number" step="0.01" max="100" name="persen" id="" class="form-control">
-                                <span class="input-group-text">%</span>
+                                <span class="input-group-text" id="rupiah-icon" style="display: none;">Rp.</span>
+                                <input type="number" name="satuan" id="" class="form-control">
+                                <span class="input-group-text" id="persen-icon">%</span>
                               </div>
                             </div>
                             <div class="col-md-4">
@@ -548,6 +568,25 @@ if(isset($_POST['add_tipe'])){
           }
         });
       });
+    </script>
+    <script>
+      $(document).ready(function(){
+        $("#persen").prop("checked", "true");
+
+        $("#persen").click(function(){
+            if($(this).is(":checked")){
+              $("#rupiah-icon").hide();
+              $("#persen-icon").show();
+              // alert("YA");
+            }
+            else if($(this).is(":not(:checked)")){
+              $("#rupiah-icon").show();
+              $("#persen-icon").hide();
+              // alert("NO");
+            }
+        });
+      });
+
     </script>
   </body>
 </html>

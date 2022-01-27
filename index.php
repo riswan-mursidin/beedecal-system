@@ -599,79 +599,64 @@ function showClossing($id_user,$lvl,$owner){
 
     <!-- Plugin Js-->
     <script src="assets/libs/apexcharts/apexcharts.min.js"></script>
-    <script>
-      var colors = [];
-      var labels = [];
-      var series = [];
-      parseInt(series);
-      <?php $cusord = 0;
-      $year = date("Y");
-      $month = date("m");  
-      $queryy = "SELECT * FROM data_pemesanan WHERE id_owner='$id' AND month(tgl_order)='$month' AND year(tgl_order)='$year'";
-      $ordery = mysqli_query($db->conn,$queryy);
-      $all = mysqli_num_rows($ordery);
-      $custom = $db->selectTable("type_galeri","id_owner",$id);
-      while($rowcustom = mysqli_fetch_assoc($custom)){
-        $id_tyupe = $rowcustom['id_type'];
-        $order = "SELECT * FROM data_pemesanan WHERE id_owner='$id' AND month(tgl_order)='$month' AND year(tgl_order)='$year' AND produk_order='$id_tyupe' ";
-        $resulty = mysqli_query($db->conn,$order);
-        $jumorder=mysqli_num_rows($resulty);
-        if($jumorder > 0){
-          ++$jum;
-          $cusord += $jumorder;
-          $name = $rowcustom['name_type']; 
-      ?>  
-          var jumorder = parseInt(<?= $jumorder ?>); 
-          series.push(jumorder);
-          labels.push("<?= $db->nameFormater($name) ?>");
-          colors.push("#"+Math.floor(Math.random()*16777215).toString(16));
-      <?php
-        }
-      } 
-      $otherjum = $all - $cusord;
-      ?>
+    <script> 
+      function showData(){
+        $.ajax({
+          url:"datapie.php",
+          method:"POST",
+          data:{action:"select",id_owner:"<?= $id ?>"},
+          dataType:"JSON",
+          success:function(data){
+            var jum = [];
+            var name = [];
+            var bg = [];
 
-      colors.push("#"+Math.floor(Math.random()*16777215).toString(16));
-      series.push(<?= $otherjum ?>);
-      labels.push("Other");
-
-
-      
-      $("#donut_chart").length&&(options={
-        chart:{
-            height:320,
-            type:"donut"
-        },
-        series,
-        labels,
-        colors,
-        dataLabels:{
-          enabled: false
-        },
-        legend:{
-            show:!0,
-            position:"bottom",
-            horizontalAlign:"center",
-            verticalAlign:"middle",
-            floating:!1,
-            fontSize:"14px",
-            offsetX:0,
-            offsetY:-10
-        },
-        responsive:[
-            {
-                breakpoint:600,
-                options:{
-                    chart:{
-                        height:240
-                    },
-                    legend:{
-                        show:!1
-                    }
-                }
+            for(var index = 0; index < data.length; index++){
+              jum.push(data[index].total);
+              name.push(data[index].product);
+              bg.push(data[index].color);
             }
-        ]
-      },(chart=new ApexCharts(document.querySelector("#donut_chart"),options)).render());
+            $("#donut_chart").length&&(options={
+              chart:{
+                  height:320,
+                  type:"donut"
+              },
+              series:jum,
+              labels:name,
+              colors:bg,
+              dataLabels:{
+                enabled: false
+              },
+              legend:{
+                  show:!0,
+                  position:"bottom",
+                  horizontalAlign:"center",
+                  verticalAlign:"middle",
+                  floating:!1,
+                  fontSize:"14px",
+                  offsetX:0,
+                  offsetY:-10
+              },
+              responsive:[
+                  {
+                      breakpoint:600,
+                      options:{
+                          chart:{
+                              height:240
+                          },
+                          legend:{
+                              show:!1
+                          }
+                      }
+                  }
+              ]
+            },(chart=new ApexCharts(document.querySelector("#donut_chart"),options)).render());
+          }
+        })
+      }
+
+      showData();
+      
     </script>
 
     <?php  

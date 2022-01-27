@@ -70,7 +70,7 @@ if(isset($_POST['action'])){
         $months = array("01","02","03","04","05","06","07","08","09","10","11","12",);
         foreach($months as $month){
             $total_penjualan = 0;
-            $sqlOrder = "SELECT * FROM data_pemesanan WHERE id_owner='1' AND year(tgl_order)='$year' AND month(tgl_order)='$month'";
+            $sqlOrder = "SELECT * FROM data_pemesanan WHERE id_owner='$owner' AND year(tgl_order)='$year' AND month(tgl_order)='$month'";
             $getOrder = mysqli_query($conn, $sqlOrder);
             if(mysqli_num_rows($getOrder) > 0){
                 while($rowOrder = mysqli_fetch_assoc($getOrder)){
@@ -78,7 +78,7 @@ if(isset($_POST['action'])){
                     $harga_product_order = $rowOrder['harga_produk_order'];
                     $diskon_product_order = $rowOrder['diskon_order'];
                     $persen_or_rupiah = $rowOrder['satuan_potongan'];
-                    $resultDiskon = resultDiskon("1",$spk_product_order,$harga_product_order,$diskon_product_order,$persen_or_rupiah);
+                    $resultDiskon = resultDiskon($owner,$spk_product_order,$harga_product_order,$diskon_product_order,$persen_or_rupiah);
         
                     $total_penjualan += $resultDiskon['hasil'];
                 }

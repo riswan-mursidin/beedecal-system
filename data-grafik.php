@@ -31,29 +31,6 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
   }
 }
 
-function resultDiskon($owner,$spk,$harga,$disk,$satuan){
-  global $db;
-  $count = 0;
-  $tamby = $db->selectTable("biaya_tambahan_order","id_owner",$owner,"code_order",$spk);
-  if(mysqli_num_rows($tamby) > 0){
-    while($rowtamby=mysqli_fetch_assoc($tamby)){
-      $count += $rowtamby['harga_ketbiaya'];
-    }
-    $diskon = ($harga + $count) * ($disk/100);
-    $result['hasil'] = ($harga + $count) - $diskon;
-    if($satuan == "rupiah"){
-      $result['hasil'] = ($harga + $count) - $disk;
-    }
-    return $result;
-  }else{
-    $diskon = $harga * ($disk/100);
-    $result['hasil'] = $harga - $diskon;
-    if($satuan == "rupiah"){
-      $result['hasil'] = $harga - $disk;
-    }
-    return $result;
-  }
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -168,7 +145,7 @@ function resultDiskon($owner,$spk,$harga,$disk,$satuan){
                   <div class="card-body">
                     <div class="row">
                       <div class="col-12">
-                        <div id="column_chart_datalabel" class="apex-charts" dir="ltr"></div>
+                        <div id="column_chart" class="apex-charts" dir="ltr"></div>
                       </div>
                     </div>
                   </div>
@@ -226,277 +203,85 @@ function resultDiskon($owner,$spk,$harga,$disk,$satuan){
     
     ?>
     <script>
-          const rupiah = (number)=>{
+      function showData(){
+        const rupiah = (number)=>{
             return new Intl.NumberFormat("id-ID", {
               style: "currency",
               currency: "IDR"
             }).format(number);
-          }
-          $("#column_chart_datalabel").length&&(options={
-            chart:{
-                height:350,
-                type:"bar",
-                toolbar:{show:!1}
-            },
-            plotOptions:{
-                bar:{
-                    dataLabels:{position:"top"}
-                }
-            },
-            dataLabels:{
-                enabled:!0,formatter:function(e){
-                    return rupiah(e);
-                },
-                offsetY:-21,
-                style:{
-                    fontSize:"12px",
-                    colors:["#304758"]
-                }
-            },
-            series:[
-                {
-                    name:"Penjualan",
-                    data:[
-                      <?php
-                      $year = date("Y"); $month = 1;
-                      $count = 0;
-                      $omset_query = "SELECT code_order,harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
-                      $result_omset = mysqli_query($db->conn, $omset_query);
-                      if(mysqli_num_rows($result_omset) >0){
-                        while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $counttam = 0;
-                          $resultdisk = resultDiskon($id,$rowomset['code_order'],$rowomset['harga_produk_order'],$rowomset['diskon_order'],$rowomset['satuan_potongan']);
-                          $count += $resultdisk['hasil'];
-                        }
-                      }
-                      echo $count
-                      ?>,
-                      <?php
-                      $year = date("Y"); $month = 2;
-                      $count = 0;
-                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
-                      $result_omset = mysqli_query($db->conn, $omset_query);
-                      if(mysqli_num_rows($result_omset) >0){
-                        while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $counttam = 0;
-                          $resultdisk = resultDiskon($id,$rowomset['code_order'],$rowomset['harga_produk_order'],$rowomset['diskon_order'],$rowomset['satuan_potongan']);
-                          $count += $resultdisk['hasil'];
-                        }
-                      }
-                      echo $count
-                      ?>,
-                      <?php
-                      $year = date("Y"); $month = 3;
-                      $count = 0;
-                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
-                      $result_omset = mysqli_query($db->conn, $omset_query);
-                      if(mysqli_num_rows($result_omset) >0){
-                        while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $counttam = 0;
-                          $resultdisk = resultDiskon($id,$rowomset['code_order'],$rowomset['harga_produk_order'],$rowomset['diskon_order'],$rowomset['satuan_potongan']);
-                          $count += $resultdisk['hasil'];
-                        }
-                      }
-                      echo $count
-                      ?>,
-                      <?php
-                      $year = date("Y"); $month = 4;
-                      $count = 0;
-                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
-                      $result_omset = mysqli_query($db->conn, $omset_query);
-                      if(mysqli_num_rows($result_omset) >0){
-                        while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $counttam = 0;
-                          $resultdisk = resultDiskon($id,$rowomset['code_order'],$rowomset['harga_produk_order'],$rowomset['diskon_order'],$rowomset['satuan_potongan']);
-                          $count += $resultdisk['hasil'];
-                        }
-                      }
-                      echo $count
-                      ?>,
-                      <?php
-                      $year = date("Y"); $month = 5;
-                      $count = 0;
-                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
-                      $result_omset = mysqli_query($db->conn, $omset_query);
-                      if(mysqli_num_rows($result_omset) >0){
-                        while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $counttam = 0;
-                          $resultdisk = resultDiskon($id,$rowomset['code_order'],$rowomset['harga_produk_order'],$rowomset['diskon_order'],$rowomset['satuan_potongan']);
-                          $count += $resultdisk['hasil'];
-                        }
-                      }
-                      echo $count
-                      ?>,
-                      <?php
-                      $year = date("Y"); $month = 6;
-                      $count = 0;
-                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
-                      $result_omset = mysqli_query($db->conn, $omset_query);
-                      if(mysqli_num_rows($result_omset) >0){
-                        while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $counttam = 0;
-                          $resultdisk = resultDiskon($id,$rowomset['code_order'],$rowomset['harga_produk_order'],$rowomset['diskon_order'],$rowomset['satuan_potongan']);
-                          $count += $resultdisk['hasil'];
-                        }
-                      }
-                      echo $count
-                      ?>,
-                      <?php
-                      $year = date("Y"); $month = 7;
-                      $count = 0;
-                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
-                      $result_omset = mysqli_query($db->conn, $omset_query);
-                      if(mysqli_num_rows($result_omset) >0){
-                        while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $counttam = 0;
-                          $resultdisk = resultDiskon($id,$rowomset['code_order'],$rowomset['harga_produk_order'],$rowomset['diskon_order'],$rowomset['satuan_potongan']);
-                          $count += $resultdisk['hasil'];
-                        }
-                      }
-                      echo $count
-                      ?>,
-                      <?php
-                      $year = date("Y"); $month = 8;
-                      $count = 0;
-                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
-                      $result_omset = mysqli_query($db->conn, $omset_query);
-                      if(mysqli_num_rows($result_omset) >0){
-                        while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $counttam = 0;
-                          $resultdisk = resultDiskon($id,$rowomset['code_order'],$rowomset['harga_produk_order'],$rowomset['diskon_order'],$rowomset['satuan_potongan']);
-                          $count += $resultdisk['hasil'];
-                        }
-                      }
-                      echo $count
-                      ?>,
-                      <?php
-                      $year = date("Y"); $month = 9;
-                      $count = 0;
-                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
-                      $result_omset = mysqli_query($db->conn, $omset_query);
-                      if(mysqli_num_rows($result_omset) >0){
-                        while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $counttam = 0;
-                          $resultdisk = resultDiskon($id,$rowomset['code_order'],$rowomset['harga_produk_order'],$rowomset['diskon_order'],$rowomset['satuan_potongan']);
-                          $count += $resultdisk['hasil'];
-                        }
-                      }
-                      echo $count
-                      ?>,
-                      <?php
-                      $year = date("Y"); $month = 10;
-                      $count = 0;
-                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
-                      $result_omset = mysqli_query($db->conn, $omset_query);
-                      if(mysqli_num_rows($result_omset) >0){
-                        while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $counttam = 0;
-                          $resultdisk = resultDiskon($id,$rowomset['code_order'],$rowomset['harga_produk_order'],$rowomset['diskon_order'],$rowomset['satuan_potongan']);
-                          $count += $resultdisk['hasil'];
-                        }
-                      }
-                      echo $count
-                      ?>,
-                      <?php
-                      $year = date("Y"); $month = 11;
-                      $count = 0;
-                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
-                      $result_omset = mysqli_query($db->conn, $omset_query);
-                      if(mysqli_num_rows($result_omset) >0){
-                        while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $counttam = 0;
-                          $resultdisk = resultDiskon($id,$rowomset['code_order'],$rowomset['harga_produk_order'],$rowomset['diskon_order'],$rowomset['satuan_potongan']);
-                          $count += $resultdisk['hasil'];
-                        }
-                      }
-                      echo $count
-                      ?>,
-                      <?php
-                      $year = date("Y"); $month = 12;
-                      $count = 0;
-                      $omset_query = "SELECT harga_produk_order,diskon_order,satuan_potongan FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$id'";
-                      $result_omset = mysqli_query($db->conn, $omset_query);
-                      if(mysqli_num_rows($result_omset) >0){
-                        while($rowomset = mysqli_fetch_assoc($result_omset)){
-                          $counttam = 0;
-                          $resultdisk = resultDiskon($id,$rowomset['code_order'],$rowomset['harga_produk_order'],$rowomset['diskon_order'],$rowomset['satuan_potongan']);
-                          $count += $resultdisk['hasil'];
-                        }
-                      }
-                      echo $count
-                      ?>
-                    ]
-                }
-            ],
-            colors:["#0db4d6"],
-            grid:{
-                borderColor:"#f1f1f1"
-            },
-            xaxis:{
-                categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
-                position:"top",
-                labels:{
-                    offsetY:-18
-                },
-                axisBorder:{
-                    show:!1
-                },
-                axisTicks:{
-                    show:!1
-                },
-                crosshairs:{
-                    fill:{
-                        type:"gradient",
-                        gradient:{
-                            colorFrom:"#D8E3F0",
-                            colorTo:"#BED1E6",
-                            stops:[0,100],
-                            opacityFrom:.4,
-                            opacityTo:.5
-                        }
-                    }
-                },
-                tooltip:{
-                    enabled:!0,offsetY:-35
-                }
-            },
-            fill:{
-                gradient:{
-                    shade:"light",
-                    type:"horizontal",
-                    shadeIntensity:.25,
-                    gradientToColors:void 0,
-                    inverseColors:!0,
-                    opacityFrom:1,
-                    opacityTo:1,
-                    stops:[50,0,100,100]
-                }
-            },
-            yaxis:{
-                axisBorder:{
-                    show:!1
-                },
-                axisTicks:{
-                    show:!1
-                },
-                labels:{
-                    show:!1,
-                    formatter:function(e){
-                        return rupiah(e)
-                    }
-                }
-            },
-            title:{
-                text:"OMSET TAHUN <?= date("Y") ?>",
-                floating:!0,
-                offsetY:320,
-                align:"center",
-                style:{
-                    color:"#444"
-                }
+        }
+        $.ajax({
+          url:"datachart.php",
+          method:"POST",
+          data:{action:"perbulan",id_owner:"<?= $id ?>"},
+          dataType:"JSON",
+          success:function(data){
+            var jum = [];
+
+            for(var index = 0; index < data.length; index++){
+              jum.push(data[index].total);
             }
-          },
-          (chart=new ApexCharts(document.querySelector("#column_chart_datalabel"),options)).render())
+            $("#column_chart").length&&(options={
+              chart:{
+                  height:350,
+                  type:"bar",
+                  toolbar:{
+                      show:!1
+                  }
+              },
+              plotOptions:{
+                  bar:{
+                      horizontal:!1,
+                      columnWidth:"45%",
+                      endingShape:"rounded"
+                  }
+              },
+              dataLabels:{
+                  enabled:!1
+              },
+              stroke:{
+                  show:!0,
+                  width:2,
+                  colors:["transparent"]
+              },
+              series:[
+                  {
+                      name:"Penjualan",
+                      data:jum
+                  }
+                  // {
+                  //     name:"Free Cash Flow",
+                  //     data:[37,42,38,26,47,50,54,55,43]
+                  // }
+              ],
+              colors:["#3d8ef8"],
+              xaxis:{
+                  categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+              },
+              yaxis:{
+                  title:{
+                      text:"Rp (rupiah)"
+                  }
+              },
+              grid:{
+                  borderColor:"#f1f1f1"
+              },
+              fill:{
+                  opacity:1
+              },
+              tooltip:{
+                  y:{
+                      formatter:function(e){
+                          return rupiah(e)
+                      }
+                  }
+              }
+            },(chart=new ApexCharts(document.querySelector("#column_chart"),options)).render())
+          }
+        });
+      }
+
+      showData();
     </script>
 
     <script src="assets/js/app.js"></script>

@@ -602,9 +602,9 @@ function showClossing($id_user,$lvl,$owner){
     <script> 
       function showData(){
         $.ajax({
-          url:"datapie.php",
+          url:"datachart.php",
           method:"POST",
-          data:{action:"select",id_owner:"<?= $id ?>"},
+          data:{action:"penjualan",id_owner:"<?= $id ?>"},
           dataType:"JSON",
           success:function(data){
             var jum = [];

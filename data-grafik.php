@@ -233,7 +233,8 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                   bar:{
                       horizontal:!1,
                       columnWidth:"45%",
-                      endingShape:"rounded"
+                      endingShape:"flat"
+                      // borderRadius: 0,
                   }
               },
               dataLabels:{

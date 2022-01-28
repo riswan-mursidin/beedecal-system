@@ -250,15 +250,14 @@ function showPemasang($id){
                           </td>
                           <?php if($role == "Owner" || $role == "Admin"){ ?>
                           <td>
-                            <?= showPemasang(explode("-",$roworder['pemasang_order'])[0]) ?>
-                            <span class="badge bg-light"><?= end(explode("-",$roworder['pemasang_order'])) ?></span>
+                            <span class="badge bg-light"><?= $roworder['kategori_pemasang_order'] ?></span>
                           </td>
                           <?php } ?>
                           <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>
                           <?php if($role == "Pemasang"){ ?>
                           <td>
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                              <a id="pasang" href="action/get-pasang.php?param=selesai&id=<?= $roworder['id_order'] ?>&pemasang=<?= $_SESSION['login_stiker_id'] ?>" class="btn btn-outline-success btn-sm"  data-bs-placement="top" title="Selesai Pasang">
+                              <a id="pasang" href="action/get-pasang.php?param=selesai&id=<?= $roworder['id_order'] ?>&pemasang=<?= $_SESSION['login_stiker_id'] ?>" class="btn btn-success btn-sm"  data-bs-placement="top" title="Selesai Pasang">
                                 <i class="ri-check-line"></i>
                               </a>
                             </div>
@@ -266,7 +265,7 @@ function showPemasang($id){
                           <?php }elseif($role == "Owner" || $role == "Admin"){ ?>
                           <td>
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                              <a id="pasang" href="action/get-pasang.php?param=batal&id=<?= $roworder['id_order'] ?>&pemasang=<?= explode("-",$roworder['pemasang_order'])[0] ?>" class="btn btn-outline-danger btn-sm"  data-bs-placement="top" title="Batal Pasang">
+                              <a id="batal" href="action/get-pasang.php?param=batal&id=<?= $roworder['id_order'] ?>&pemasang=<?= explode("-",$roworder['pemasang_order'])[0] ?>" class="btn btn-danger btn-sm"  data-bs-placement="top" title="Batal Pasang">
                                 <i class="ri-close-line"></i>
                               </a>
                             </div>
@@ -383,11 +382,11 @@ function showPemasang($id){
       }
     </script>
     <script>
-      $(document).on('click', '#delete', function(e){
+      $(document).on('click', '#batal', function(e){
         e.preventDefault();
         var link = $(this).attr('href');
         Swal.fire({
-          title:"Hapus Data!",
+          title:"Batal Pasang!",
           text:"Apakah Anda yakin?",
           icon:"warning",
           showCancelButton: true,

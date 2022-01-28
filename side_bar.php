@@ -230,6 +230,12 @@
                   </ul>
                 </li>
                 <li class="menu-title">Laporan</li>
+                <li>
+                  <a href="biaya-pengeluaran">
+                    <i class=" ri-coins-line"></i>
+                    <span>Biaya</span>
+                  </a>
+                </li>
                 <!-- Laporan Order -->
                 <li>
                   <a href="javascript: void(0);" class="has-arrow waves-effect">
@@ -301,9 +307,9 @@
                     <li>
                       <a href="relasi-percetakan">Percetakan</a>
                     </li>
-                    <li>
+                    <!-- <li>
                       <a href="relasi-penyediabahan.html">Penyedia Bahan</a>
-                    </li>
+                    </li> -->
                   </ul>
                 </li>
                 <!-- Pengaturan -->

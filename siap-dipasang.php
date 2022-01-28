@@ -35,7 +35,7 @@ if(isset($_POST['aksi_edit_pemasangan'])){
   $kategori_pemasang = $status_pasang == "Ya" ? $_POST['kategori_pemasang'] : '';
   $biaya_tambah = $status_pasang == "Ya" ? $_POST['biaya_tambah'] : '';
 
-  $next = "Menunggu Finishing";
+  $next = $status_pasang == "Ya" ? "Siap Dipasang" : "Selesai Finishing";
 
   $query = "UPDATE data_pemesanan SET biaya_tambah_pemasangan_order='$biaya_tambah', kategori_pemasang_order='$kategori_pemasang', harga_pasang_order='$harga_pasang', status_pasang_order='$status_pasang', status_order='$next' WHERE id_order='$i'";
   $result = mysqli_query($db->conn, $query);
@@ -315,6 +315,9 @@ function showDesigner($id){
                                 <button type="submit" id="confirm" class="btn btn-success btn-sm" data-bs-placement="top" title="Konfirmasi">
                                   <i class="ri-check-line"></i>
                                 </button>
+                                <!-- <button type="submit" id="confirm" class="btn btn-success btn-sm" data-bs-placement="top" title="Konfirmasi">
+                                  <i class="ri-check-line"></i>
+                                </button> -->
                                 <?php }else{ ?>
                                   <input type="hidden" name="id_cancel" value="<?= $roworder['id_order'] ?>">
                                   <button type="submit" id="batal" class="btn btn-danger btn-sm" data-bs-placement="top" title="Konfirmasi">

@@ -271,7 +271,7 @@ if(isset($_POST['edit_cetak'])){
                           <th>Desain</th>
                           <th>Status</th>
                           <th>Percetakan</th>
-                          <?= $role == "Produksi" ? '<th>Aksi</th>' : '' ?>
+                          <th>Aksi</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -337,6 +337,14 @@ if(isset($_POST['edit_cetak'])){
                               <i class="mdi mdi-printer-eye"></i>
                             </a>
                           </div>
+                          </td>
+                          <?php }elseif($role == "Owner" || $role == "Admin"){ ?>
+                          <td>
+                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                              <a href="<?= $roworder['id_order'] ?>" class="btn btn-danger btn-sm" data-bs-placement="top" id="back" title="Batal Cetak">
+                                X
+                              </a>
+                            </div>
                           </td>
                           <?php } ?>
                         </tr>
@@ -546,11 +554,11 @@ if(isset($_POST['edit_cetak'])){
       }
     </script>
     <script>
-      $(document).on('click', '#batal', function(e){
+      $(document).on('click', '#back', function(e){
         e.preventDefault();
         var link = $(this).attr('href');
         Swal.fire({
-          title:"Batal Desain!",
+          title:"Batal Cetak!",
           text:"Apakah Anda yakin?",
           icon:"warning",
           showCancelButton: true,
@@ -559,7 +567,25 @@ if(isset($_POST['edit_cetak'])){
           confirmButtonText: 'Ya'
         }).then((result) => {
           if(result.isConfirmed){
-            window.location = link;
+            $.ajax({
+              url:"action/backtodesain.php",
+              method:"POST",
+              data:{action:"batalcetak",id_order:link},
+              dataType:"JSON",
+              success:function(data){
+                if(data == "Berhasil"){
+                  Swal.fire({
+                    title:"Berhasil!",
+                    text:"Data Tersimpan!",
+                    icon:"success",
+                  }).then((result) => {
+                    if(result.isConfirmed){
+                      window.location = "sedang-dicetak.php";
+                    }
+                  })
+                }
+              }
+            })
           }
         });
       });

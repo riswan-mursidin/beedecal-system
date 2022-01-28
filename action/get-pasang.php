@@ -10,7 +10,7 @@ $conn = $db->conn;
 
 $id_order = $_GET['id'];
 $param = $_GET['param'];
-$pemasang = $_GET['pemasang']."-Karyawan";
+$pemasang = $_GET['pemasang'];
 
 
 if($id_order == "" || $param == "" || $pemasang == ""){

@@ -18,55 +18,66 @@ if($row['id_owner'] == "0"){
 }
 $alert = $_SESSION['alert'];
 
-if($row['level_user'] == "Desainer" || $row['level_user'] == "Pemasang"){
-  if($row['level_user'] == "Desainer"){
-    header('Location: menunggu_designer');
+$delete = $_GET['delete'];
+
+$checkdata = $db->selectTable("biaya_pengeluaran","id_biaya",$delete);
+if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
+  $delete = $db->deleteTable("biaya_pengeluaran",$delete,"id_biaya");
+  if($delete){
+    $_SESSION['alert'] = "1";
+    header('Location: biaya-pengeluaran');
     exit();
-  }elseif($row['level_user'] == "Pemasang"){
-    header('Location: siap-dipasang');
+  }else{
+    $alert = "2";
+  }
+}
+
+$edit = $_GET['edit'];
+
+$editselect = $db->selectTable("biaya_pengeluaran","id_biaya",$edit);
+$rowselect = mysqli_fetch_assoc($editselect);
+if($edit != ""){
+  if(mysqli_num_rows($editselect) == 0){
+    header('Location: biaya-pengeluaran');
     exit();
   }
 }
 
-function showProduk($id_produk){
-  global $db;
-  $querydb = $db->selectTable("type_galeri","id_type",$id_produk);
-  $rowdb=mysqli_fetch_assoc($querydb);
-  $result = $rowdb['name_type'];
-  return $result;
-}
+if(isset($_POST['add_biaya'])){
+  $date = $_POST['date'];
+  $ket = $_POST['keterangan'];
+  $nominal = $_POST['nominal'];
 
-function showCustomer($id_customer, $pengiriman, $id_order=null){
-  global $db;
-  // name customer
-  $querydb = $db->selectTable("customer_stiker","id_customer",$id_customer);
-  $rowdb=mysqli_fetch_assoc($querydb);
-
-  // alamat customer
-  
-  $result['name'] = $rowdb['name_customer'];
-  $result['prov'] = $rowdb['prov_customer'];
-  $result['kab'] = $rowdb['kota_kab_customer'];
-  $result['kec'] = $rowdb['kec_customer'];
-  $result['kodepos'] = $rowdb['kode_pos_customer'];
-  return $result;
-}
-
-function showDesigner($id){
-  global $db;
-  $query = $db->selectTable("user_galeri","id_user",$id,"level_user","Desainer");
-  if(mysqli_num_rows($query) > 0){
-    $row = mysqli_fetch_assoc($query);
-    return $db->nameFormater($row['fullname_user']);
+  if($edit == ""){
+    
+    $sql = "INSERT INTO biaya_pengeluaran (keterangan_biaya,nominal_biaya,tgl_biaya,id_owner) VALUES('$ket','$nominal','$date','$id')";
+    $insert = mysqli_query($db->conn, $sql);
+    if($insert){
+      $_SESSION['alert'] = "1";
+      header('Location: biaya-pengeluaran');
+      exit();
+    }else{
+      $alert = "3";
+    }
+  }else{
+    $sql = "UPDATE biaya_pengeluaran SET keterangan_biaya='$ket' ,nominal_biaya='$nominal' ,tgl_biaya='$date'";
+    $update = mysqli_query($db->conn, $sql);
+    if($update){
+      $_SESSION['alert'] = "1";
+      header('Location: biaya-pengeluaran');
+      exit();
+    }else{
+      $alert = "3";
+    }
   }
 }
 
-?> 
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | AREA PRODUKSI</title>
+    <title>STIKER | BIAYA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -101,7 +112,7 @@ function showDesigner($id){
     <link href="assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
 
     <!-- Responsive datatable examples -->
-    <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />     
+    <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" /> 
 
     <script type="text/javascript">
             function showTime() {
@@ -159,18 +170,11 @@ function showDesigner($id){
             <!-- start page title -->
             <div class="row">
               <div class="col-12">
-                <div
-                  class="
-                    page-title-box
-                    d-sm-flex
-                    align-items-center
-                    justify-content-between
-                  "
-                >
-                  <h4 class="mb-sm-0">Menunggu Finishing</h4>
+                <div class=" page-title-box d-sm-flex align-items-center justify-content-between" >
+                  <h4 class="mb-sm-0">Biaya Pengeluaran</h4>
 
                   <div class="page-title-right">
-                  <ol class="breadcrumb m-0">
+                    <ol class="breadcrumb m-0">
                       <li class="breadcrumb-item">
                         <span><b><?= date('D').", ".date("Y-m-d") ?></b> | <b id="time"></b></span>  
                       </li>
@@ -180,95 +184,74 @@ function showDesigner($id){
               </div>
             </div>
             <!-- end page title -->
-            <!-- page card -->
             <div class="row">
-              <div class="col-12">
+              <div class="col-12 col-md-3">
                 <div class="card">
                   <div class="card-body">
-                    <table id="datatable" class="table table-bordered table-hover dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                      <thead>
-                        <tr>
-                          <th>ID</th>
-                          <th>Pelanggan</th>
-                          <th>Designer</th>
-                          <th>Tanggal Pesan</th>
-                          <th>Desain</th>
-                          <th>Status</th>
-                          <th>Aksi</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <?php  
-                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"status_order","Menunggu Finishing");
-                        while($roworder=mysqli_fetch_assoc($order)){
-                        ?>
-                        <tr>
-
-                          <td>
-                            <?= $roworder['code_order'] ?><br>
-                            <?= 
-                            $roworder['jenis_produk_order'] == 'Custom' && $roworder['kategori_produk_order'] == "Other" ? 
-                              $db->nameFormater($roworder['produk_order']) : 
-                                $db->nameFormater(showProduk($roworder['produk_order'])) 
-                            ?><br>
-                            <?= $roworder['model_stiker_order'] ?><br>
-                            <?= $roworder['laminating_order'] ?>
-                          </td>
-                          
-                          <td>
-                            <?php 
-                              $status = $roworder['jenis_produk_order'] == 'Custom' ? '<span class="badge bg-light">Custom</span>' : 'No Custom';
-                              $customer = showCustomer($roworder['id_customer'],$roworder['status_Pengiriman_order'],$roworder['id_order']);
-                              echo "<b>".$db->nameFormater($customer['name'])."</b>"." ".$status."<br>"; 
-                            ?>
-                            <?php
-                              echo $roworder['keterangan_order'];
-                              // echo 'Kab/Kota: '.$customer['kab'].'<br>';
-                              // echo 'Kec: '.$customer['kec'].'<br>';
-                              // echo 'Kode Pos: '.$customer['kodepos'].'<br>';
-                            ?>
-                          </td>
-                          <td>
-                            <?= $roworder['id_designer'] != "" ? showDesigner($roworder['id_designer']) : '' ?>
-                          </td>
-                          <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
-                          
-                          <td>
-                            <a target="_blank" href="<?= $roworder['hasil_desain_order'] ?>">View Desain</a>
-                          </td>
-
-                          <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>
-                          <?php if($role == "Produksi"){ ?>
-                          <td>
-                          <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                            <a id="finishing" href="action/get-finishing.php?param=get&id=<?= $roworder['id_order'] ?>" class="btn btn-success btn-sm"  data-bs-placement="top" title="Finishing">
-                              <i class=" ri-refresh-line"></i>
-                            </a>
-                          </div>
-                          </td>
-                          <?php }elseif($role == "Owner" || $role == "Admin"){ ?>
+                    <div class="card-title">Input Pengeluaran</div>
+                    <form method="post" action="">
+                      <div class="mb-3">
+                        <label for="" class="form-label">Tanggal</label>
+                        <input type="date" value="<?= $edit != "" ? date('Y-m-d',strtotime($rowselect['tgl_biaya'])) : '' ?>" class="form-control" name="date">
+                      </div>
+                      <div class="mb-3">
+                        <label for="category" class="form-label">Keterangan</label>
+                        <textarea name="keterangan" id="" rows="3" class="form-control" required><?= $edit != "" ? $rowselect['keterangan_biaya'] : '' ?></textarea>
+                      </div>
+                      <div class="mb-3">
+                        <label for="merek" class="form-label">Nominal</label>
+                        <div class="input-group">
+                          <span class="input-group-text">Rp</span>
+                          <input type="number" class="form-control" value="<?= $edit != "" ? $rowselect['nominal_biaya'] : '' ?>" name="nominal" required>
+                        </div>
+                      </div>
+                      <button type="submit" name="add_biaya" class="btn btn-primary">Submit</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-9">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-title">List Merek</div>
+                      <table id="datatable" class="table table-bordered table-hover dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead>
+                          <tr>
+                            <th>Keterangan</th>
+                            <th>Nominal</th>
+                            <th>Date</th>
+                            <th>Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <?php  
+                          $no = 0;
+                          $viewby = $db->selectTable("biaya_pengeluaran","id_owner",$id);
+                          while($rowby = mysqli_fetch_assoc($viewby)){
+                          ?>
+                          <tr>
+                            <td><?= $rowby['keterangan_biaya'] ?></td>
+                            <td>Rp<?= number_format($rowby['nominal_biaya']) ?></td>
+                            <td><?= $rowby['tgl_biaya'] ?></td>
                             <td>
-                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                              <a href="<?= $roworder['id_order'] ?>" class="btn btn-danger btn-sm" data-bs-placement="top" id="back" title="back">
-                                X
-                              </a>
-                            </div>
-                          </td>
+                              <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                                <a href="biaya-pengeluaran?edit=<?= $rowby['id_biaya']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
+                                <a href="biaya-pengeluaran?delete=<?= $rowby['id_biaya']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
+                              </div>
+                            </td>
+                          </tr>
                           <?php } ?>
-                        </tr>
-                        <?php } ?>
-                      </tbody>
-                    </table>
+                        </tbody>
+                      </table>
                   </div>
                 </div>
               </div>
             </div>
-            <!-- end page card -->
           </div>
           <!-- container-fluid -->
         </div>
         <!-- End Page-content -->
-        
+
         <!-- Footer -->
         <footer class="footer">
           <div class="container-fluid">
@@ -296,7 +279,7 @@ function showDesigner($id){
 
     <!-- Right Sidebar -->
     <?php include_once "rightside.php" ?>
-    <!-- /Right-bar --> 
+    <!-- /Right-bar -->
 
     <!-- Right bar overlay-->
     <div class="rightbar-overlay"></div>
@@ -327,9 +310,8 @@ function showDesigner($id){
     
     <!-- Sweet Alerts js -->
     <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
-    
-    <script src="assets/js/app.js"></script>
 
+    <script src="assets/js/app.js"></script>
     <script>
       var flash = $('#flash').data('flash');
       if(flash == "1"){
@@ -350,64 +332,20 @@ function showDesigner($id){
           text:"Data tidak Tersimpan!",
           icon:"error",
         })
-      }else if(flash == "5"){
+      }else if(flash == "4"){
         Swal.fire({
-          title:"Berbahaya",
-          text:"Ini bukan Area Anda",
-          icon:"question",
-          confirmButtonColor:"#5664d2"
-        }).then((result) => {
-          if(result.isConfirmed){
-            window.location = '<?= $link ?>';
-          }else{
-            window.location = '<?= $link ?>';
-          }
+          title:"Gagal!",
+          text:"Data Sudah Ada!",
+          icon:"error",
         })
       }
     </script>
     <script>
-      $(document).on('click', '#back', function(e){
+      $(document).on('click', '#delete', function(e){
         e.preventDefault();
         var link = $(this).attr('href');
         Swal.fire({
-          title:"Kembali ke Cetak!",
-          text:"Apakah Anda yakin?",
-          icon:"warning",
-          showCancelButton: true,
-          confirmButtonColor: '#00a65a',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Ya'
-        }).then((result) => {
-          if(result.isConfirmed){
-            $.ajax({
-              url:"action/backtocetak.php",
-              method:"POST",
-              data:{action:"batalfinishing",id_order:link},
-              dataType:"JSON",
-              success:function(data){
-                if(data == "Berhasil"){
-                  Swal.fire({
-                    title:"Berhasil!",
-                    text:"Data Tersimpan!",
-                    icon:"success",
-                  }).then((result) => {
-                    if(result.isConfirmed){
-                      window.location = "menunggu-finishing.php";
-                    }
-                  })
-                }
-              }
-            })
-          }
-        });
-      });
-    </script>
-    <script>
-      $(document).on('click', '#finishing', function(e){
-        e.preventDefault();
-        var link = $(this).attr('href');
-        Swal.fire({
-          title:"Lakukan Finishing!",
+          title:"Hapus Data!",
           text:"Apakah Anda yakin?",
           icon:"warning",
           showCancelButton: true,
@@ -423,5 +361,6 @@ function showDesigner($id){
     </script>
   </body>
 </html>
+
+<?php $_SESSION['alert'] = ""; ?>
 <?php mysqli_close($db->conn) ?>
-<?php $_SESSION['alert'] = "";  ?>

@@ -61,7 +61,7 @@ function finishingAction($id,$param=null){
         $result = mysqli_query($conn, $query);
         return $result;
     }elseif($param == "batal"){
-        $query = "UPDATE data_pemesanan SET status_order='Menunggu Finishing'  WHERE id_order='$id'";
+        $query = "UPDATE data_pemesanan SET status_order='Menunggu Finishing', id_produksI='NULL' WHERE id_order='$id'";
         $result = mysqli_query($conn, $query);
         return $result;
     }elseif($param == "selesai"){

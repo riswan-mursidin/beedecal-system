@@ -219,7 +219,7 @@ function showDesigner($id){
                           <th>Tanggal Pesan</th>
                           <th>Desain</th>
                           <th>Status</th>
-                          <?= $role == "Produksi" ? '<th>Aksi</th>' : '' ?>
+                          <th>Aksi</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -272,15 +272,31 @@ function showDesigner($id){
                           <td>
                             <?= $roworder['status_order'] == "Cetak Ulang" ? '<h5><span class="badge bg-danger">'.$roworder['status_order'].'</span></h5>' :'<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?>
                           </td>
-                          <?php if($role == "Produksi"){ ?>
+                          <?php 
+                          if($role == "Produksi"){ 
+                          ?>
                           <td>
-                          <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#proses_cetakan<?= $roworder['id_order'] ?>"  data-bs-placement="top" title="Cetak">
-                              <i class="ri-printer-line"></i>
-                            </button>
-                          </div>
+                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                              <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#proses_cetakan<?= $roworder['id_order'] ?>"  data-bs-placement="top" title="Cetak">
+                                <i class="ri-printer-line"></i>
+                              </button>
+                            </div>
                           </td>
-                          <?php } ?>
+                          <?php 
+                          }elseif($role == "Admin" || $role == "Owner"){ 
+                            if($roworder['status_desain_order'] == "Ya"){
+                          ?>
+                          <td>
+                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                              <a href="<?= $roworder['id_order'] ?>" class="btn btn-danger btn-sm" data-bs-placement="top" id="back" title="Kembali ke Proses Desain">
+                                X
+                              </a>
+                            </div>
+                          </td>
+                          <?php 
+                            }
+                          } 
+                          ?>
                         </tr>
                         <?php } ?>
                       </tbody>
@@ -477,11 +493,11 @@ function showDesigner($id){
       }
     </script>
     <script>
-      $(document).on('click', '#delete', function(e){
+      $(document).on('click', '#back', function(e){
         e.preventDefault();
         var link = $(this).attr('href');
         Swal.fire({
-          title:"Hapus Data!",
+          title:"Back to Proses Desain!",
           text:"Apakah Anda yakin?",
           icon:"warning",
           showCancelButton: true,
@@ -490,7 +506,25 @@ function showDesigner($id){
           confirmButtonText: 'Ya'
         }).then((result) => {
           if(result.isConfirmed){
-            window.location = link;
+            $.ajax({
+              url:"action/backtodesain.php",
+              method:"POST",
+              data:{action:"backtodesain",id_order:link},
+              dataType:"JSON",
+              success:function(data){
+                if(data == "Berhasil"){
+                  Swal.fire({
+                    title:"Berhasil!",
+                    text:"Data Tersimpan!",
+                    icon:"success",
+                  }).then((result) => {
+                    if(result.isConfirmed){
+                      window.location = "siap-cetak.php";
+                    }
+                  })
+                }
+              }
+            })
           }
         });
       });

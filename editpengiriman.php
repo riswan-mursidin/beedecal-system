@@ -101,9 +101,9 @@ if(isset($_POST['save_pengiriman'])){
   }
 
   if($pemasangan_status == "Ya"){
-    $status_order = $_POST['status_order'];
+    $status_order = "Siap Dipasang";
     $next = $status_order == "Selesai Finishing" ? "Siap Dipasang" : $status_order;
-    $updatesend = mysqli_query($db->conn, "UPDATE data_pemesanan SET status_pasang_order='$pemasangan_status',status_pengiriman_order='$status_pengiriman', kurir_pengiriman_order='$kurir', prov_send_order='$prov_desti', kab_send_order='$kabkota_desti', kec_send_order='$kec_desti', kode_pos_send_order='$kode_pos', alamat_lengkap_send_order='$alamat_lengkap', berat_send_order='$berat', ongkir_send_order='$cost', nama_paket_send_order='$name_paket', estimasi_send_order='$etd', ongkir_cod_order='$cod', status_order='$status_order' WHERE id_order='$id_orderr'"); 
+    $updatesend = mysqli_query($db->conn, "UPDATE data_pemesanan SET status_pasang_order='$pemasangan_status',status_order='$status_order' WHERE id_order='$id_orderr'"); 
     
     if($updatesend){
       $_SESSION['alert'] = "1";

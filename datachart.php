@@ -58,11 +58,13 @@ if(isset($_POST['action'])){
         $all_order_this_month = mysqli_num_rows($getOrder);
         $other_product_custome = $all_order_this_month - $count_product_custome_order;
         $color_product_custome = '#'.rand(100000,999999).'';
-        $data[] = array(
-            'product' => 'Other',
-            'total' => $other_product_custome,
-            'color' => $color_product_custome
-        );
+        if($other_product_custome > 0){
+            $data[] = array(
+                'product' => 'Other',
+                'total' => $other_product_custome,
+                'color' => $color_product_custome
+            );
+        }
     
         echo json_encode($data);
     }elseif($_POST['action'] == "perbulan"){
@@ -83,8 +85,15 @@ if(isset($_POST['action'])){
                     $total_penjualan += $resultDiskon['hasil'];
                 }
             }
+            $queribulanpasang = "SELECT * FROM data_pemesanan WHERE month(tgl_pasang_order)='$month' AND year(tgl_pasang_order)='$year' AND id_owner='$owner'";
+            $resultpasang = mysqli_query($db->conn, $queribulanpasang);
+            $pemasangan_bln = 0;
+            while($rowpasang = mysqli_fetch_assoc($resultpasang)){
+                $pemasangan_bln += $rowpasang['harga_pasang_order'] + $rowpasang['biaya_tambah_pemasangan_order']; 
+            }
             $data[] = array(
-                'total' => $total_penjualan
+                'total' => $total_penjualan,
+                'pemasangan' => $pemasangan_bln
             );
         }
         echo json_encode($data);

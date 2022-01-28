@@ -217,9 +217,11 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
           dataType:"JSON",
           success:function(data){
             var jum = [];
+            var pasang = [];
 
             for(var index = 0; index < data.length; index++){
               jum.push(data[index].total);
+              pasang.push(data[index].pemasangan);
             }
             $("#column_chart").length&&(options={
               chart:{
@@ -234,7 +236,6 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                       horizontal:!1,
                       columnWidth:"45%",
                       endingShape:"flat"
-                      // borderRadius: 0,
                   }
               },
               dataLabels:{
@@ -249,13 +250,13 @@ if($row['level_user'] == "Desainer" || $row['level_user'] == "Produksi" || $row[
                   {
                       name:"Penjualan",
                       data:jum
+                  },
+                  {
+                      name:"Pemasangan",
+                      data:pasang
                   }
-                  // {
-                  //     name:"Free Cash Flow",
-                  //     data:[37,42,38,26,47,50,54,55,43]
-                  // }
               ],
-              colors:["#3d8ef8"],
+              colors:["#FFC600","#612897"],
               xaxis:{
                   categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
               },

@@ -69,7 +69,7 @@ while($roworder_bulan=mysqli_fetch_assoc($orderbulan)){
   $code_spk = $roworder_bulan['code_order'];
 }
 $rata_rata = $total_ordeer_bulan_ini / intval(date("d"));
-$rata_rata_pasang = $pemasangan_bln / intval(date("d"));
+
 
 $kalender = CAL_GREGORIAN;
 $bulan = $date;
@@ -77,7 +77,7 @@ $tahun = date("Y");
 $hari = cal_days_in_month($kalender,$bulan,$tahun);
 
 $target = $rata_rata * $hari;
-$target_pasang = $rata_rata_pasang * $hari;
+
 
 // pemasukan hari ini
 $countincome_d = 0;
@@ -87,6 +87,33 @@ while($rowincometoday=mysqli_fetch_assoc($incometoday)){
 }
 
 // pemasangan bulan ini
+$queribulanpasang = "SELECT * FROM data_pemesanan WHERE month(tgl_pasang_order)='$date' AND year(tgl_pasang_order)='$year' AND id_owner='$id'";
+$resultpasang = mysqli_query($db->conn, $queribulanpasang);
+$pemasangan_bln = 0;
+while($rowpasang = mysqli_fetch_assoc($resultpasang)){
+  $pemasangan_bln += $rowpasang['harga_pasang_order'] + $rowpasang['biaya_tambah_pemasangan_order']; 
+}
+
+$rata_rata_pasang = $pemasangan_bln / intval(date("d"));
+$target_pasang = $rata_rata_pasang * $hari;
+$kurang_pasang = $target_pasang - $pemasangan_bln;
+
+// pengeluaran bulan ini
+$sql_pengeluaran = "SELECT * FROM biaya_pengeluaran WHERE month(tgl_biaya)='$date' AND year(tgl_biaya)='$year' AND id_owner='$id'";
+$result_pengeluaran = mysqli_query($db->conn, $sql_pengeluaran);
+$pengeluaran_bln = 0;
+while($row_pengeluaran = mysqli_fetch_assoc($result_pengeluaran)){
+  $pengeluaran_bln += $row_pengeluaran['nominal_biaya'];
+}
+
+// pengeluaran hari ini
+$today = date("Y-m-d");
+$sql_peng_hari = "SELECT * FROM biaya_pengeluaran WHERE tgl_biaya='$today' AND id_owner='$id'";
+$result_peng_hari = mysqli_query($db->conn, $sql_peng_hari);
+$pengeluaran_hari = 0;
+while($row_peng_hari = mysqli_fetch_assoc($result_peng_hari)){
+  $pengeluaran_hari += $row_peng_hari['nominal_biaya'];
+}
 
 function produkStaff($param,$owner){
   global $db; $jum = "";
@@ -106,7 +133,11 @@ function produkStaff($param,$owner){
   $query = mysqli_query($db->conn,"SELECT id_order FROM data_pemesanan WHERE month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_owner='$owner'");
   $total = mysqli_num_rows($query);
   $result = ($jum/$total) * 100; 
-  return $result;
+  if($jum > 0){
+    return $result;
+  }else{
+    return 0;
+  }
 }
 
 
@@ -121,8 +152,8 @@ function showClossing($id_user,$lvl,$owner){
   }elseif($lvl == "Desainer"){
     $check = mysqli_query($db->conn,"SELECT user_editor FROM data_pemesanan WHERE id_owner='$owner' AND month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_designer='$id_user'");
     $count = mysqli_num_rows($check);
-  }elseif($lvl == "Pemasanng"){
-    $check = mysqli_query($db->conn,"SELECT user_editor FROM data_pemesanan WHERE id_owner='$owner' AND month(tgl_order)='$month' AND year(tgl_order)='$year' AND pemasang_order='$id_user'");
+  }elseif($lvl == "Pemasang"){
+    $check = mysqli_query($db->conn,"SELECT user_editor FROM data_pemesanan WHERE id_owner='$owner' AND month(tgl_pasang_order)='$month' AND year(tgl_pasang_order)='$year' AND pemasang_order='$id_user'");
     $count = mysqli_num_rows($check);
   }elseif($lvl == "Produksi"){
     $check = mysqli_query($db->conn,"SELECT user_editor FROM data_pemesanan WHERE id_owner='$owner' AND month(tgl_order)='$month' AND year(tgl_order)='$year' AND id_produksi='$id_user'");
@@ -365,10 +396,37 @@ function showClossing($id_user,$lvl,$owner){
                               <h5 class="mb-3 text-white">Rp <?= number_format($pemasangan_bln) ?></h5>
                               <p class="text-truncate mb-0">
                                 <span class="text-white me-2">
-                                  0 - <?= number_format($target_pasang) ?>
+                                  <?= number_format($kurang_pasang) ?> - <?= number_format($target_pasang) ?>
                                   <i class="ri-arrow-right-up-line align-bottom ms-1"></i>
                                 </span> 
-                                Prediksi
+                                Target
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- end card-body -->
+                </div>
+              </div>
+              <div class="col-sm-6 col-12">
+                <div class="card purple ">
+                  <div class="card-body">
+                      <div class="d-flex text-white">
+                          <div class="flex-shrink-0  me-3 align-self-center">
+                              <div class="avatar-sm">
+                                  <div class="avatar-title bg-light rounded-circle text-purple font-size-20">
+                                      <a href="biaya-pengeluaran"><i class="ri-list-settings-fill"></i></a>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="flex-grow-1 overflow-hidden">
+                              <p class="mb-1">Pengeluaran /Bulan</p>
+                              <h5 class="mb-3 text-white">Rp <?= number_format($pengeluaran_bln) ?></h5>
+                              <p class="text-truncate mb-0">
+                                <span class="text-white me-2">
+                                  <?= number_format($pengeluaran_hari) ?>
+                                  <i class="ri-arrow-right-up-line align-bottom ms-1"></i>
+                                </span> 
+                                Hari ini
                               </p>
                           </div>
                       </div>
@@ -377,6 +435,7 @@ function showClossing($id_user,$lvl,$owner){
                 </div>
               </div>
             </div>
+
             <div class="row">
               <div class="col-md-6 col-sm-12">
                 <h5>Produksi</h5>

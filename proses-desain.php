@@ -408,7 +408,7 @@ function showDesigner($id){
                                 <i class="ri-close-fill"></i>
                               </a>
                             </div>
-                            <?php }elseif($roworder['admin_konfirm'] == "" || $roworder['admin_konfirm'] == "Tidak Disetujui"){ ?>
+                            <?php }elseif($roworder['admin_konfirm'] == "" || $roworder['admin_konfirm'] == "Tidak Disetujui" || $roworder['admin_konfirm'] == "Di Kembalikan"){ ?>
                               <?php $param = $roworder['status_order'] != "Selesai Didesain" ? 'batal' : 'batal selesai'; ?> 
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                               <a href="action/get-orderdesain.php?id_order=<?= $roworder['id_order'] ?>&user=<?= $roworder['id_designer'] ?>&param=<?= $param ?>" id="batal" data-bs-toggle="tooltip" data-bs-placement="top" title="Batal" class="btn btn-danger btn-sm">

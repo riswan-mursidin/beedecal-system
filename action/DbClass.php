@@ -282,9 +282,9 @@
             $rand = md5(rand());
             $new_path = $to.$rand.".".$ext;
             $img = "";
-            if($ext == "jpg" || $ext == "jpeg"){
+            if(strtolower($ext) == "jpg" || strtolower($ext) == "jpeg"){
                 $img = imagecreatefromjpeg($path);
-            }elseif($ext == "png"){
+            }elseif(strtolower($ext) == "png"){
                 $img = imagecreatefrompng($path);
             }
             $result['bol'] = imagejpeg($img,$new_path,20);

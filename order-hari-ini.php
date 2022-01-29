@@ -53,13 +53,7 @@ if(mysqli_num_rows($check) != 0 && $order != ""){
     }
 }
 
-function showProduk($id_produk){
-  global $db;
-  $querydb = $db->selectTable("type_galeri","id_type",$id_produk);
-  $rowdb=mysqli_fetch_assoc($querydb);
-  $result = $rowdb['name_type'];
-  return $result;
-}
+
 
 function resultDiskon($owner,$spk,$harga,$disk,$satuan){
   global $db;
@@ -105,25 +99,7 @@ function showCustomer($id_customer, $pengiriman, $id_order=null){
   return $result;
 }
 
-function statusBadge($txt,$sisa){
-  
-  if($txt == "Belum Lunas"){
-    $result = '<h9><span class="badge rounded-pill bg-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Sisa Rp.'.number_format($sisa,2,",",".").'">Belum Lunas</span></h9>';
-    return $result;
-  }else{
-    $result = '<h9><span class="badge rounded-pill bg-success">Lunas</span></h9>';
-    return $result;
-  }
-}
-function statusBadge2($txt){
-  if($txt == "Tidak"){
-    $result = '<h9><span class="badge rounded-pill bg-danger">Belum Lunas</span></h9>';
-    return $result;
-  }else{
-    $result = '<h9><span class="badge rounded-pill bg-success">Lunas</span></h9>';
-    return $result;
-  }
-}
+
 ?> 
 <!DOCTYPE html>
 <html lang="en">
@@ -233,10 +209,10 @@ function statusBadge2($txt){
                     justify-content-between
                   "
                 >
-                  <h4 class="mb-sm-0">Pemesanan Hari ini</h4>
+                  <h4 class="mb-sm-0">Data Pemesanan</h4>
 
                   <div class="page-title-right">
-                  <ol class="breadcrumb m-0">
+                    <ol class="breadcrumb m-0">
                       <li class="breadcrumb-item">
                         <span><b><?= date('D').", ".date("Y-m-d") ?></b> | <b id="time"></b></span>  
                       </li>
@@ -247,6 +223,27 @@ function statusBadge2($txt){
             </div>
             <!-- end page title -->
             <!-- page card -->
+            <div class="row">
+              <div class="col-12 col-sm-12">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-title">Cari Data</div>
+                    <div class="row">
+                      <div class="col-12 col-sm-6">
+                        <label for="" class="form-label">Dari</label>
+                        <input type="date" name="dari_tgl" id="dari_tgl" value="<?= date('Y-m-d',strtotime(date('Y-m-d'))) ?>" class="form-control">
+                      </div>
+                      <div class="col-12 col-sm-6">
+                        <label for="" class="form-label">Sampai</label>
+                        <input type="date" name="sampai_tgl" id="sampai_tgl" value="<?= date('Y-m-d',strtotime(date('Y-m-d'))) ?>" class="form-control">
+                      </div>
+                    </div>
+                    <button class="btn btn-success mt-3" id="cari">Cari</button>
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="row">
               <div class="col-sm-12 col-12">
                 <div class="card green">
@@ -260,7 +257,7 @@ function statusBadge2($txt){
                               </div>
                           </div>
                           <div class="flex-grow-1 overflow-hidden">
-                              <p class="mb-1">Pesanan /Hari</p>
+                              <p class="mb-1">Total Penjualan</p>
                               <?php  
                               // penjualan hari ini
                                 $total_ordee = 0; $total_by = 0;
@@ -288,7 +285,7 @@ function statusBadge2($txt){
                                 }
                                 $rata_rata = $total_ordeer_bulan_ini / intval(date("d"));
                               ?>
-                              <h5 class="mb-3 text-white">Rp.<?= number_format($total_ordee,0,".",",") ?></h5>
+                              <h5 id="jumlahhh" class="mb-3 text-white"></h5>
                               <p class="text-truncate mb-0">
                                 <span class="text-white me-2">
                                   <?= number_format($rata_rata) ?>
@@ -318,73 +315,7 @@ function statusBadge2($txt){
                           <th>Status</th>
                         </tr>
                       </thead>
-                      <tbody>
-                        <?php  
-                        $order = $db->selectTable("data_pemesanan","id_owner",$id,"tgl_order",date("Y-m-d"));
-                        while($roworder=mysqli_fetch_assoc($order)){
-                        ?>
-                        <tr>
-                          <td>
-                            <?= $roworder['code_order'] ?><br>
-                            <?= 
-                            $roworder['jenis_produk_order'] == 'Custom' && $roworder['kategori_produk_order'] == "Other" ? 
-                              $db->nameFormater($roworder['produk_order']) : 
-                                $db->nameFormater(showProduk($roworder['produk_order'])) 
-                            ?><br>
-                            <?= $roworder['model_stiker_order'] ?><br>
-                            <?= $roworder['laminating_order'] ?>
-                          </td>
-                          <td>
-                            <?php 
-                              $status = $roworder['jenis_produk_order'] == 'Custom' ? '<span class="badge bg-light">Custom</span>' : 'No Custom';
-                              $customer = showCustomer($roworder['id_customer'],$roworder['status_pengiriman_order'],$roworder['id_order']);
-                              echo "<b>".$db->nameFormater($customer['name'])."</b>"." ".$status."<br>"; 
-                            ?>
-                            <?php
-                              if($roworder['status_pengiriman_order'] == "Ya"){
-                                echo 'Prov: '.$roworder['	prov_send_order'].'<br>';
-                                echo 'Kab/Kota: '.$roworder['kab_send_order'].'<br>';
-                                echo 'Kec: '.$roworder['kec_send_order'].'<br>';
-                                echo 'Kode Pos: '.$roworder['kode_pos_send_order'].'<br>';
-                              }else{
-                                echo 'Prov: '.$customer['prov'].'<br>';
-                                echo 'Kab/Kota: '.$customer['kab'].'<br>';
-                                echo 'Kec: '.$customer['kec'].'<br>';
-                                echo 'Kode Pos: '.$customer['kodepos'].'<br>';
-                              }
-                            ?>
-                          </td>
-                          <td>
-                            <?php $resultdisk = resultDiskon($id,$roworder['code_order'],$roworder['harga_produk_order'],$roworder['diskon_order'],$roworder['satuan_potongan']);
-                            if($roworder['satuan_potongan'] == "persen"){ ?>
-                            <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format(($roworder['harga_produk_order']+$resultdisk['tamby']),2,",",".").'" class="badge bg-secondary">Diskon '.$roworder['diskon_order'].'%</span><br>' : '' ?>
-                            <?php }else{ ?>
-                              <?= $roworder['diskon_order'] != "" ? '<span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Dari Harga Rp.'.number_format(($roworder['harga_produk_order']+$resultdisk['tamby']),2,",",".").'" class="badge bg-secondary">Diskon Rp.'.number_format($roworder['diskon_order'],2,",",".").'</span><br>' : '' ?>
-                            <?php } ?>
-                            Harga Produk: Rp.<?= number_format($resultdisk['hasil'],2,",",".") ?>
-                            <?= statusBadge($roworder['status_pay_order'],$roworder['sisa_pembayaran_order']) ?><br>
-                            Harga Pasang: <?= $roworder['status_pasang_order'] == "Ya" ? ' Rp.'.number_format($roworder['harga_pasang_order'],2,",",".") : 'Tidak Dipasang' ?>
-                            <?= $roworder['status_pasang_order'] == "Ya" ? statusBadge2($roworder['status_bayar_pasang']) : '' ?><br>
-                            <?php  $badge = "";
-                            if($roworder['ongkir_cod_order'] == "COD"){
-                              $badge = "bg-danger";
-                            }else{
-                              $badge = "bg-success";
-                            }
-                            ?>
-                            Harga Pengiriman: <?= $roworder['status_pengiriman_order'] == "Ya" ? " Rp.".number_format($roworder['ongkir_send_order'],2,",",".").' <h9><span class="badge rounded-pill '.$badge.'">'.$roworder['ongkir_cod_order'].'</span></h9>' : '-,-' ?>
-                            
-                          </td>
-                          <td>
-                            Desain: <b><?= $roworder['status_desain_order'] ?></b><br>
-                            Cetak: <b><?= $roworder['status_cetak_order'] ?></b><br>
-                            Laminating: <b><?= $roworder['laminating_order'] ?></b><br>
-                            Pasang: <b><?= $roworder['status_pasang_order'] ?></b><br>
-                          </td>
-                          <td><?= $db->dateFormatter($roworder['tgl_order']) ?></td>
-                          <td><?= '<h5><span class="badge bg-warning">'.$roworder['status_order'].'</span></h5>' ?></td>
-                        </tr>
-                        <?php } ?>
+                      <tbody id="data">
                       </tbody>
                     </table>
                   </div>
@@ -457,7 +388,44 @@ function statusBadge2($txt){
     <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
     
     <script src="assets/js/app.js"></script>
+    <script>
+      $(document).ready(function(){
+        function showOrder(){
+          const rupiah = (number)=>{
+            return new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR"
+            }).format(number);
+          }
+          $("#data").html("");
+          $("#jumlahhh").html("");
+          var dari_tgl = $("#dari_tgl").val();
+          var sampai_tgl = $("#sampai_tgl").val();
+          $("#sampai_tgl").prop("min", dari_tgl);
+          $.ajax({
+            url:"dataorder.php",
+            method:"POST",
+            data:{action:"post",dari:dari_tgl,sampai:sampai_tgl},
+            dataType:"JSON",
+            success:function(data){
 
+              $("#jumlahhh").html(rupiah(data.hasil));
+              for(var index = 0; index < data.table.length; index++){
+                $("#data").append(data.table[index]);
+              }
+            }
+          });
+        }
+        showOrder();
+        $("#cari").click(function (){
+          showOrder();
+        });
+        $("#dari_tgl").change(function() {
+          var dari_tgl = $("#dari_tgl").val();
+          $("#sampai_tgl").prop("min", dari_tgl);
+        });
+      });
+    </script>
     <script>
       var flash = $('#flash').data('flash');
       if(flash == "1"){

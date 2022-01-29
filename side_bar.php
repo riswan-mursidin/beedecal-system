@@ -247,7 +247,7 @@
                     <span>Laporan Order</span>
                   </a>
                   <ul class="sub-menu" aria-expanded="false">
-                    <li><a href="order-hari-ini">Order Hari ini</a></li>
+                    <li><a href="order-hari-ini">Data Order</a></li>
                     <li><a href="order-selesai">Order Selesai</a></li>
                     <li><a href="data-grafik">Data Grafik</a></li>
                   </ul>

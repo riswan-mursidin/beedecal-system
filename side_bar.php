@@ -231,10 +231,14 @@
                 </li>
                 <li class="menu-title">Laporan</li>
                 <li>
-                  <a href="biaya-pengeluaran">
+                  <a href="javascript: void(0);" class="has-arrow waves-effect">
                     <i class=" ri-coins-line"></i>
-                    <span>Biaya</span>
+                    <span>Laporan Biaya</span>
                   </a>
+                  <ul class="sub-menu" aria-expanded="false">
+                    <li><a href="biaya-pengeluaran">Biaya Pengeluaran</a></li>
+                    <li><a href="kategori-pengeluaran">Kategori Pengeluaran</a></li>
+                  </ul>
                 </li>
                 <!-- Laporan Order -->
                 <li>

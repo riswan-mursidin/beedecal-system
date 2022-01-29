@@ -20,12 +20,13 @@ $alert = $_SESSION['alert'];
 
 $delete = $_GET['delete'];
 
-$checkdata = $db->selectTable("biaya_pengeluaran","id_biaya",$delete);
+$checkdata = $db->selectTable("kategori_biaya","id_kategori",$delete);
 if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
-  $delete = $db->deleteTable("biaya_pengeluaran",$delete,"id_biaya");
-  if($delete){
+  $deletee = $db->deleteTable("kategori_biaya",$delete,"id_kategori");
+  if($deletee){
+    $deleteee = $db->deleteTable("biaya_pengeluaran",$delete,"id_kategori");
     $_SESSION['alert'] = "1";
-    header('Location: biaya-pengeluaran');
+    header('Location: kategori-pengeluaran');
     exit();
   }else{
     $alert = "2";
@@ -34,52 +35,51 @@ if(mysqli_num_rows($checkdata) != 0 && $delete != 0){
 
 $edit = $_GET['edit'];
 
-$editselect = $db->selectTable("biaya_pengeluaran","id_biaya",$edit);
+$editselect = $db->selectTable("kategori_biaya","id_kategori",$edit);
 $rowselect = mysqli_fetch_assoc($editselect);
 if($edit != ""){
   if(mysqli_num_rows($editselect) == 0){
-    header('Location: biaya-pengeluaran');
+    header('Location: kategori-pengeluaran');
     exit();
   }
 }
 
-if(isset($_POST['add_biaya'])){
-  $date = $_POST['date'];
-  $ket = $_POST['keterangan'];
-  $nominal = $_POST['nominal'];
-  $kategori = $_POST['kategori'];
+if(isset($_POST['add_kategori'])){
+  $kategori = $db->nameFormater($_POST['kategori']);
 
   if($edit == ""){
     
-    $sql = "INSERT INTO biaya_pengeluaran (keterangan_biaya,nominal_biaya,tgl_biaya,id_kategori,id_owner) VALUES('$ket','$nominal','$date','$kategori','$id')";
+    $sql = "INSERT INTO kategori_biaya (nama_kategori,id_owner) VALUES('$kategori','$id')";
     $insert = mysqli_query($db->conn, $sql);
     if($insert){
       $_SESSION['alert'] = "1";
-      header('Location: biaya-pengeluaran');
+      header('Location: kategori-pengeluaran');
       exit();
     }else{
       $alert = "3";
     }
   }else{
-    $sql = "UPDATE biaya_pengeluaran SET keterangan_biaya='$ket' ,nominal_biaya='$nominal' ,tgl_biaya='$date', id_kategori='$kategori' WHERE id_biaya='$edit'";
+    $sql = "UPDATE kategori_biaya SET nama_kategori='$kategori' WHERE id_kategori='$edit'";
     $update = mysqli_query($db->conn, $sql);
     if($update){
       $_SESSION['alert'] = "1";
-      header('Location: biaya-pengeluaran');
+      header('Location: kategori-pengeluaran');
       exit();
     }else{
       $alert = "3";
     }
   }
 }
-
-function showKategori($id_kategori){
+function countPengeluaran($id_kategori){
   global $db;
-  $get_kategori = $db->selectTable("kategori_biaya","id_kategori",$id_kategori);
-  $row_kategori = mysqli_fetch_assoc($get_kategori);
-  return $row_kategori['nama_kategori'];
-}
+  $get_by = $db->selectTable("biaya_pengeluaran","id_kategori",$id_kategori);
+  $count = 0;
+  while($row_by = mysqli_fetch_assoc($get_by)){
+    $count += $row_by['nominal_biaya'];
+  }
 
+  return number_format($count);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -179,7 +179,7 @@ function showKategori($id_kategori){
             <div class="row">
               <div class="col-12">
                 <div class=" page-title-box d-sm-flex align-items-center justify-content-between" >
-                  <h4 class="mb-sm-0">Biaya Pengeluaran</h4>
+                  <h4 class="mb-sm-0">Kategori Pengeluaran</h4>
 
                   <div class="page-title-right">
                     <ol class="breadcrumb m-0">
@@ -196,38 +196,13 @@ function showKategori($id_kategori){
               <div class="col-12 col-md-3">
                 <div class="card">
                   <div class="card-body">
-                    <div class="card-title">Input Pengeluaran</div>
+                    <div class="card-title">Tambah Kategori</div>
                     <form method="post" action="">
                       <div class="mb-3">
-                        <label for="" class="form-label">Kategori</label>
-                        <select name="kategori" id="" class="form-control">
-                          <option value="" hidden>PILIH KATEGORI</option>
-                          <?php  
-                          $val = $edit != "" ? $rowselect['id_kategori'] : "";
-                          $kategori = $db->selectTable("kategori_biaya","id_owner",$id);
-                          while($rowkategori = mysqli_fetch_assoc($kategori)){
-                            $select = $val == $rowkategori['id_kategori'] ? 'selected="selected"' : '';
-                          ?>
-                          <option value="<?= $rowkategori['id_kategori'] ?>" <?= $select ?>><?= $rowkategori['nama_kategori'] ?></option>
-                          <?php } ?>
-                        </select>
+                        <label for="category" class="form-label">Kategori</label>
+                        <input type="text" name="kategori" id="" class="form-control" value="<?= $edit != "" ? $rowselect['nama_kategori'] : '' ?>">
                       </div>
-                      <div class="mb-3">
-                        <label for="" class="form-label">Tanggal</label>
-                        <input type="date" value="<?= $edit != "" ? date('Y-m-d',strtotime($rowselect['tgl_biaya'])) : '' ?>" class="form-control" name="date">
-                      </div>
-                      <div class="mb-3">
-                        <label for="category" class="form-label">Keterangan</label>
-                        <textarea name="keterangan" id="" rows="3" class="form-control" required><?= $edit != "" ? $rowselect['keterangan_biaya'] : '' ?></textarea>
-                      </div>
-                      <div class="mb-3">
-                        <label for="merek" class="form-label">Nominal</label>
-                        <div class="input-group">
-                          <span class="input-group-text">Rp</span>
-                          <input type="number" class="form-control" value="<?= $edit != "" ? $rowselect['nominal_biaya'] : '' ?>" name="nominal" required>
-                        </div>
-                      </div>
-                      <button type="submit" name="add_biaya" class="btn btn-primary">Submit</button>
+                      <button type="submit" name="add_kategori" class="btn btn-primary">Submit</button>
                     </form>
                   </div>
                 </div>
@@ -235,32 +210,28 @@ function showKategori($id_kategori){
               <div class="col-12 col-md-9">
                 <div class="card">
                   <div class="card-body">
-                    <div class="card-title">Laporan Pengeluaran</div>
+                    <div class="card-title">Daftar Kategori</div>
                       <table id="datatable" class="table table-bordered table-hover dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                         <thead>
                           <tr>
-                            <th>Keterangan</th>
-                            <th>Nominal</th>
-                            <th>Date</th>
                             <th>Kategori</th>
+                            <th>Jumlah Pengeluaran</th>
                             <th>Aksi</th>
                           </tr>
                         </thead>
                         <tbody>
                           <?php  
                           $no = 0;
-                          $viewby = $db->selectTable("biaya_pengeluaran","id_owner",$id);
+                          $viewby = $db->selectTable("kategori_biaya","id_owner",$id);
                           while($rowby = mysqli_fetch_assoc($viewby)){
                           ?>
                           <tr>
-                            <td><?= $rowby['keterangan_biaya'] ?></td>
-                            <td>Rp<?= number_format($rowby['nominal_biaya']) ?></td>
-                            <td><?= $rowby['tgl_biaya'] ?></td>
-                            <td><?= showKategori($rowby['id_kategori']) ?></td>
+                            <td><?= $rowby['nama_kategori'] ?></td>
+                            <td>Rp<?= countPengeluaran($rowby['id_kategori']) ?></td>
                             <td>
                               <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                <a href="biaya-pengeluaran?edit=<?= $rowby['id_biaya']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
-                                <a href="biaya-pengeluaran?delete=<?= $rowby['id_biaya']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
+                                <a href="kategori-pengeluaran?edit=<?= $rowby['id_kategori']; ?>" class="btn btn-primary btn-sm"><i class="ri-pencil-line"></i></a>
+                                <a href="kategori-pengeluaran?delete=<?= $rowby['id_kategori']; ?>" class="btn btn-danger btn-sm" id="delete"><i class="ri-delete-bin-line"></i></a>
                               </div>
                             </td>
                           </tr>

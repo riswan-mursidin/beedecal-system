@@ -48,7 +48,7 @@ if(isset($_POST['auth-login'])){
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | LOGIN</title>
+    <title>DECALSYSTEM | LOGIN</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
@@ -84,7 +84,7 @@ if(isset($_POST['auth-login'])){
             <div class="card">
               <div class="card-body p-4">
                 <div class="">
-                  <div class="text-center">
+                  <!-- <div class="text-center">
                     <a href="index.html" class="">
                       <img
                         src="assets/images/logo-dark.png"
@@ -99,7 +99,7 @@ if(isset($_POST['auth-login'])){
                         class="auth-logo logo-light mx-auto"
                       />
                     </a>
-                  </div>
+                  </div> -->
                   <!-- end row -->
                   <h4 class="font-size-18 text-muted mt-2 text-center">
                     Welcome Back !

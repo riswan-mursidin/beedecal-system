@@ -104,7 +104,7 @@ if(isset($_POST['auth-login'])){
                   <h4 class="font-size-18 text-muted mt-2 text-center">
                     Welcome Back !
                   </h4>
-                  <p class="mb-5 text-center">Sign in to DecalSystem</p>
+                  <p class="mb-5 text-center">Sign in to Decal System</p>
                   <form class="form-horizontal" action="auth-login" method="post" autocomplete="off">
                     <div class="row">
                       <div class="col-md-12">

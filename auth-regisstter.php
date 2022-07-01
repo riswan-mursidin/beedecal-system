@@ -45,7 +45,7 @@ if(isset($_POST['auth-registion'])){
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>STIKER | REGISTER</title>
+    <title>DECALSYSTEM | REGISTER</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       content="APLIKASI CRM PERCETAKAN DAN STICKERART NO.1 INDONESIA"
